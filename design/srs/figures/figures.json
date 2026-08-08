@@ -1,0 +1,70 @@
+[
+ {
+  "file": "01-login.png",
+  "caption": "Login and role selection"
+ },
+ {
+  "file": "02-map-public.png",
+  "caption": "Public vulnerability map (no login)"
+ },
+ {
+  "file": "03-map-compare.png",
+  "caption": "Map \u2014 three tracks compared"
+ },
+ {
+  "file": "04-entry-context.png",
+  "caption": "Data import \u2014 step 1, context"
+ },
+ {
+  "file": "05-entry-upload.png",
+  "caption": "Data import \u2014 step 2, upload workbook"
+ },
+ {
+  "file": "06-entry-upload-done.png",
+  "caption": "Data import \u2014 step 2, file read and validated"
+ },
+ {
+  "file": "07-entry-weights.png",
+  "caption": "Data import \u2014 step 3, confirm weights (blanks blocked)"
+ },
+ {
+  "file": "08-entry-weights-ok.png",
+  "caption": "Data import \u2014 step 3, weights complete (\u03a3100 per domain)"
+ },
+ {
+  "file": "09-entry-review.png",
+  "caption": "Data import \u2014 step 4, review before saving"
+ },
+ {
+  "file": "10-profile-weights.png",
+  "caption": "Profile weights \u2014 editable any time, with change history"
+ },
+ {
+  "file": "11-expert-params.png",
+  "caption": "Expert track \u2014 parameters and weights"
+ },
+ {
+  "file": "12-expert-values.png",
+  "caption": "Expert track \u2014 value entry"
+ },
+ {
+  "file": "13-community-rating.png",
+  "caption": "General-user track \u2014 1\u20135 severity rating"
+ },
+ {
+  "file": "14-admin-dashboard.png",
+  "caption": "Administrator dashboard"
+ },
+ {
+  "file": "15-admin-users.png",
+  "caption": "Administrator \u2014 user management"
+ },
+ {
+  "file": "16-admin-registrations.png",
+  "caption": "Administrator \u2014 registration requests"
+ },
+ {
+  "file": "17-submissions.png",
+  "caption": "Submission history"
+ }
+]

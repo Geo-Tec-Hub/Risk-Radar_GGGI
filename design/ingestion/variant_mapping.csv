@@ -1,0 +1,266 @@
+﻿proposed_code,canonical_name,raw_description_normalized
+VERY_WET_DAYS_95TH_PERCENTILE,Very wet days (95th percentile) and 3 day cumulative rain fall (out of 35 - 40% for very wet days and 60% for 3 day cumulative respectively),very wet days 95th percentile and 3 day cumulative rain fall out of 35 40% for very wet days and 60% for 3 day cumulative respectively
+DROUGHT_HAZARD_INDEX,Drought Hazard Index,drought hazard index
+FLOOD_HAZARD_INDEX,Flood Hazard Index,flood hazard index
+FLOOD_HAZARD_INDEX,Flood Hazard Index,flood hazard ndex
+FLOOD_HAZARD_INDEX,Flood Hazard Index,flood hzard index
+DROUGHT_EVENTS_1974_2022_1974,"No. of drought events - 1974 to 2022 (1974-2004, 25%, 2005 -2022, 75%)",no of drought events 1974 to 2022 1974 2004 25% 2005 2022 75%
+FLOOD_EVENTS_1974_2023_1974,"No. of Flood events - 1974 to 2023 (1974-2004, 25%, 2005 -2023, 75%)",no of flood events 1974 to 2023 1974 2004 25% 2005 2023 75%
+LIGHTNING_INCIDENTS_1974_2023,No. of lightning incidents  - 1974 to 2023,no of lightening incidents 1974 to 2023
+LIGHTNING_INCIDENTS_1974_2023,No. of lightning incidents  - 1974 to 2023,no of lightning incidents 1974 to 2023
+OCCURRENCE_WARM_DAYS_TX90P,Occurrence of warm days (TX90p),occurrence of warm days tx90p
+SPI_INTENSITY,SPI (Intensity),spi intensity
+STRONG_WIND_EVENTS_1978_2023,Strong wind events - 1978 to 2023,strong wind events 1978 to 2023
+ACCOMMODATION_FOOD_SERVICE_ACTIVITIES_ESTABL,Accommodation and food service activities- No. of Establishments,accommodation and food service activities no establishments
+ACCOMMODATION_FOOD_SERVICE_ACTIVITIES_ESTABL,Accommodation and food service activities- No. of Establishments,accommodation and food service activities no of establishments
+ACCOMMODATION_FOOD_SERVICE_ACTIVITIES_PERSON,Accommodation and food service activities- No. of Persons Engaged,accommodation and food service activities no of persons engaged
+ACCOMMODATION_FOOD_SERVICE_ACTIVITIES_PERSON,Accommodation and food service activities- No. of Persons Engaged,accommodation and food service activities no persons engaged
+MAX_FLOOD_AFFECTED_PEOPLE_DURING,"Max # of flood affected People during  1974 to 2023 (1974-2004, 25%, 2005 -2023, 75%)",max of flood affected people during 1974 to 2023 1974 2004 25% 2005 2023 75%
+POPULATION,Total Population,total population
+MAX_DROUGHT_AFFECTED_PEOPLE_DURING,"Max # of drought affected People during 1974 to 2022 (1974 -2004, 25%, 2005 -2022, 75%)",max of drought affected people during 1974 to 2022 1974 2004 25% 2005 2022 75%
+WATER_INTAKE_POINTS,No. of water intake points,no of water intake points
+PCT_HH_FED_BY_WELLS,% of HH fed  by wells,% hh fed by wells
+PCT_HH_FED_BY_WELLS,% of HH fed  by wells,% of hh fed by wells
+PCT_HH_RURAL_WATER_SUPPLY,% of HH_Rural water supply project,% hh of rural water supply project
+PCT_HH_RURAL_WATER_SUPPLY,% of HH_Rural water supply project,% of hh rural water supply project
+PCT_PADDY_FARMERS_AGRICULTURAL_OPERATORS,% of Paddy farmers from total  Agricultural Operators,% of paddy farmers from total agricultural operators
+PCT_PADDY_LAND_AREA_LAND,% paddy land area (from total land area),% paddy land area from total land area
+ARTS_ENTERTAINMENT_RECREATION_ESTABLISHMENTS,"Arts, entertainment and recreation- No. of Establishments",arts entertainment and recreation no establishments
+ARTS_ENTERTAINMENT_RECREATION_ESTABLISHMENTS,"Arts, entertainment and recreation- No. of Establishments",arts entertainment and recreation no of establishments
+ARTS_ENTERTAINMENT_RECREATION_PERSONS_ENGAGE,"Arts, entertainment and recreation- No. of Persons Engaged",arts entertainment and recreation no of persons engaged
+ARTS_ENTERTAINMENT_RECREATION_PERSONS_ENGAGE,"Arts, entertainment and recreation- No. of Persons Engaged",arts entertainment and recreation no persons engaged
+PADDY_FARMERS,No. of paddy farmers,no of paddy farmers
+PERSONS_ENGAGED_MANUFACTURE_DAIRY_PRODUCT,Persons engaged in manufacture of dairy product industries,persons engaged in manufacture of dairy product industries
+ASWEDDUMIZED_PADDY_EXTENT,Total Asweddumized paddy  extent,total asweddumized paddy extent
+ASWEDDUMIZED_PADDY_EXTENT,Total Asweddumized paddy  extent,total aswedumized paddy extent
+ESTABLISHMENTS_MANUFACTURING_INDUSTRIES,Total establishments in  manufacturing Industries,total establishments in manufacturing industries
+HOTELS,Total hotels,total hotels
+INDUSTRIAL_ESTABLISHMENTS_SMALL_INFORMAL_IND,Total No. of Industrial establishments (small and informal industries),total no of industrial establishments small and informal industries
+PERSONS_ENGAGED_SMALL_INFORMAL_INDUSTRIES,Total Persons engaged (small and informal industries),total persons engaged small and informal industries
+PCT_FOREST_COVER,% of forest cover,% of forest cover
+PCT_WATER_SURFACE_AREA,% of Water surface area,% of water surface area
+POPULATION_DENSITY,Population density,population density
+ROAD_DENSITY,Road density,road density
+PCT_HH_WITH_PIPE_BORNE,% HH with pipe borne water,% hh with pipe borne water
+PCT_HH_WITH_PIPE_BORNE,% HH with pipe borne water,% of hh with pipe borne water
+PCT_IRRIGATED_PADDY_AREA_PADDY,% of total irrigated paddy area from total paddy extent,% of total irrigated paddy area from total paddy extent
+MAX_DROUGHT_AFFECTED_PEOPLE_DURING_2,Max # of drought affected People during 1974 to 2022,max of drought affected people during 1974 to 2022
+BUFFALO_FARMERS,No. of Buffalo Farmers,no of buffalo farmers
+BUFFALO_FARMERS,No. of Buffalo Farmers,of buffalo farmers
+BUFFALO_FARMERS,No. of Buffalo Farmers,total buffalo farmers
+BUFFALO_FARMERS,No. of Buffalo Farmers,total buffaloes farmers
+CATTLE_FARMERS,No. of Cattle Farmers,no of cattle farmers
+CATTLE_FARMERS,No. of Cattle Farmers,of cattle farmers
+CATTLE_FARMERS,No. of Cattle Farmers,total cattle farmers
+GOAT_FARMERS,# of Goat Farmers,no of goat farmers
+GOAT_FARMERS,# of Goat Farmers,of goat farmers
+GOAT_FARMERS,# of Goat Farmers,total goat farmers
+POULTRY_FARMERS,No. of Poultry Farmers,no of poultry farmers
+POULTRY_FARMERS,No. of Poultry Farmers,no poultry farmers
+POULTRY_FARMERS,No. of Poultry Farmers,of poultry farmers
+POULTRY_FARMERS,No. of Poultry Farmers,poultry farmers
+POULTRY_POPULATION,Poultry Population,poultry population
+POULTRY_POPULATION,Poultry Population,poultry poupulation
+PCT_HH_PIPE_BORN_WATER,% of HH - Pipe born water,% of hh pipe born water
+PCT_POULTRY_FARMERS_LIVESTOCK_FARMERS,% Poultry Farmers from total livestock farmers,% of poultry farmers from livestock farmers
+PCT_POULTRY_FARMERS_LIVESTOCK_FARMERS,% Poultry Farmers from total livestock farmers,% of poultry farmers from total livestock farmers
+PCT_POULTRY_FARMERS_LIVESTOCK_FARMERS,% Poultry Farmers from total livestock farmers,% poultry farmers from total livestock farmers
+BUFFALO_POPULATION,Buffalo Population,buffalo population
+CATTLE_POPULATION,Cattle Population,cattle population
+GOAT_POPULATION,Goat Population,goat population
+MAX_LANDSLIDE_AFFECTED_PEOPLE_DURING,Max # of landslide affected People during 1974 to 2023,max of landslide affected people during 1974 to 2023
+PIG_FARMERS,# of Pig Farmers,no of pig farmers
+PIG_FARMERS,# of Pig Farmers,of pig farmers
+PUBLIC_HOSPITALS,No. of Public hospitals,no of public hospitals
+PUBLIC_HOSPITALS,No. of Public hospitals,of public hospitals
+PIG_POPULATION,Pig Population,pig population
+PCT_BUFFALO_FARMERS_LIVESTOCK_OPERATORS,% of Buffalo Farmers from total livestock operators,% buffalo farmers from total livestock operators
+PCT_BUFFALO_FARMERS_LIVESTOCK_OPERATORS,% of Buffalo Farmers from total livestock operators,% of buffalo farmers from total livestock operators
+PCT_CATTLE_FARMERS_LIVESTOCK_OPERATORS,% Cattle Farmers from total livestock Operators,% cattle farmers from total livestock operators
+PASTURE_FODDER_EXTENT_ACRE,Pasture & Fodder Extent (Acre),pasture fodder extent acre
+PCT_AREA_UNDER_HUMAN_SETTLEMENTS,% area under human settlements (Urban and rural),% area under human settlements urban and rural
+PCT_AREA_UNDER_URBAN_CLASSIFICATION,% area under urban classification,% area under urban classification
+COCONUT_EXTENT,Coconut  extent,coconut extent
+FARM_HOUSEHOLDS_POPULATION,Farm households population,farm households population
+HH_WITH_PROPER_ACCESS_ROAD,HH with no proper access road,hh with no proper access road
+LANDSLIDE_EVENTS_1974_2023,Landslide  events (1974 - 2023),landslide events 1974 2023
+COCONUT_FARMERS,No. of Coconut  farmers,no of coconut farmers
+HOUSING_UNITS,No. of housing units,no of housing units
+INDUSTRIES_FOOD_BEVERAGES_TOBACCO,"No. of industries in Food, Beverages & tobacco",no of industries in food beverages tobacco
+INDUSTRIES_FOOD_BEVERAGES_TOBACCO,"No. of industries in Food, Beverages & tobacco",of industries in food beverages tobacco
+TEA_FARMERS,No. of Tea farmers,no of tea farmers
+PERSONS_ENGAGED_MANUFACTURE_BEVERAGES_INDUST,Persons engaged in manufacture of beverages industries,persons engaged in manufacture of beverages industries
+PERSONS_ENGAGED_MANUFACTURE_FOOD_PRODUCTS,Persons engaged in manufacture of food products industries,persons engaged in manufacture of food products industries
+PERSONS_ENGAGED_PROCESSING_PRESERVING_FISH,"Persons engaged in processing and preserving of fish, crustaceans and mollusks industries",persons engaged in processing and preserving of fish crustaceans and mollusks industries
+MINING_QUARRYING_INDUSTRIES,Total No. of Mining & Quarrying industries,total no of mining quarrying industries
+RAILWAY_LENGTH,Total railway length,total railway length
+PCT_COCONUT_EXTENT_AGRICULTURAL_LANDS,% Coconut  extent from total agricultural lands,% coconut extent from total agricultural lands
+PCT_RAIN_FED_PADDY_LANDS,% rain-fed paddy lands,% of rain fed paddy lands
+PCT_RAIN_FED_PADDY_LANDS,% rain-fed paddy lands,% rain fed paddy lands
+PCT_ROOFS_CONSIST_GALVANIZE_SHEETS,% of Roofs consist of Galvanize Sheets,% of roofs consist of galvanize sheets
+PCT_ROOFS_CONSIST_GALVANIZE_SHEETS,% of Roofs consist of Galvanize Sheets,% roofs consist of galvanize sheets
+PCT_TEMPORARY_HOUSES,% of temporary houses,% of temporary houses
+PCT_SURFACE_AREA_WATER_BODIES,% surface area of water bodies within DS area,% surface area of water bodies within ds area
+ANNUAL_AVERAGE_RAINFALL,Annual average rainfall,annual average rainfall
+ANNUAL_MILK_PRODUCTION_L,Annual Milk Production (l),annual milk production l
+DAILY_EGG_PRODUCTION,Daily Egg Production,daily egg production
+FLOOD_AFFECTED_ROAD_LENGTH,Flood affected  road length,flood affected road length
+HUMAN_ANIMAL_ATTACKS,Human Animal Attacks,human animal attacks
+PROPER_SANITATION_FACILITIES,# of no proper sanitation facilities,no of no proper sanitation facilities
+PROPER_SANITATION_FACILITIES,# of no proper sanitation facilities,of no proper sanitation facilities
+SHEEP_FARMERS,# of Sheep Farmers,no of sheep farmers
+SHEEP_FARMERS,# of Sheep Farmers,of sheep farmers
+PASTURE_FODDER_EXTENT,Pasture & Fodder Extent,pasture fodder extent
+SHEEP_POPULATION,Sheep Population,sheep population
+TEA_EXTENT,Tea extent,tea extent
+LIVESTOCK_FARMERS,Total livestock farmers,total livestock farmers
+WATER_SURFACE_AREA,Water surface area,water surface area
+FARM_HOUSEHOLD_S_POPULATION,Farm household's population,farm household s population
+LANDSLIDE_HAZARD_INDEX,Landslide Hazard Index,landside hazard index
+LANDSLIDE_HAZARD_INDEX,Landslide Hazard Index,landslide hazard index
+AREA_CLASSIFIED_AS_URBAN,Total area classified as urban,total area classified as urban
+PCT_LIVESTOCK_FARMERS_AGRICULTURAL_OPERATORS,% livestock farmers from total Agricultural Operators,% livestock farmers from total agricultural operators
+PCT_HOUSES_WITH_VULNERABLE_ROOFS,% of houses with vulnerable roofs (Cadjan/Palmirah Roofs),% of houses with vulnerable roofs cadjan palmirah roofs
+PCT_LANDSLIDE_AFFECTED_AREA,% of landslide affected area,% of landslide affected area
+PCT_MULTI_STORIED_BUILDINGS,% of Multi Storied Buildings,% of multi storied buildings
+ANNUAL_MUTTON_PRODUCTION_KG,Annual Mutton Production (Kg),annual mutton production kg
+CUTTING_FAILURES_2000_2023,Cutting failures (2000 - 2023),cutting failures 2000 2023
+ESTATE_SECTOR_POPULATION,Estate Sector population,estate sector population
+LANDSLIDE_AFFECTED_MAIN_ROAD_LENGTH,Landslide affected main road length,landslide affected main road length
+LANDSLIDE_AFFECTED_ROAD_LENGTH,landslide affected  road length,landslide affected road length
+LANDSLIDE_AFFECTED_SECONDARY_ROAD_LENGTH,Landslide affected Secondary road length,landslide affected secondary road length
+LANDSLIDE_AFFECTED_TRACK_LENGTH,Landslide affected Track length,landslide affected track length
+LANDSLIDE_PRONE_HUMAN_SETTLEMENTS,Landslide prone Human Settlements,landslide prone human settlements
+MITCH_BUFFALOES_MONTHLY_MILK_PRODUCTION,Mitch Buffaloes' Monthly Milk Production (l),mitch buffalo monthly milk production l
+MITCH_BUFFALOES_MONTHLY_MILK_PRODUCTION,Mitch Buffaloes' Monthly Milk Production (l),mitch buffaloes monthly milk production l
+MITCH_BUFFALOES_MONTHLY_MILK_PRODUCTION,Mitch Buffaloes' Monthly Milk Production (l),monthly mitch buffaloes milk production l
+MITCH_BUFFALOES_DAILY_MILK_PRODUCTION,Mitch Buffaloes Daily Milk Production (l),mitch buffaloes daily milk production l
+MITCH_COWS_DAILY_MILK_PRODUCTION,Mitch Cows' Daily Milk Production (l),mitch cows daily milk production l
+BUFFALOES,No. of Buffaloes,no of buffaloes
+BUFFALOES,No. of Buffaloes,of buffaloes
+BUFFALOES,No. of Buffaloes,total buffaloes
+BUILDINGS_LANDSLIDE_PRONE_AREA_HIGH,No. of buildings in landslide prone area (high and moderate),no of buildings in landslide prone area high and moderate
+BUILDINGS_LANDSLIDE_PRONE_AREA_HIGH,No. of buildings in landslide prone area (high and moderate),no of of buildings in landslide prone area high and moderate
+BUILDINGS_LANDSLIDE_PRONE_AREA_HIGH,No. of buildings in landslide prone area (high and moderate),of buildings in landslide prone area high and moderate
+GOATS,No. of Goats,no of goats
+GOATS,No. of Goats,of goats
+GOATS,No. of Goats,total goats
+POPULATION_DENSITY_DSD,Population density in DSD,population density in dsd
+SCHOOLS_LANDSLIDE_PRONE_AREA_HIGH,Schools  in landslide prone area (high and moderate),schools in landslide prone area high and moderate
+BUILDINGS_LANDSLIDE_AFFECTED_AREA,Total buildings in landslide affected area,total buildings in landslide affected area
+LANDSLIDE_AFFECTED_AREA,Total landslide affected area,total landslide affected area
+LANDSLIDE_AFFECTED_AREA_HIGH_MODERATE,Total of  Landslide  affected area (High and Moderate),total landslide affected area high and moderate
+LANDSLIDE_AFFECTED_AREA_HIGH_MODERATE,Total of  Landslide  affected area (High and Moderate),total of landslide affected area high and moderate
+DROUGHT_INDEX,Drought Index,drought index
+LANDSLIDE_AFFECTED_RAILWAY_LENGTH,Landslide affected railway length,landslide affected railway length
+MAIN_ROAD_LENGTH,Total main road length,total main road length
+SECONDARY_ROAD_LENGTH,Total Secondary road length,total secondary road length
+TOTALTRACK_LENGTH,TotalTrack length,totaltrack length
+PCT_BUFFALO_FARMERS_LIVESTOCK_FARMERS,%_ Buffalo Farmers from total livestock farmers,% buffalo farmers from total livestock farmers
+PCT_CATTLE_FARMERS_LIVESTOCK_FARMERS,%_Cattle Farmers from total livestock farmers,% cattle farmers from total livestock farmers
+PCT_EXTENSIVE,% Extensive,% extensive
+PCT_EXTENT_MAJOR_FLOODS_AFFECTED,%  Extent of Major floods affected area,% extent of major floods affected area
+PCT_EXTENT_MAJOR_FLOODS_AFFECTED,%  Extent of Major floods affected area,% of extent of major floods affected area
+PCT_GOAT_FARMERS_LIVESTOCK_FARMERS,% Goat Farmers from total livestock farmers,% goat farmers from total livestock farmers
+PCT_INTENSIVE,% Intensive,% intensive
+PCT_HH_HAVING_PIPE_BORN,% of HH having Pipe born water,% of hh having pipe born water
+PCT_PIG_FARMERS_LIVESTOCK_FARMERS,% of pig Farmers from Livestock Farmers,% of pig farmers from livestock farmers
+PCT_PIG_FARMERS_LIVESTOCK_FARMERS,% of pig Farmers from Livestock Farmers,% pig farmers from total livestock farmers
+PCT_SEMI_INTENSIVE,% Semi Intensive,% semi intensive
+ANNUAL_MITCH_BUFFALO_MILK_PRODUCTION,Annual Mitch Buffalo Milk Production (l),annual mitch buffalo milk production l
+ANNUAL_PORK_PRODUCTION_KG,Annual Pork Production (Kg),annual pork production kg
+EGG_PRODUCTION_ANNUAL,Egg Production (Annual),egg production annual
+FLOOD_AFFECTED_HUMAN_SETTLEMENT_AREA,Flood affected human settlement area,flood affected human settlement area
+FLOOD_AFFECTED_MAIN_ROAD_LENGTH,Flood affected main road length,flood affected main road length
+FLOOD_AFFECTED_SECONDARY_ROAD_LENGTH,Flood affected Secondary road length,flood affected secondary road length
+FLOOD_AFFECTED_TRACK_LENGTH,Flood affected Track length,flood affected track length
+FLOOD_INDEX,Flood Index,flood index
+MAX_DROUGHT_AFFECTED_PEOPLE_DURING_3,Max # of drought affected People during 2005 to 2022,max of drought affected people during 2005 to 2022
+MITCH_COWS_MONTHLY_MILK_PRODUCTION,Mitch Cows' Monthly Milk Production (l),mitch cows monthly milk production l
+MONTHLY_EGG_PRODUCTION,Monthly Egg Production,monthly egg production
+MONTHLY_MUTTON_PRODUCTION_KG,Monthly Mutton Production (Kg),monthly mutton production kg
+CATTLES,No. of Cattles,no of cattle
+CATTLES,No. of Cattles,no of cattles
+CATTLES,No. of Cattles,of cattle
+FLOOD_AFFECTED_SCHOOLS,No. of Flood affected schools,no of flood affected schools
+PIGS,# of Pigs,of pigs
+PIGS,# of Pigs,total pigs
+BUILDINGS_FLOOD_AFFECTED_AREA,Total buildings in flood affected area,total buildings in flood affected area
+CUTTING_FAILURES_EARTH_SLIPS_2000,Cutting failures &  Earth slips (2000 - 2023),cutting failures earth slips 2000 2023
+PCT_CROSS_LW_LR_D,% Cross (LW/Lr/D)_BREEDS,% cross lw lr d breeds
+PCT_GOAT_FARMERS_LIVESTOCK_OPERATORS,% Goat farmers from total Livestock Operators,% goat farmers from total livestock operators
+PCT_HH_CBO_CONNETIONS_RURAL,% HH - CBO Connetions ( Rural water supply project),% hh cbo connetions rural water supply project
+PCT_HH_CBO_CONNETIONS_RURAL,% HH - CBO Connetions ( Rural water supply project),% of hh cbo connections rural water supply project
+PCT_HH_FED_BY_SAFE,% of HH fed by Safe Well,% of hh fed by safe well
+PCT_HH_FED_BY_SAFE,% of HH fed by Safe Well,% of hh fed by safe wells
+PCT_POPULTRY_FARMERS_LIVESTOCK_OPERATORS,% of Popultry Farmers from total livestock Operators,% of popultry farmers from total livestock operators
+PCT_POPULTRY_FARMERS_LIVESTOCK_OPERATORS,% of Popultry Farmers from total livestock Operators,% of poultry farmers from total livestock operators
+PCT_POULTRY_RAISING_FAMERS,% of Poultry raising famers,% of poultry raising famers
+PCT_POULTRY_RAISING_FAMERS,% of Poultry raising famers,% of poultry raising framers
+PCT_SWINE_SHEEP_RAISING_FARMERS,% of Swine/Sheep raising farmers,% of swine sheep raising farmers
+PCT_TEMPORARY_CROP_OPERATORS_AGRICULTURAL,% of Temporary Crop Operators from total  Agricultural Operators,% of temporary crop operators from total agricultural operators
+PCT_SHEEP_FARMERS_LIVESTOCK_FARMERS,%_Sheep Farmers from total livestock farmers,% sheep farmers from total livestock farmers
+ANNUAL_AVERAGE_VISITORS_MAIN_TOURISM,Annual average visitors of main tourism destination,annual average visitors of main tourism destination
+ANNUAL_AVERAGE_VISITORS_MAIN_TOURISM,Annual average visitors of main tourism destination,annual average visitors of main tourism destinations
+ANNUAL_FISH_STOCKING_KG,Annual Fish Stocking (Kg),annual fish stocking kg
+ANNUAL_PORK_PRODUCTION,Annual Pork Production,annual pork production
+AVERAGE_AMOUNT_BUFFALO_MILK_PRODUCTIO,Average of amount of Buffalo milk productio/day(L),average of amount of buffalo milk productio day l
+AVERAGE_AMOUNT_COW_MILK_PRODUCTION,Average of amount of cow milk production /day(L),average of amount of cow milk production day l
+DUROCK_PCT_BREEDS,Durock % - BREEDS,durock % breeds
+FISH_PRODUCTION_KG,Fish Production (Kg),fish production kg
+HARVESTED_PADDY_EXTENT_YALA_MAHA,Harvested Paddy Extent (yala and Maha),harvested paddy extent yala and maha
+LAND_RACEPCT_BREEDS,Land Race% - BREEDS,land race% breeds
+LANDSLIDE_INDEX,Landslide Index,landslide index
+LARGE_WHITEPCT_BREEDS,Large white% _ BREEDS,large white% breeds
+LOCAL_PCT_BREEDS,local % - BREEDS,local % breeds
+MITCH_GOATS_MONTHLY_MILK_PRODUCTION,Mitch Goats' Monthly Milk Production (l),mitch goats monthly milk production l
+MONTHLY_MILK_PRODUCTION_L,Monthly Milk Production (l),monthly milk production l
+MONTHLY_PORK_PRODUCTION_KG,Monthly Pork Production (Kg),monthly pork production kg
+MUTTON_PRODUCTION_KG_DAY,Mutton Production (Kg)/day,mutton production kg day
+BACKYARD_HATCHERIES_DOC_PRODUCTION_WEEKLY,No. of Backyard hatcheries -DOC production / weekly,no of backyard hatcheries doc production weekly
+BACKYARD_POULTRY_FARMS,No. of Backyard Poultry Farms,no of backyard poultry farms
+BROILER_FARMS,No. of Broiler Farms,no of broiler farms
+BUFFALO_FARMS,No. of Buffalo Farms,no of buffalo farms
+BUFFALO_MILK_PRODUCTION_FARMS,No.of Buffalo Milk Production Farms,no of buffalo milk production farms
+COCK_HENS,No. of Cock /Hens,no of cock hens
+EGG_COLLECTORS,No. of egg collectors,no of egg collectors
+EGG_LAYING_HENS,No. of Egg Laying Hens,no of egg laying hens
+EXISTING_MINOR_IRRI_SCHEMES,No. of Existing Minor Irri. Schemes,no of existing minor irri schemes
+FARM_SHOP,No. of farm shop,no of farm shop
+FARMS_GOAT_MILK_PROCESSORS,No. of  farms goat milk processors,no of farms goat milk processors
+FARMS_SELLING_GOAT_MILK,No. of farms selling goat milk,no of farms selling goat milk
+FISHERMEN,No. of Fishermen,no of fishermen
+GOATS_FARMS,No. of Goats farms,no of goats farms
+HH_CBO_RURAL_WATER_SUPPLY,No.of HH - CBO (Rural water supply project),no of hh cbo rural water supply project
+LAYER_FARMS,No. of Layer Farms,no of layer farms
+LIVE_BIRD_COLLECTORS,No.of live bird collectors,no of live bird collectors
+MEAT_PROCESSING_PLANTS,No. of meat processing plants,no of meat processing plants
+NEAT_CATTLE_FARMS,No.of Neat Cattle Farms,no of neat cattle farms
+NEAT_CATTLE_MILK_PRODUCTION_FARMS,No.of Neat Cattle Milk Production Farms,no of neat cattle milk production farms
+PIG_FARMS,No. of Pig Farms,no of pig farms
+POULTRY_FEED_MANUFACTURES_COMMERCIAL,No. of poultry feed manufactures(commercial),no of poultry feed manufactures commercial
+POULTRY_FEED_SELF_MIXED_MIXERS,No. of poultry feed (self mixed) mixers,no of poultry feed self mixed mixers
+SHEEP_FARMS,No. of Sheep Farms,no of sheep farms
+SLAUGHTER_HOUSES_MUNICIPAL,No. of slaughter houses ( municipal ),no of slaughter houses municipal
+SMALL_SCALE_POULTRY_PROCESSING_ESTABLISHMENT,No. of small scale poultry processing establishments ( manual processors),no of small scale poultry processing establishments manual processors
+TOURISM_ATTRACTION_PLACES,No. of Tourism Attraction places,no of tourism attraction places
+OTHER_FIELD_CROPS_EXTENT,Other Field Crops Extent,other field crops extent
+PADDY_PRODUCTION_MT_MAHA_YALA,Paddy Production (Mt)Maha/Yala - 2022/2023,paddy production mt maha yala 2022 2023
+PORK_PRODUCTION_MONTHLY,Pork Production (Monthly),pork production monthly
+TEMPORARY_CROP_OPERATORS,#  Temporary Crop Operators,temporary crop operators
+IRRIGATED_PADDY_AREA,Total irrigated paddy area,total irrigated paddy area
+NEAT_CATTLES,Total Neat Cattles,total neat cattles
+TANKS_ACTIVE_INLAND_FISHERY,Total_No.of Tanks active for Inland Fishery,total no of tanks active for inland fishery
+SHEEPS,Total Sheeps,total sheeps
+VEGETABLES_EXTENT,Vegetables Extent,vegetables extent
+PCT_HH_CBO_CONNECTIONS,% of HH - CBO Connections,% of hh cbo connections
+PCT_HH_HAVING_PIPE_BORN_2,% of HH having Pipe born_NWSDB Domestic,% of hh having pipe born nwsdb domestic
+PCT_HH_HAVING_PIPE_BORN_3,%  of HH having Pipe born water-NWSDB Domestic,% of hh having pipe born water nwsdb domestic
+ANNUAL_COCO_PRODUCTION_MN,Annual_Coco_Production (No. Mn),annual coco production no mn
+MAX_DROUGHT_AFFECTED_PEOPLE_DURING_4,"Max # of drought affected People during 1974 to 2022 (1974 -2004, 25%, 2005 -2022, 75%) But WP taken only 2005 to 2022 period",max of drought affected people during 1974 to 2022 1974 2004 25% 2005 2022 75% but wp taken only 2005 to 2022 period
+MAX_DROUGHT_AFFECTED_PEOPLE_DURING_5,Max # of drought affected People during 1974 to 2022 ( But WP only 2005 to 2022),max of drought affected people during 1974 to 2022 but wp only 2005 to 2022
+MAX_DROUGHT_AFFECTED_PEOPLE_DURING1974,Max # of drought affected People during1974 to 2022,max of drought affected people during1974 to 2022
+HH_CBO_CONNECTIONS_RURAL_WATER,No. of HH - CBO Connections (Rural Water Supply Projects),no of hh cbo connections rural water supply projects
+RAIN_FED_PADDY_LANDS,Rain-fed paddy lands,rain fed paddy lands
+TEA_EXTENT_HA,Tea extent (ha),tea extent ha
+PLANTS_NOS,Total _Plants (Nos.),total plants nos

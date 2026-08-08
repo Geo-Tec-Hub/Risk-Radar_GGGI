@@ -1,0 +1,51 @@
+# Risk Radar — .gitignore
+#
+# Principle: track source and irreplaceable data; ignore only what a command
+# can recreate. The repo is ~78 MB, which is fine, so we do NOT get clever
+# about excluding the shapefiles or the SRS builds — losing those costs more
+# than storing them.
+
+# --- dependencies -----------------------------------------------------------
+node_modules/
+.angular/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# --- build output -----------------------------------------------------------
+dist/
+build/
+*.egg-info/
+
+# --- editor / OS ------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- OneDrive / Office temp files -------------------------------------------
+~$*
+*.tmp
+*.lnk
+
+# --- secrets ----------------------------------------------------------------
+# The database password must never be committed. Keep it in .env, which is
+# ignored; commit .env.example with the keys and no values.
+.env
+.env.*
+!.env.example
+*.pgpass
+
+# --- logs / local scratch ---------------------------------------------------
+*.log
+scratch/
+tmp/
+
+# --- deliberately NOT ignored ----------------------------------------------
+# design/spatial/*.shp        source geometry, irreplaceable
+# design/templates/generated/ the 243 workbooks actually distributed
+# design/srs/*.docx           the builds sent for review
+# design/database/erd.*       regenerable, but small and worth diffing

@@ -1,0 +1,37 @@
+# Risk Radar — local database (B1)
+#
+#   docker compose up -d          start Postgres
+#   ./db/apply.sh                 build the schema + load seed data
+#   ./db/smoke_test.sh            prove it works
+#   docker compose down -v        wipe everything and start over
+#
+# The image is postgis/postgis, which bundles PostGIS. pgvector is not in that
+# image, so db/00_extensions.sql installs it from the postgres contrib packages
+# already present in the image's Debian base — see that file if it fails.
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: riskradar-db
+    environment:
+      POSTGRES_DB: riskradar
+      POSTGRES_USER: riskradar
+      POSTGRES_PASSWORD: riskradar_dev_only
+      # keeps psql output predictable for the scripts
+      PGOPTIONS: "-c client_min_messages=warning"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # design/ is mounted read-only so apply.sh can reach the SQL and shapefiles
+      - ../design:/design:ro
+      - ./db:/db:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U riskradar -d riskradar"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  pgdata:
