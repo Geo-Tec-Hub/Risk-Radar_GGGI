@@ -45,6 +45,69 @@
         </label>
       }
 
+      @if (needsInterestAreas()) {
+        <fieldset class="auth__areas">
+          <legend>Where you work <em>at least one</em></legend>
+          <p class="auth__hint">
+            Every dataset belongs to a sector and subsector, and an import replaces
+            whatever was there before — so an account can only write to the areas it
+            was granted. Tick the ones you work in; an administrator reviews them and
+            may grant fewer.
+          </p>
+
+          @if (optionsError(); as message) {
+            <p class="auth__error" role="alert">
+              Couldn't load the sector list ({{ message }}). Please try again shortly —
+              registering without it isn't possible, because the areas have to be real.
+            </p>
+          }
+
+          @for (sec of sectorOptions(); track sec.code) {
+            <div class="auth__sector">
+              <label class="auth__check">
+                <input type="checkbox" [checked]="isChosen(sec.code)"
+                       (change)="toggle(sec.code)" />
+                <span>{{ sec.name }}
+                  @if (sec.subsectors.length) {<em>all subsectors</em>}
+                </span>
+              </label>
+
+              @if (sec.subsectors.length) {
+                <div class="auth__subsectors">
+                  @for (sub of sec.subsectors; track sub.code) {
+                    <label class="auth__check auth__check--sub">
+                      <input type="checkbox" [checked]="isChosen(sec.code, sub.code)"
+                             (change)="toggle(sec.code, sub.code)" />
+                      <span>{{ sub.name }}</span>
+                    </label>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @if (redundant().length) {
+            <p class="auth__error" role="alert">
+              You've ticked a whole sector and one of its subsectors
+              ({{ redundant().join(', ') }}). The whole-sector tick already covers every
+              subsector, so keep one or the other.
+            </p>
+          }
+
+          <label class="auth__check auth__check--hazard">
+            <input type="checkbox" [checked]="hazardDomain()"
+                   (change)="hazardDomain.set(!hazardDomain())" />
+            <span>I also maintain the shared climate variables
+              <em>rainfall, SPI, warm days, event counts — Met Department / DMC</em>
+            </span>
+          </label>
+          <p class="auth__hint">
+            These twelve variables are used by every sector, so they're approved
+            separately from the sectors above.
+          </p>
+        </fieldset>
+      }
+
       <label class="auth__field">
         <span>Email</span>
         <input type="email" autocomplete="username" [ngModel]="email()" name="email" (ngModelChange)="email.set($event)" required />

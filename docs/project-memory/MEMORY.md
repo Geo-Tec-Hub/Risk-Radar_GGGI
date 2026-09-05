@@ -2,6 +2,8 @@
 
 - [SRS v2.3 is authoritative](risk-radar-srs-v21.md) — v2.2 and everything earlier superseded; the six pointer files are current, Annex D regenerated 14 Aug.
 - [Vulnerability formula — CLOSED 14 Aug](risk-radar-vulnerability-formula.md) — H × E rescaled to [0,1] per province, fixed even-fifth bands. Do not re-derive thresholds.
+- [Per-sector write scope](risk-radar-write-scope.md) — why a province is not narrow enough; sector grant + a separate hazard-domain grant; request vs. grant.
+- [The weights save has lost a panel's weighting twice](risk-radar-weights-save-defects.md) — same shape both times: it validates what it was sent, never what it was sent against.
 - [QA test accounts](risk-radar-qa-test-accounts.md) — the local test logins, which two are deliberately unusable, and how to recreate them after a rebuild.
 - [QA pass, 4 Sep](risk-radar-qa-2026-09-04.md) — what it found, what was fixed, and what is still open (Sinhala names, retired-version rows).
 - [Stage 4 engine](risk-radar-stage4-engine.md) — built and run 3 Sep; what it refuses, bit-identical recompute, and how a structural zero is handled.

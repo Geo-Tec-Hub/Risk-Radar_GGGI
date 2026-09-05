@@ -21,10 +21,13 @@ Two different secrets, two different treatments, on purpose:
 from __future__ import annotations
 
 import hashlib
+import logging
 import secrets
 
 from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError
+from argon2.exceptions import InvalidHashError, VerificationError, VerifyMismatchError
+
+log = logging.getLogger(__name__)
 
 _hasher = PasswordHasher()
 
@@ -34,9 +37,28 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(password: str, password_hash: str) -> bool:
+    """A wrong password is False. So is a stored hash argon2 cannot parse.
+
+    Found 5 September 2026: a row whose password_hash was a placeholder (a
+    seeded or hand-inserted account) raised InvalidHashError out of here, and
+    the login route turned it into a 500. That fails closed, so it was never a
+    way in -- but it is the wrong answer. The account cannot authenticate, and
+    the honest report of that is "these credentials do not work", not "the
+    server is broken". A 500 also sends whoever is debugging it to the wrong
+    place entirely. InvalidHashError is NOT a subclass of VerificationError in
+    argon2-cffi -- it derives from ValueError -- so it has to be named
+    explicitly; catching the base class alone would have looked like a fix and
+    changed nothing. Both are logged because either means the row needs
+    repairing, and the hash itself is never logged.
+    """
     try:
         return _hasher.verify(password_hash, password)
     except VerifyMismatchError:
+        return False
+    except (InvalidHashError, VerificationError):
+        log.warning("stored password hash is unusable; treating the login as "
+                    "a failure. The account cannot sign in until its hash is "
+                    "reset.")
         return False
 
 

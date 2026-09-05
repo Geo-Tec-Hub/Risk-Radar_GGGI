@@ -369,6 +369,24 @@ async def put_weights(
                 status_code=403,
                 detail=f"you are scoped to {user.province or 'no province'} and cannot edit {sc.province}",
             )
+        # Sector scope, asked of the database rather than reimplemented here
+        # (schema_write_scope_addendum.sql). Weights are the sharper case: they
+        # decide published scores, and save_profile_weights() records decided_by
+        # permanently — attributing a tea weighting to a fisheries expert does
+        # not merely risk a bad number, it makes the audit trail assert
+        # something false.
+        may = await pool.fetchval(
+            "SELECT may_write_profile($1, $2, $3, $4)",
+            user.id, ids["province_id"], ids["sector_id"], ids["subsector_id"])
+        if not may:
+            raise HTTPException(
+                status_code=403,
+                detail=(f"you are not granted {sc.sector}"
+                        + (f" / {sc.subsector}" if sc.subsector else "")
+                        + ". Weights are attributed permanently to whoever saves "
+                          "them, so they may only be set within your own sectors. "
+                          "Ask an administrator to widen your scope."),
+            )
 
     items = [
         {

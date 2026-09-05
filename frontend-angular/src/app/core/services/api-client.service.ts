@@ -6,10 +6,13 @@ import { environment } from '../../../environments/environment';
 import {
   ApprovePayload,
   CurrentUser,
+  InterestAreaOption,
   LoginPayload,
   PendingRegistration,
   RegisterPayload,
   RejectPayload,
+  ScopeAmendPayload,
+  WriteScope,
 } from '../models/auth.model';
 import { ImportBatch, ImportSummary } from '../models/import.model';
 import { ProfileScope, ProfileWeights, ProfileWeightsVersion, SaveWeightsPayload, encodeProfileScope } from '../models/profile.model';
@@ -134,6 +137,15 @@ export class ApiClientService {
 
   // --- T2b: auth & registration ---------------------------------------
 
+  /** GET /reference/interest-areas -- the FULL sector/subsector catalogue.
+   * Public, because the registration form has no session yet. Deliberately not
+   * /taxonomy, which is scoped to profiles that exist: a sector with no data
+   * would be unaskable, and the data cannot exist until someone is granted the
+   * sector. */
+  getInterestAreaOptions(): Observable<InterestAreaOption[]> {
+    return this.http.get<InterestAreaOption[]>(`${this.base}/reference/interest-areas`);
+  }
+
   /** POST /auth/register -- self-registration; the account starts `pending`. */
   register(payload: RegisterPayload): Observable<{ id: number; status: string }> {
     return this.http.post<{ id: number; status: string }>(`${this.base}/auth/register`, payload, WITH_CREDENTIALS);
@@ -164,6 +176,17 @@ export class ApiClientService {
     return this.http.post<{ id: number; status: string; role: string }>(
       `${this.base}/admin/registrations/${id}/approve`, payload, WITH_CREDENTIALS,
     );
+  }
+
+  /** GET /admin/users/{id}/scope -- what this account may write, as granted. */
+  getUserScope(id: number): Observable<WriteScope> {
+    return this.http.get<WriteScope>(`${this.base}/admin/users/${id}/scope`, WITH_CREDENTIALS);
+  }
+
+  /** PUT /admin/users/{id}/scope -- REPLACES the scope. An empty list revokes
+   * everything, which is a decision the screen must present as such. */
+  setUserScope(id: number, payload: ScopeAmendPayload): Observable<WriteScope> {
+    return this.http.put<WriteScope>(`${this.base}/admin/users/${id}/scope`, payload, WITH_CREDENTIALS);
   }
 
   /** POST /admin/registrations/{id}/reject -- also the revocation path for

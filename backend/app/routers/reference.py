@@ -29,7 +29,22 @@ by hand somewhere it cannot be checked. The periods in particular are not a
 taxonomy at all - they are whatever the results table holds, which is why they
 are read from it.
 
-This endpoint is public and unauthenticated, like the map it feeds (FR-12.7).
+    GET /api/reference/interest-areas
+
+A SECOND, DELIBERATELY DIFFERENT LIST (added 5 Sep 2026).
+/taxonomy answers "what can I look at?" and is scoped to profiles that exist,
+because offering a combination with no profile behind it produces a 404 the
+user cannot act on. /interest-areas answers "what can I be granted permission
+to write?" and is the FULL sector/subsector catalogue, because those are two
+different questions. Scoping the registration picker to existing profiles would
+mean nobody could ever ask to be the first officer for a sector — the sector
+would be invisible until data existed, and the data cannot exist until someone
+is granted the sector.
+
+Both endpoints are public and unauthenticated, like the map they feed
+(FR-12.7). /interest-areas is reached from the registration form, which by
+definition has no session yet; it exposes only the sector names already on the
+public map.
 """
 
 from __future__ import annotations
@@ -78,6 +93,42 @@ class Taxonomy(BaseModel):
     hazards: list[CodeName]
     periods: list[str]
     divisionCoverage: DivisionCoverage
+
+
+class InterestSubsector(CodeName):
+    pass
+
+
+class InterestSector(CodeName):
+    subsectors: list[InterestSubsector]
+
+
+@router.get("/interest-areas", response_model=list[InterestSector])
+async def interest_areas(pool: asyncpg.Pool = Depends(db)) -> list[InterestSector]:
+    """Every sector and subsector, whether or not a profile exists for it yet.
+
+    See the module header for why this is not /taxonomy. The one thing it must
+    never become is a filtered list: a person registering states where they
+    work, and that is a fact about them, not about the data already loaded.
+    """
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """SELECT s.code AS sector_code, s.name AS sector_name,
+                      ss.code AS subsector_code, ss.name AS subsector_name
+                 FROM sector s
+                 LEFT JOIN subsector ss ON ss.sector_id = s.id
+                ORDER BY s.name, ss.name""")
+
+    out: dict[str, InterestSector] = {}
+    for r in rows:
+        sec = out.setdefault(
+            r["sector_code"],
+            InterestSector(code=r["sector_code"], name=r["sector_name"],
+                           subsectors=[]))
+        if r["subsector_code"]:
+            sec.subsectors.append(InterestSubsector(code=r["subsector_code"],
+                                                    name=r["subsector_name"]))
+    return list(out.values())
 
 
 @router.get("/taxonomy", response_model=Taxonomy)

@@ -57,7 +57,11 @@ async def main() -> int:
                         os.path.basename(path), user_id)
                     r = await load_workbook_values(
                         conn, path, review_copy=False if args.locked else None,
-                        batch_id=batch_id, user_id=user_id)
+                        batch_id=batch_id, user_id=user_id,
+                        # The seed runs as the panel-import service account,
+                        # which has no province and no sector grant by design.
+                        # Scope governs people acting through the API.
+                        enforce_scope=False)
                     await conn.execute(
                         """UPDATE import_batch
                               SET profile_code = $2, status = $3, rows_total = $4,

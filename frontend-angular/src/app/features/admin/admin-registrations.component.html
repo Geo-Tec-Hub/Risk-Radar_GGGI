@@ -2,8 +2,10 @@
   <h2>Pending registrations</h2>
   <p class="admin__hint">
     Every self-registration sits here until approved or rejected. Approving grants a role and,
-    for a data officer or expert, binds them to exactly one province (SRS §3.2) — nothing they
-    submit is written until that happens.
+    for a data officer or expert, binds them to exactly one province (SRS §3.2) and to the
+    sectors they may write to — nothing they submit is written until that happens.
+    <strong>The areas an applicant asked for are a request, not a grant</strong>: the boxes start
+    empty, and an approval grants only what you tick.
   </p>
 
   @if (loading()) {
@@ -20,6 +22,7 @@
           <th>Requested</th>
           <th>Grant role</th>
           <th>Province</th>
+          <th>Write access</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -56,6 +59,87 @@
                 </select>
               } @else {
                 <span class="admin__org">national</span>
+              }
+            </td>
+            <td class="admin__scope">
+              @if (roleNeedsScope(roleFor(r.id))) {
+                <p class="admin__asked">
+                  <span class="admin__asked-label">Asked for</span>
+                  {{ describeRequest(r) }}
+                  @if (r.requested_hazard_domain) {
+                    <span class="admin__hazard-tag">+ shared climate variables</span>
+                  }
+                </p>
+
+                <p class="admin__granting">
+                  @if (keysFor(r.id).size === 0) {
+                    <em>Nothing granted yet — this account will not be able to write.</em>
+                  } @else {
+                    Granting {{ keysFor(r.id).size }}
+                    {{ keysFor(r.id).size === 1 ? 'area' : 'areas' }}@if (hazardFor(r.id)) {
+                      , plus the climate variables
+                    }.
+                  }
+                </p>
+
+                <div class="admin__scope-buttons">
+                  <button type="button" (click)="grantAsRequested(r)">Grant what was asked</button>
+                  <button type="button" (click)="toggleScopePanel(r.id)">
+                    {{ scopeOpen()[r.id] ? 'Hide areas' : 'Choose areas' }}
+                  </button>
+                  @if (keysFor(r.id).size || hazardFor(r.id)) {
+                    <button type="button" (click)="clearGrant(r.id)">Clear</button>
+                  }
+                </div>
+
+                @if (scopeOpen()[r.id]) {
+                  <div class="admin__areas">
+                    @if (optionsError(); as message) {
+                      <p class="admin__row-error" role="alert">
+                        Couldn't load the sector list ({{ message }}).
+                      </p>
+                    }
+                    @for (sec of sectorOptions(); track sec.code) {
+                      <div class="admin__sector">
+                        <label class="admin__check">
+                          <input type="checkbox" [checked]="isGranted(r.id, sec.code)"
+                                 (change)="toggleGrant(r.id, sec.code)" />
+                          <span>{{ sec.name }}
+                            @if (sec.subsectors.length) {<em>all subsectors</em>}
+                          </span>
+                        </label>
+                        @if (sec.subsectors.length) {
+                          <div class="admin__subsectors">
+                            @for (sub of sec.subsectors; track sub.code) {
+                              <label class="admin__check admin__check--sub">
+                                <input type="checkbox"
+                                       [checked]="isGranted(r.id, sec.code, sub.code)"
+                                       (change)="toggleGrant(r.id, sec.code, sub.code)" />
+                                <span>{{ sub.name }}</span>
+                              </label>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                    <label class="admin__check admin__check--hazard">
+                      <input type="checkbox" [checked]="hazardFor(r.id)"
+                             (change)="setHazard(r.id, !hazardFor(r.id))" />
+                      <span>Shared climate variables
+                        <em>rainfall, SPI, warm days, event counts — used by every sector</em>
+                      </span>
+                    </label>
+                  </div>
+                }
+
+                @if (redundantFor(r.id).length) {
+                  <p class="admin__row-error" role="alert">
+                    {{ redundantFor(r.id).join(', ') }} is ticked both as a whole sector and as one
+                    of its subsectors. The whole-sector tick already covers every subsector.
+                  </p>
+                }
+              } @else {
+                <span class="admin__org">reads only</span>
               }
             </td>
             <td class="admin__actions">

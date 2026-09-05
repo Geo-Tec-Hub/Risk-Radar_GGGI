@@ -80,3 +80,78 @@ button[type='submit']:not(:disabled):hover,
     line-height: 1.5;
   }
 }
+
+/* Interest areas (5 Sep 2026). Checkboxes rather than a multi-select: this is
+   the part of the form applicants are most likely to get wrong, and a
+   multi-select shows only what happens to be highlighted. */
+.auth__areas {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0.75rem 0.875rem 0.875rem;
+  margin: 0;
+
+  legend {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0 0.375rem;
+
+    em {
+      font-style: normal;
+      font-weight: 400;
+      color: #868e96;
+      margin-left: 0.375rem;
+    }
+  }
+}
+
+.auth__hint {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #868e96;
+  margin: 0 0 0.75rem;
+}
+
+.auth__sector {
+  padding: 0.375rem 0 0.5rem;
+  border-top: 1px solid #f1f3f5;
+
+  &:first-of-type {
+    border-top: 0;
+  }
+}
+
+.auth__check {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  cursor: pointer;
+
+  input {
+    flex: none;
+  }
+
+  em {
+    font-style: normal;
+    color: #868e96;
+    margin-left: 0.375rem;
+    font-size: 0.75rem;
+  }
+}
+
+.auth__subsectors {
+  padding-left: 1.5rem;
+  margin-top: 0.25rem;
+  display: grid;
+  gap: 0.1875rem;
+}
+
+.auth__check--sub {
+  color: #495057;
+}
+
+.auth__check--hazard {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f1f3f5;
+}

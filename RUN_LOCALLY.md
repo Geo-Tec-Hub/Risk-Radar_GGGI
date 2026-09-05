@@ -38,8 +38,17 @@ If you apply by hand, the order is `schema.sql`,
 `..\design\ingestion\seed_all.sql`, `schema_consensus_addendum.sql`,
 `schema_auth_addendum.sql`, `schema_session_addendum.sql`,
 `schema_boundary_pending_addendum.sql`, `schema_official_dscode_addendum.sql`,
-`schema_profile_consensus_save_addendum.sql`, then the new
-`schema_signed_values_addendum.sql`.
+`schema_profile_consensus_save_addendum.sql`,
+`schema_weights_save_completeness_addendum.sql`,
+`schema_signed_values_addendum.sql`, then the new
+`schema_write_scope_addendum.sql`.
+
+`schema_weights_save_completeness_addendum.sql` must come **immediately after**
+`schema_profile_consensus_save_addendum.sql`. It does not define
+`save_profile_weights()` — it splices a check **into** the body it finds in
+`pg_proc`. Run it first and there is nothing to splice (it says so and stops);
+re-run the consensus save addendum afterwards and the splice is silently
+overwritten, which is the one failure here that does not announce itself.
 
 **Two encoding traps, both already fixed in the scripts and both invisible if
 you work around them by hand.** Set `PGCLIENTENCODING=UTF8` before any psql

@@ -205,6 +205,15 @@ Apply-File '5/9  Addendum: consensus, publication, index scope' (Join-Path $Desi
 # profile still at version 1 came from the seed and has never been saved.
 Apply-File '5b   Addendum: save_profile_weights carries consensus' (Join-Path $Design 'database\schema_profile_consensus_save_addendum.sql')
 
+# Must run IMMEDIATELY AFTER 5b, because it SPLICES a PERFORM into the
+# save_profile_weights() body it finds in pg_proc; run it before 5b and there is
+# nothing to splice, run 5b again afterwards and the splice is overwritten.
+# It closes the 5 September defect: the save validated only what it was SENT and
+# never what it was sent AGAINST, so an unknown code was silently dropped, an
+# absent domain was never compared to 100, and an omitted variable disappeared —
+# each of them retiring a good version and reporting 200.
+Apply-File '5c   Addendum: save_profile_weights completeness pre-flight' (Join-Path $Design 'database\schema_weights_save_completeness_addendum.sql')
+
 Apply-File '6/9  Addendum: registration, approval, province scope' (Join-Path $Design 'database\schema_auth_addendum.sql')
 
 # Depends on app_user (schema_auth_addendum.sql, step 6/9): the revocation
@@ -215,6 +224,12 @@ Apply-File '7/9  Addendum: server-side sessions (T2b, Stage 9.6)' (Join-Path $De
 # NOT NULL constraint, which the Kalmunai split's two boundary-pending rows
 # (Stage 1.14, O-2) require in order to INSERT at all.
 Apply-File '8/9  Addendum: boundary-pending divisions (the Kalmunai split)' (Join-Path $Design 'database\schema_boundary_pending_addendum.sql')
+
+# Depends on app_user (6/9) and on sector/subsector from the seed (4/9).
+# Scopes WRITES to the sectors a user was granted, and holds the hazard-domain
+# grant separately because those twelve climate variables are shared across
+# ~13.5 profiles each and belong to no single sector.
+Apply-File '7b   Addendum: per-sector write scope' (Join-Path $Design 'database\schema_write_scope_addendum.sql')
 
 # Must run BEFORE the DS-division load below, because it adds ds_division.legacy_code.
 #

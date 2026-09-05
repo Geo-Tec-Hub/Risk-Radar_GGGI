@@ -42,7 +42,7 @@ async def profile_context(conn, province: str, main_sector: str,
     header aliases that resolve to its variables."""
     row = await conn.fetchrow(
         """
-        SELECT vp.id, vp.code, vp.province_id
+        SELECT vp.id, vp.code, vp.province_id, vp.sector_id, vp.subsector_id
           FROM vulnerability_profile vp
           JOIN province p       ON p.id  = vp.province_id
           JOIN sector   s       ON s.id  = vp.sector_id
@@ -79,15 +79,28 @@ async def profile_context(conn, province: str, main_sector: str,
         """)}
     signed = {r["code"] for r in await conn.fetch(
         "SELECT code FROM indicator_catalog WHERE value_kind = 'signed'")}
+    # Which of this profile's variables are hazard-domain. Held separately
+    # because the hazard grant is separate: those twelve climate variables are
+    # shared across ~13.5 profiles each and belong to the Met Department, not to
+    # whichever sector's workbook happens to carry them.
+    hazard_codes = {r["code"] for r in await conn.fetch(
+        """
+        SELECT ic.code
+          FROM profile_indicator pi
+          JOIN indicator_catalog ic ON ic.id = pi.indicator_id
+         WHERE pi.profile_id = $1 AND ic.domain = 'hazard'
+        """, row["id"])}
     return dict(profile_id=row["id"], profile_code=row["code"],
-                province_id=row["province_id"], codes=codes, aliases=aliases,
-                signed=signed)
+                province_id=row["province_id"], sector_id=row["sector_id"],
+                subsector_id=row["subsector_id"], codes=codes, aliases=aliases,
+                signed=signed, hazard_codes=hazard_codes)
 
 
 async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
                                review_copy: bool | None = None,
                                expect_scope: tuple[str, str, str | None, str] | None = None,
-                               dry_run: bool = False) -> LoadResult:
+                               dry_run: bool = False,
+                               enforce_scope: bool = True) -> LoadResult:
     """`review_copy=None` decides from the file itself: a workbook stamped
     `protection = unlocked-review` in `_META` was issued open for the panel to
     restructure, so its own `_META` no longer describes its columns and the
@@ -143,6 +156,42 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
     if errors:
         return LoadResult(wb.filename, wb.profile_code, wb.value_count, 0, 0,
                           errors, warnings)
+
+    # ---- may this person write here? ---------------------------------------
+    #
+    # Asked of the database (`may_write_profile`), not reimplemented here, so
+    # the rule cannot drift between an endpoint and the schema. `enforce_scope`
+    # is False only for the seed script, which runs as a service account with
+    # no province and is not a person acting through the API.
+    if enforce_scope:
+        allowed = await conn.fetchval(
+            "SELECT may_write_profile($1, $2, $3, $4)",
+            user_id, ctx["province_id"], ctx["sector_id"], ctx["subsector_id"])
+        if not allowed:
+            return LoadResult(
+                wb.filename, wb.profile_code, wb.value_count, 0, 0,
+                ["you are not authorised to write %s data for %s Province. A "
+                 "data officer is granted specific sectors; ask an administrator "
+                 "to widen your scope if this is your responsibility. Nothing "
+                 "was loaded."
+                 % (wb.main_sector + (" / " + wb.subsector if wb.subsector else ""),
+                    wb.province)], warnings)
+
+        if not await conn.fetchval(
+                "SELECT may_write_hazard_domain FROM app_user WHERE id = $1", user_id):
+            present = sorted(ctx["hazard_codes"].intersection(
+                {v.variable_code for s in wb.sheets for v in s.values}))
+            if present:
+                return LoadResult(
+                    wb.filename, wb.profile_code, wb.value_count, 0, 0,
+                    ["this workbook carries hazard (climate) values you are not "
+                     "authorised to write: %s. Those variables are shared across "
+                     "most sectors and are held centrally, so a sector grant does "
+                     "not include them. Either clear those columns or ask an "
+                     "administrator for the hazard-data grant. Nothing was loaded."
+                     % ", ".join(present[:6])
+                     + ("" if len(present) <= 6 else " (and %d more)" % (len(present) - 6))],
+                    warnings)
 
     ind = {r["code"]: r["id"] for r in await conn.fetch(
         "SELECT id, code FROM indicator_catalog WHERE code = ANY($1::text[])",
