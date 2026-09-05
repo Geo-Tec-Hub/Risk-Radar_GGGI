@@ -43,13 +43,42 @@ apply() {
   ok "$path"
 }
 
-apply "0/5  Extensions (postgis, vector, pg_trgm)" /db/00_extensions.sql
-apply "1/5  Base schema"                           /design/database/schema.sql
-apply "2/5  Addendum: imports, weights, period rules" /design/database/schema_weights_addendum.sql
-apply "3/5  D8: spatial layers + analysis toolbox"  /design/database/spatial-model.sql
-apply "4/5  Seed: reference data, catalog, 243 profiles" /design/ingestion/seed_all.sql
+apply "0/13  Extensions (postgis, vector, pg_trgm)"           /db/00_extensions.sql
+apply "1/13  Base schema"                                     /design/database/schema.sql
+apply "2/13  Addendum: imports, weights, period rules"        /design/database/schema_weights_addendum.sql
+apply "3/13  D8: spatial layers + analysis toolbox"           /design/database/spatial-model.sql
+apply "3b    Agent RAG layer (pgvector)"                      /design/database/schema_agent_pgvector.sql
+apply "4/13  Seed: reference data, catalog, 243 profiles"     /design/ingestion/seed_all.sql
 
-say "5/5  DS divisions + spatial layers"
+# Must run AFTER the seed, which creates the catalogue rows it marks -- see
+# the matching note in apply_native.ps1.
+apply "4b    Addendum: signed (change/trend) indicator values" /design/database/schema_signed_values_addendum.sql
+
+# The 2026-08-09/10/11 addenda run AFTER the seed on purpose: the consensus
+# addendum's pre-flight check (no two active profile versions share a scope)
+# is a no-op against an empty table, which is the opposite of the point.
+apply "5/13  Addendum: consensus, publication, index scope"    /design/database/schema_consensus_addendum.sql
+apply "5b    Addendum: save_profile_weights carries consensus" /design/database/schema_profile_consensus_save_addendum.sql
+apply "5c    Addendum: save_profile_weights completeness pre-flight" /design/database/schema_weights_save_completeness_addendum.sql
+
+apply "6/13  Addendum: registration, approval, province scope" /design/database/schema_auth_addendum.sql
+
+# Depends on app_user (6/13): the revocation trigger fires on app_user.status
+# transitions, so auth must exist first.
+apply "7/13  Addendum: server-side sessions (T2b, Stage 9.6)"  /design/database/schema_session_addendum.sql
+
+# Must run BEFORE the DS-division load below: it drops ds_division.geom's NOT
+# NULL constraint, which the Kalmunai split's boundary-pending rows require.
+apply "8/13  Addendum: boundary-pending divisions (the Kalmunai split)" /design/database/schema_boundary_pending_addendum.sql
+
+# Depends on app_user (6/13) and on sector/subsector from the seed (4/13).
+apply "8b    Addendum: per-sector write scope"                 /design/database/schema_write_scope_addendum.sql
+
+# Must run BEFORE the DS-division load below, because it adds
+# ds_division.legacy_code.
+apply "8c    Addendum: official DS codes + the 2025 boundary revision" /design/database/schema_official_dscode_addendum.sql
+
+say "9/13  DS divisions + spatial layers"
 if "${EXEC[@]}" bash -c 'command -v ogr2ogr >/dev/null'; then
   "${EXEC[@]}" bash /db/load_spatial.sh
 else

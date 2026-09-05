@@ -173,6 +173,14 @@ async def register(body: RegisterRequest, pool: asyncpg.Pool = Depends(db)) -> d
         )
     except asyncpg.UniqueViolationError:
         raise HTTPException(status_code=409, detail="an account with this email already exists")
+    except asyncpg.PostgresError as exc:
+        # Anything else here is a deployment defect (e.g. a schema addendum
+        # not yet applied -- requested_scope/may_write_hazard_domain come from
+        # schema_write_scope_addendum.sql) rather than bad input, which is why
+        # the client gets a generic message. Logged with the full error so it
+        # doesn't have to be reproduced blind from a bare 500.
+        log.exception("registration insert failed: %s", exc)
+        raise HTTPException(status_code=500, detail="registration failed") from exc
 
     return {"id": new_id, "status": "pending"}
 
