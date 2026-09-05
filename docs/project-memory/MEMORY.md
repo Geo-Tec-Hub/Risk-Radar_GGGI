@@ -1,0 +1,22 @@
+# Memory index
+
+- [SRS v2.3 is authoritative](risk-radar-srs-v21.md) — v2.2 and everything earlier superseded; the six pointer files are current, Annex D regenerated 14 Aug.
+- [Vulnerability formula — CLOSED 14 Aug](risk-radar-vulnerability-formula.md) — H × E rescaled to [0,1] per province, fixed even-fifth bands. Do not re-derive thresholds.
+- [QA test accounts](risk-radar-qa-test-accounts.md) — the local test logins, which two are deliberately unusable, and how to recreate them after a rebuild.
+- [QA pass, 4 Sep](risk-radar-qa-2026-09-04.md) — what it found, what was fixed, and what is still open (Sinhala names, retired-version rows).
+- [Stage 4 engine](risk-radar-stage4-engine.md) — built and run 3 Sep; what it refuses, bit-identical recompute, and how a structural zero is handled.
+- [Results API and the map](risk-radar-api-and-map.md) — endpoint shapes, camelCase everywhere, and three client constants that had drifted from the database.
+- [Import tab](risk-radar-import-tab.md) — check and load share one code path; the duplicate-values defect only a second account could reveal.
+- [Central data is loaded](risk-radar-central-data-loaded.md) — 4,412 values, all 33 profiles computable; three traps found by running it; the readings applied pending the panel.
+- [Province panel overrides](risk-radar-province-panel-overrides.md) — how a returned expert review is folded back in; periods are now 2021-2025 / 2026-2030; pin the diff baseline.
+- [Hazard construct split](risk-radar-hazard-construct-split.md) — resolved 9 Aug as components; the 128 held profiles close by collection, not decision.
+- [Unweighted variables are excluded, not weighted](risk-radar-unweighted-variables.md) — 97 of 243 profiles compute at once; 30 exposure groups are the real backlog.
+- [Upload template format](risk-radar-upload-template-format.md) — every variable is a column, uncounted ones stay BLANK not 0. The 18 Jul files are misaligned. Periods superseded 3 Sep.
+- [The division count is not a constant](risk-radar-331st-division.md) — 330 → 331 → 340 in three weeks. Never hardcode it; read the register. Splits, official codes, O-12 closed.
+- [Build a database replica before writing backend code](risk-radar-dev-database-replica.md) — full recipe; three shipped bugs came from reasoning about SQL instead of running it.
+- [Data arrives gradually — visibility is the requirement](risk-radar-gradual-data-arrival.md) — owner's 14 Aug call; became FR-2.17 / FR-2.18.
+- [NAP taxonomy alignment](nap-taxonomy-alignment.md) — resolved as a crosswalk beside the existing 8 sectors; collection gaps are phase 2.
+- [Frontend is OpenLayers](risk-radar-frontend-openlayers.md) — swept 14 Aug; only historical prompt quotes still name MapLibre.
+- [Mixed granularity](risk-radar-mixed-granularity-risk.md) — resolved as FR-2.7 / V019; the toolbox is the route that can still break it.
+- [SRS v1.3 findings, and how each closed](srs-v13-open-findings.md) — record so they are not re-raised; two describe traps that recur.
+- [How Milinda works](milinda-working-style.md) — short answers, findings verified against the repo, decisions deferred until he asks.
