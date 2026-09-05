@@ -1,0 +1,184 @@
+<div class="weights">
+  <h2>Profile weights</h2>
+
+  @if (scope(); as s) {
+    <p class="weights__scope">
+      {{ s.sector }}{{ s.subsector ? ' · ' + s.subsector : '' }} × {{ s.hazard }} · {{ s.province }}
+      @if (profileVersion(); as v) {
+        <span class="weights__version">version {{ v }}</span>
+      }
+    </p>
+  }
+
+  @if (loading()) {
+    <p role="status">Loading current weighting…</p>
+  } @else if (error(); as message) {
+    <p class="weights__error" role="alert">Could not load weights: {{ message }}</p>
+  } @else {
+    <label class="weights__decider">
+      <span>Decided by (required to exclude a variable)</span>
+      <input type="text" [ngModel]="decidedByName()" (ngModelChange)="decidedByName.set($event)" placeholder="Officer or expert name" />
+    </label>
+
+    <div class="weights__block">
+      <div class="weights__block-header">
+        <h3>Hazard</h3>
+        <span class="weights__total" [class.weights__total--bad]="hazardTotal() !== 100">
+          {{ hazardTotal() }} / 100
+        </span>
+        <button type="button" (click)="distributeRemaining('hazard')">Distribute remaining</button>
+      </div>
+
+      @if (hazardHeldPendingComponents()) {
+        <p class="weights__held" role="status">
+          Held pending data — one or more hazard component variables have no weight yet. Only the
+          composite index row may be excluded (CHANGES 2026-08-09 C5); components must be weighted
+          once their values arrive.
+        </p>
+      }
+
+      <table class="weights__table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Unit</th>
+            <th>Direction</th>
+            <th>Weight</th>
+            <th>Decision</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of hazardRows(); track row.indicatorCode) {
+            <tr [class.weights__row--unresolved]="row.consensus === null && row.weightPct === null" [class.weights__row--excluded]="row.consensus === 'rejected'">
+              <td>
+                {{ row.indicatorName }}
+                @if (row.isCompositeHazardIndex) {
+                  <span class="weights__badge">composite index</span>
+                }
+              </td>
+              <td>{{ row.unit }}</td>
+              <td>{{ row.direction }}</td>
+              <td>
+                <input
+                  type="number"
+                  step="0.001"
+                  [ngModel]="row.weightPct"
+                  [disabled]="row.consensus === 'rejected'"
+                  (ngModelChange)="updateWeight('hazard', row.indicatorCode, $event)"
+                />
+              </td>
+              <td>
+                @if (row.consensus === 'rejected') {
+                  <span class="weights__decision weights__decision--rejected">
+                    Excluded by {{ row.decidedBy }}
+                    @if (row.consensusNote) { — "{{ row.consensusNote }}" }
+                  </span>
+                  <button type="button" (click)="reconsider('hazard', row.indicatorCode)">Reconsider</button>
+                } @else if (canExclude('hazard', row) && row.weightPct === null) {
+                  <input
+                    type="text"
+                    class="weights__note-input"
+                    placeholder="Reason (optional)"
+                    [ngModel]="row.consensusNote"
+                    (ngModelChange)="updateNote('hazard', row.indicatorCode, $event)"
+                  />
+                  <button type="button" [disabled]="!decidedByName().trim()" (click)="exclude('hazard', row.indicatorCode)">
+                    Exclude
+                  </button>
+                } @else if (!canExclude('hazard', row) && row.weightPct === null) {
+                  <span class="weights__decision weights__decision--held">held — component, cannot exclude</span>
+                } @else {
+                  <span class="weights__decision">agreed</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="weights__block">
+      <div class="weights__block-header">
+        <h3>Exposure</h3>
+        <span class="weights__total" [class.weights__total--bad]="exposureTotal() !== 100">
+          {{ exposureTotal() }} / 100
+        </span>
+        <button type="button" (click)="distributeRemaining('exposure')">Distribute remaining</button>
+      </div>
+      <table class="weights__table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Unit</th>
+            <th>Direction</th>
+            <th>Weight</th>
+            <th>Decision</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of exposureRows(); track row.indicatorCode) {
+            <tr [class.weights__row--unresolved]="row.consensus === null && row.weightPct === null" [class.weights__row--excluded]="row.consensus === 'rejected'">
+              <td>{{ row.indicatorName }}</td>
+              <td>{{ row.unit }}</td>
+              <td>{{ row.direction }}</td>
+              <td>
+                <input
+                  type="number"
+                  step="0.001"
+                  [ngModel]="row.weightPct"
+                  [disabled]="row.consensus === 'rejected'"
+                  (ngModelChange)="updateWeight('exposure', row.indicatorCode, $event)"
+                />
+              </td>
+              <td>
+                @if (row.consensus === 'rejected') {
+                  <span class="weights__decision weights__decision--rejected">
+                    Excluded by {{ row.decidedBy }}
+                    @if (row.consensusNote) { — "{{ row.consensusNote }}" }
+                  </span>
+                  <button type="button" (click)="reconsider('exposure', row.indicatorCode)">Reconsider</button>
+                } @else if (row.weightPct === null) {
+                  <input
+                    type="text"
+                    class="weights__note-input"
+                    placeholder="Reason (optional)"
+                    [ngModel]="row.consensusNote"
+                    (ngModelChange)="updateNote('exposure', row.indicatorCode, $event)"
+                  />
+                  <button type="button" [disabled]="!decidedByName().trim()" (click)="exclude('exposure', row.indicatorCode)">
+                    Exclude
+                  </button>
+                } @else {
+                  <span class="weights__decision">agreed</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <label class="weights__note">
+      <span>Panel note (optional)</span>
+      <textarea [ngModel]="panelNote()" (ngModelChange)="panelNote.set($event)" rows="2"></textarea>
+    </label>
+
+    <div class="weights__save">
+      <button type="button" [disabled]="!canSave() || saving()" (click)="save()">
+        {{ saving() ? 'Saving…' : 'Save (new version)' }}
+      </button>
+      @if (!canSave()) {
+        <span class="weights__save-hint">
+          Both blocks must total exactly 100 from agreed/contested weights, with every row either
+          weighted or explicitly excluded.
+        </span>
+      }
+      @if (saveError(); as message) {
+        <span class="weights__error" role="alert">Save failed: {{ message }}</span>
+      }
+      @if (savedVersion(); as v) {
+        <span class="weights__saved">Saved as version {{ v }}.</span>
+      }
+    </div>
+  }
+</div>

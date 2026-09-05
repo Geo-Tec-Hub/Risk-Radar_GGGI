@@ -87,7 +87,9 @@ in the system. A planner reading it would conclude those districts are safe.
 | **Not yet assessed** | Explicit hatch or grey, labelled *No data* |
 | **Assessed but incomplete** (weights missing) | Outlined, labelled *Pending* |
 
-and a coverage indicator on every view: *"212 of 330 divisions assessed."*
+and a coverage indicator on every view: *"212 of N divisions assessed"* — where
+both numbers come from the API. The denominator is the **registered** division
+count and it changes (§O-2, O-12); a hardcoded one silently misreports coverage.
 
 ### 2. A percentage with no explanation
 
@@ -156,7 +158,7 @@ Keeps the current layout. Changes:
 │ Track       ▾  ← new    │   │                          │  │ Exposure  0.44  │
 │ Level  P/D/DSD/GND      │   │                          │  │ ─────────────── │
 │                         │   │                          │  │ Variables +     │
-│ Coverage: 212/330 ←new  │   │                          │  │  weights        │
+│ Coverage: 212/N   ←new  │   │                          │  │  weights        │
 └─────────────────────────┘   └──────────────────────────┘  │ Profile v3      │
                                                             │ Source · date   │
                                                             └─────────────────┘
@@ -193,7 +195,7 @@ The new schema and catalogue already support everything above — that is what
 for. Two things need adding to the plan:
 
 1. **Vector tiles / geometry simplification** in B6. Not optional — DSD is
-   already too slow at 330 polygons and GND is 42× that.
+   already too slow at the full DSD polygon set, and GND is ~42× that.
 2. **The no-data state** must be carried through the API, not just the UI. The
    map endpoint has to distinguish *assessed*, *not assessed*, and *pending*,
    which means B3 returning readiness alongside results.

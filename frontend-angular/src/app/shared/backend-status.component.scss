@@ -1,0 +1,37 @@
+.backend-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #cdd8e3;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.backend-status__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #adb5bd;
+}
+
+.backend-status--checking .backend-status__dot {
+  background: #f5c518;
+}
+
+.backend-status--connected {
+  color: #b2f2bb;
+}
+.backend-status--connected .backend-status__dot {
+  background: #2f9e44;
+}
+
+.backend-status--error {
+  color: #ffc9c9;
+}
+.backend-status--error .backend-status__dot {
+  background: #c92a2a;
+}

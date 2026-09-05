@@ -35,6 +35,7 @@ re-running is the only step needed to change the row set.
 Usage:
     python generate_templates.py              # all 243 workbooks
     python generate_templates.py --limit 3    # first 3 only (smoke test)
+    python generate_templates.py --unlocked    # fully editable review copies
 """
 import argparse
 import csv
@@ -55,9 +56,19 @@ ING = os.path.join(HERE, "..", "ingestion")
 CATALOG = os.path.join(ING, "FINAL_VARIABLES.xlsx")
 DSD_REGISTER = os.path.join(ING, "dsd_register.csv")
 INVENTORY = os.path.join(ING, "variables_inventory.csv")
+ADDENDUM = os.path.join(ING, "catalog_addendum.csv")
+OVERRIDES = os.path.join(ING, "province_variable_overrides.csv")
 OUTDIR = os.path.join(HERE, "generated")
 
-PERIODS = [(2020, 2025), (2025, 2030)]
+# Period ranges. Changed 2026-09-03 on the Central panel's request: the old
+# (2020,2025)+(2025,2030) pair overlapped on 2025 and needed a "later period
+# wins" tie-break. 2021-2025 / 2026-2030 are contiguous, so no tie-break rule
+# is needed and no year can be counted twice.
+PERIODS = [(2021, 2025), (2026, 2030)]
+
+# Set by --unlocked: emit review copies with no sheet protection at all, so the
+# expert panel can restructure freely. Default False = the locked collection set.
+UNLOCKED = False
 
 PROV_CODE = {"Central": "CEN", "Eastern": "EAS", "North Central": "NCE",
              "Northern": "NOR", "Northwestern": "NWE", "Sabaragamuwa": "SAB",
@@ -122,6 +133,19 @@ def load_catalog():
             continue
         variables[code] = dict(code=code, name=ws.cell(r, 2).value,
                                domain=ws.cell(r, 3).value)
+    # Variables a provincial panel added that are not yet in the experts'
+    # FINAL_VARIABLES.xlsx. Kept in a sidecar so the national catalogue stays
+    # the experts' own file and provincial additions stay separable from it.
+    if os.path.exists(ADDENDUM):
+        with open(ADDENDUM, encoding="utf-8-sig") as fh:
+            for r in csv.DictReader(fh):
+                code = (r.get("variable_code") or "").strip()
+                if code and code not in variables:
+                    variables[code] = dict(code=code,
+                                           name=r["variable_name"].strip(),
+                                           domain=r["domain"].strip(),
+                                           addendum=True)
+
     ws = wb["Profile_Variables"]
     membership = defaultdict(list)
     for r in range(2, ws.max_row + 1):
@@ -133,6 +157,34 @@ def load_catalog():
         membership[k] = sorted(set(v),
                                key=lambda c: (variables[c]["domain"] != "hazard", c))
     return variables, dict(membership)
+
+
+def load_province_overrides():
+    """(province, main, sub, hazard) -> {'add': [...], 'retire': set(), 'weight': {}}
+
+    Layered on top of the national profile membership so a province can diverge
+    without editing the national catalogue. Produced by
+    design/ingestion/build_province_overrides.py from a returned expert review.
+    """
+    out = defaultdict(lambda: dict(add=[], retire=set(), weight={}, basis={}))
+    if not os.path.exists(OVERRIDES):
+        return dict(out)
+    with open(OVERRIDES, encoding="utf-8-sig") as fh:
+        for r in csv.DictReader(fh):
+            key = (r["province"], r["main_sector"], r["subsector"] or "",
+                   r["hazard"])
+            code = r["variable_code"].strip()
+            action = r["action"].strip()
+            if action == "retire":
+                out[key]["retire"].add(code)
+                continue
+            if action == "add" and code not in out[key]["add"]:
+                out[key]["add"].append(code)
+            w = (r.get("weight_pct") or "").strip()
+            if w:
+                out[key]["weight"][code] = float(w)
+                out[key]["basis"][code] = (r.get("basis") or "").strip()
+    return dict(out)
 
 
 def load_dsd():
@@ -264,7 +316,7 @@ def fill_data_sheet(ws, period, ctx, params, heads, dsd_rows):
         ws.column_dimensions[col].width = w
     for ci in range(6, ncols + 1):
         ws.column_dimensions[get_column_letter(ci)].width = 16
-    ws.protection.sheet = True
+    ws.protection.sheet = not UNLOCKED
     ws.protection.formatCells = False
 
 
@@ -282,11 +334,12 @@ def fill_weights_sheet(ws, ctx, params):
         "still exists; blank means the variable is NEW in the refined catalogue.")
     ws["A2"].font = F_SUB
     ws["A2"].alignment = WRAP
-    ws.merge_cells("A2:F2")
+    ws.merge_cells("A2:G2")
     ws.row_dimensions[2].height = 62
 
     hdr = ["variable_code", "variable name", "domain", "relationship (+/-)",
-           "legacy weight %", "PROPOSED WEIGHT % (read at import)"]
+           "legacy weight %", "PROPOSED WEIGHT % (read at import)",
+           "basis of the proposal"]
     for ci, h in enumerate(hdr, 1):
         c = ws.cell(row=3, column=ci, value=h)
         c.font = F_HDR
@@ -303,14 +356,18 @@ def fill_weights_sheet(ws, ctx, params):
     r = 4
     rows_by_domain = defaultdict(list)
     for p in params:
+        proposed = p["legacy_weight"]
+        if p.get("panel_weight") is not None:
+            proposed = p["panel_weight"]
         for ci, v in enumerate([p["code"], p["name"], p["domain"], p["rel"],
-                                p["legacy_weight"], p["legacy_weight"]], 1):
+                                p["legacy_weight"], proposed,
+                                p.get("basis") or ""], 1):
             c = ws.cell(row=r, column=ci, value=v)
             c.font = F_BODY
             c.border = THIN
             c.alignment = WRAP
         if p["legacy_weight"] is None:
-            for ci in range(1, 7):
+            for ci in range(1, 8):
                 ws.cell(row=r, column=ci).fill = FILL_NEW
         ws.cell(row=r, column=6).fill = FILL_EDIT
         ws.cell(row=r, column=6).protection = Protection(locked=False)
@@ -329,9 +386,9 @@ def fill_weights_sheet(ws, ctx, params):
         ws.cell(row=r, column=6).border = THIN
         r += 1
 
-    for col, w in zip("ABCDEF", (50, 56, 12, 16, 14, 20)):
+    for col, w in zip("ABCDEFG", (50, 56, 12, 16, 14, 20, 46)):
         ws.column_dimensions[col].width = w
-    ws.protection.sheet = True
+    ws.protection.sheet = not UNLOCKED
     ws.protection.formatCells = False
 
 
@@ -348,14 +405,24 @@ def fill_readme(ws, ctx, params, heads):
          "otherwise, enter a TYPICAL YEAR - not a six-year total. Each column's sub-header "
          "states its rule. (Decided 2026-07-26: a typical year is the only reading that works "
          "for both stocks like population and flows like production.)", F_BODY),
-        ("2b. The year 2025 appears in both tabs. If a year sits in two periods the system uses "
-         "the LATER period's value, so nothing is counted twice.", F_BODY),
+        ("2b. The two periods are contiguous and do not overlap (changed 2026-09-03 at the "
+         "Central panel's request - the old 2020-2025 / 2025-2030 pair shared the year 2025 "
+         "and needed a tie-break). Every year belongs to exactly one tab.", F_BODY),
         ("3. Edit ONLY the yellow cells. Division codes, names, district and the period "
-         "columns are pre-filled and locked.", F_BODY),
+         "columns are pre-filled and locked.", F_BODY)
+        if not UNLOCKED else
+        ("3. REVIEW COPY - nothing is locked. The yellow cells are still where data "
+         "belongs, but every cell, header and tab can be changed so the panel can mark "
+         "up structure as well as values. Return the marked-up file; the finalised "
+         "version will be re-issued locked for collection.", F_WARN),
         ("4. Enter RAW values in the variable's natural unit - do NOT normalize, index or "
          "rank. The system does that.", F_BODY),
         ("5. Do not add, remove, rename or reorder columns or tabs. Files with changed "
-         "structure are rejected on import.", F_BODY),
+         "structure are rejected on import.", F_BODY)
+        if not UNLOCKED else
+        ("5. Structural changes ARE invited in this review copy - add, rename or reorder "
+         "columns and note what you changed. This file is NOT importable; the locked "
+         "re-issue is.", F_BODY),
         ("6. The grey row on each tab is an example of expected formatting; the importer "
          "ignores it.", F_BODY),
         ("7. Leave a value blank if genuinely unavailable and say why in NOTES.", F_BODY),
@@ -399,7 +466,7 @@ def fill_readme(ws, ctx, params, heads):
 
 # --------------------------------------------------------------------------
 def build(province, main, sub, hazard, variables, codes, dsd_rows,
-          legacy_weights, weight_map, period_agg):
+          legacy_weights, weight_map, period_agg, override=None):
     pcode = profile_code(main, sub, hazard, province)
     label = f"{main}" + (f" / {sub}" if sub else "") + f" - {hazard}"
     ctx = dict(pcode=pcode, province=province, label=label,
@@ -412,12 +479,15 @@ def build(province, main, sub, hazard, variables, codes, dsd_rows,
         if code:
             by_code[code] = meta
 
+    override = override or dict(add=[], retire=set(), weight={}, basis={})
     params = []
     for c in codes:
         v = variables[c]
         meta = by_code.get(c, {})
         params.append(dict(code=c, name=v["name"], domain=v["domain"],
                            rel=meta.get("rel"), legacy_weight=meta.get("weight"),
+                           panel_weight=override["weight"].get(c),
+                           basis=override["basis"].get(c, ""),
                            agg=period_agg.get(c, "average")))
 
     heads = ["DS_CODE", "DS_DIVISION", "DISTRICT", "YEAR_START", "YEAR_END"] + \
@@ -435,11 +505,14 @@ def build(province, main, sub, hazard, variables, codes, dsd_rows,
     meta = [("profile_code", pcode), ("version", 1), ("province", province),
             ("main_sector", main), ("subsector", sub or ""), ("hazard", hazard),
             ("catalog", "FINAL_VARIABLES.xlsx"),
+            ("protection", "unlocked-review" if UNLOCKED else "locked"),
+            ("panel_overrides", "%d add, %d retire" % (len(override["add"]),
+                                                       len(override["retire"]))),
             ("generated", datetime.date.today().isoformat()),
             ("dsd_level", dsd_rows[0]["level"] if dsd_rows else ""),
             ("periods", "|".join(f"{a}-{b}" for a, b in PERIODS)),
             ("n_variables", len(params)),
-            ("period_rule_default", "average (typical year); 2025 -> latest period wins"),
+            ("period_rule_default", "average (typical year); periods are contiguous, no overlap"),
             ("period_aggregation", "|".join(f"{p['code']}={p['agg']}" for p in params)),
             ("expected_columns", "|".join(heads))]
     for ri, (k, v) in enumerate(meta, 1):
@@ -460,19 +533,43 @@ def main():
     ap.add_argument("--start", type=int, default=0)
     ap.add_argument("--resume", action="store_true",
                     help="skip jobs whose workbook already exists")
+    ap.add_argument("--unlocked", action="store_true",
+                    help="emit fully editable review copies: no sheet protection "
+                         "on any tab. Use while the expert panel is still revising "
+                         "the templates; re-run without the flag to restore the "
+                         "locked collection set.")
     args = ap.parse_args()
+
+    global UNLOCKED
+    UNLOCKED = args.unlocked
 
     variables, membership = load_catalog()
     dsd = load_dsd()
     coverage, legacy_weights = load_legacy()
     weight_map = load_weight_map()
     period_agg = load_period_aggregation()
+    overrides = load_province_overrides()
 
     jobs = []
     for (main, sub, hazard), codes in sorted(membership.items()):
         provs = sorted(coverage.get((main, sub, hazard), set())) or sorted(PROV_CODE)
         for p in provs:
-            jobs.append((p, main, sub, hazard, codes))
+            ov = overrides.get((p, main, sub, hazard))
+            pcodes = codes
+            if ov:
+                pcodes = [c for c in codes if c not in ov["retire"]]
+                for c in ov["add"]:
+                    if c not in pcodes:
+                        pcodes.append(c)
+                pcodes = sorted(set(pcodes),
+                                key=lambda c: (variables[c]["domain"] != "hazard", c))
+                unknown = [c for c in pcodes if c not in variables]
+                if unknown:
+                    raise SystemExit(
+                        "override names variables missing from the catalogue and "
+                        "its addendum: %s (%s / %s / %s / %s)"
+                        % (", ".join(unknown), p, main, sub, hazard))
+            jobs.append((p, main, sub, hazard, pcodes, ov))
     jobs = jobs[args.start:]
     if args.limit:
         jobs = jobs[:args.limit]
@@ -482,16 +579,18 @@ def main():
             f"{profile_code(j[1], j[2], j[3], j[0])}_upload_template.xlsx"))]
 
     manifest = []
-    for province, main, sub, hazard, codes in jobs:
+    for province, main, sub, hazard, codes, ov in jobs:
         out, params = build(province, main, sub, hazard, variables, codes,
                             dsd.get(province, []), legacy_weights, weight_map,
-                            period_agg)
-        nw = sum(1 for p in params if p["legacy_weight"] is not None)
+                            period_agg, ov)
+        nw = sum(1 for p in params
+                 if p["legacy_weight"] is not None or p.get("panel_weight") is not None)
         manifest.append(dict(
             file=os.path.relpath(out, HERE), province=province, main_sector=main,
             subsector=sub, hazard=hazard, n_variables=len(params),
             n_with_legacy_weight=nw, n_new_variables=len(params) - nw,
-            n_rows=len(dsd.get(province, []))))
+            n_rows=len(dsd.get(province, [])),
+            panel_overrides=(len(ov["add"]) + len(ov["retire"])) if ov else 0))
 
     if manifest:
         mpath = os.path.join(OUTDIR, "MANIFEST.csv")

@@ -7,7 +7,7 @@ to be handed to a coding session in this repository and followed without reading
 anything else first. Where it makes a claim about the system it cites the
 requirement, so you can check it.
 
-**Authoritative spec:** `design/srs/SRS_v2.2.md`. If this guide and the SRS
+**Authoritative spec:** `design/srs/SRS_v2.3.md`. If this guide and the SRS
 disagree, the SRS wins and this file is wrong — fix it.
 
 ---
@@ -17,8 +17,10 @@ disagree, the SRS wins and this file is wrong — fix it.
 Three facts change how you build almost everything here.
 
 **1. There are no scores yet, and there will not be for a while.** The database
-holds 330 DS divisions, 174 variables and 243 profiles, but **zero indicator
-values**. `v_profile_readiness` reports 0 of 243 profiles computable. Data
+holds the registered DS divisions (some *boundary-pending* — registered, no
+geometry yet), 174 variables and 243 profiles, but **zero indicator values**.
+Read the division count from the database; do not carry one in your head or your
+code, it has moved twice in three weeks (O-2, and now O-12). `v_profile_readiness` reports 0 of 243 profiles computable. Data
 arrives gradually, imported through this UI, province by province.
 
 So the empty map is not an edge case to handle later. **It is the normal state,
@@ -42,7 +44,7 @@ must build around are in §7 below.
 | Thing | State |
 |---|---|
 | PostgreSQL 15 + PostGIS, 28 tables, negative tests passing | Built, on Milinda's Windows machine, port 5432 |
-| 330 DS divisions, topology validated, province + district assigned | Loaded |
+| DS divisions registered (some boundary-pending), topology validated on those with geometry, province + district assigned | Loaded — count is **not** fixed, see O-12 |
 | 174 variables · 243 profiles · 3,664 memberships · 9 provinces · 25 districts | Seeded |
 | Indicator values | **None** |
 | FastAPI application | **Does not exist** |
@@ -97,7 +99,7 @@ OpenLayers 10 (`ol`)
 FastAPI backend at http://localhost:8000
 ```
 
-Pin the versions you actually install back into this file once created.
+**Pinned 2026-08-08:** Angular CLI 22.1.3, `ol` 10.10.0, Node 24.15.0, npm 11.14.0.
 
 **Standalone components, no NgModules.** Signals for local state. Angular's
 `HttpClient` for the API. No state-management library until something genuinely
@@ -111,10 +113,15 @@ library only when a real need appears.
 
 ```
 Risk Radar/
-  frontend/          ← the Angular app (new)
+  frontend-angular/  ← the Angular app (built 2026-08-08)
   FrontEnd/          ← retired React app, reference only
   backend/           ← FastAPI app + db scripts
 ```
+
+**Named `frontend-angular/`, not `frontend/` as written above.** Windows/NTFS
+is case-insensitive, so `frontend/` cannot coexist with the already-present
+`FrontEnd/` — `ng new frontend` collides with it. See the 2026-08-08 row in
+`PROGRESS_TRACKER.md` §3.
 
 **`node_modules` in a OneDrive-synced folder is a real problem** — tens of
 thousands of small files, constant sync churn, and installs that fail on locked
@@ -310,7 +317,7 @@ and value table beside the map.
 ### Geometry
 
 Vector tiles, not GeoJSON (FR-5.2, §4.3). The retired system shipped raw GeoJSON
-for 330 divisions and took ~20 seconds to draw; at GND level with 14,019 units it
+for the whole division set and took ~20 seconds to draw; at GND level with 14,019 units it
 is not viable at all.
 
 ```ts
@@ -369,12 +376,30 @@ const pct = (rating * 10) + '%';         // an ordinal is not a percentage
 
 ### Bands
 
-Five bands, half-open intervals, thresholds at 0.2 / 0.4 / 0.6 / 0.8 (§2.7,
-P-4). **These are a placeholder** and will be re-derived from real data once the
-first province is loaded — by quantile or natural breaks, the panel decides.
+Five bands, half-open intervals, thresholds at 0.2 / 0.4 / 0.6 / 0.8 on the
+rescaled 0–1 index (§2.7, **[P-4] confirmed 14 Aug 2026**). **These are fixed.**
+They are not a placeholder, they will not be re-derived from real data, and
+quantile and natural-breaks classification are rejected — [O-10] is closed.
 
-So read thresholds from configuration served by the API (FR-4.13). Do not
-hardcode 0.2 / 0.4 / 0.6 / 0.8 in the client. When they change, no code changes.
+Two things follow for the client:
+
+- **The legend never moves.** You can build a static legend and a printable one,
+  and a screenshot taken today stays accurate. Do not build threshold-change
+  machinery, a re-classify control, or a "recalculate bands" action.
+- **The map will look bottom-heavy, and that is correct.** The index is a
+  product of two numbers in [0, 1], so roughly 45–50% of divisions land in the
+  lowest band rather than 20%. Do not treat this as a rendering bug and do not
+  "fix" it by stretching the ramp.
+
+Still read the values from configuration served by the API (FR-4.13) rather than
+literals in components — not because they are expected to change, but so that if
+an owner decision ever does change them it is a settings edit. The colour ramp
+lives with them (FR-4.13b); `core/models/band.model.ts` holds the canonical
+table and `bandFor()`.
+
+**`bandFor()` returns `null` for an absent score — never *Very low*.** An absent
+value is a coverage state, and the lowest band is a real score of nearly zero.
+Conflating them is the defect the retired client shipped.
 
 ### Legend and coverage statement
 
@@ -412,9 +437,10 @@ officer choose.
 
 You are importing province by province over months. Design for that.
 
-**The empty state is the first state you build.** A map of 330 divisions, all
-`unassessed`, with a coverage statement reading `0 assessed · 0 pending · 330
-unassessed`. If that screen is honest and readable, the hard part is done.
+**The empty state is the first state you build.** A map of every registered
+division, all `unassessed`, with a coverage statement reading
+`0 assessed · 0 pending · N unassessed` — where `N` comes from the API, never
+from a constant. If that screen is honest and readable, the hard part is done.
 
 **Partial provinces must look partial.** When a province is half-imported, the
 coverage statement, the legend and the composition panel all have to make that
@@ -454,15 +480,17 @@ config. **No hardcoded API host** — the retired app hardcoded it.
 *Done:* app runs, base map renders, API base URL comes from environment.
 
 **F1 — Geometry.** *(Stage 5.2; needs the MVT endpoint)*
-330 divisions from vector tiles, three admin levels, pan/zoom.
+Every registered division from vector tiles (boundary-pending ones rendered
+distinctly — never dropped, never drawn at a guessed location), three admin
+levels, pan/zoom.
 *Done:* national extent interactive within 3 s on a cold cache; a tile returns
 in under 500 ms (NFR-3).
 
 **F2 — Coverage states.** *(Stage 5.3 — the important one)*
 `core/coverage/` styling, all three states, legend, coverage statement.
-*Done:* with an empty database the map renders 330 unassessed divisions,
-correctly labelled, and **an automated test asserts no view renders an absent
-value as zero.**
+*Done:* with an empty database the map renders every registered division as
+unassessed, correctly labelled, the count matching the API and not a literal, and
+**an automated test asserts no view renders an absent value as zero.**
 
 **F3 — Controls and URL state.** *(Stage 5.4, 5.8)*
 Sector, subsector, hazard, province, track, period. Full selection in the URL.
@@ -525,7 +553,8 @@ Before any of this is called finished:
 - [ ] Coverage states are asserted by test, not by looking at the map.
 - [ ] `strict: true`, and no `any` on an API boundary.
 - [ ] Exactly one module decides colour (R5) — grep proves it.
-- [ ] Band thresholds come from configuration, not from source.
+- [ ] Band thresholds and colours come from configuration, not from literals in components.
+- [ ] An absent score renders as a coverage state, never as the lowest band.
 - [ ] NFR-3 timings met: tile < 500 ms, national extent < 3 s cold, province
       query < 2 s.
 - [ ] Keyboard navigable, screen-reader compatible, contrast checked, and
@@ -540,10 +569,11 @@ Before any of this is called finished:
 
 | # | Item | Effect on this build |
 |---|---|---|
-| O-10 | Band thresholds are placeholders | Read from config; expect them to change after the first province loads |
+| ~~O-10~~ | **Closed 14 Aug 2026 — thresholds are fixed** at the even fifths of the rescaled 0–1 index | Build a static legend. No re-classify control, no "recalculate bands" action. Expect a bottom-heavy map and do not correct it |
 | O-6 | No Tamil names for any reference data | NFR-12 needs English, Sinhala **and** Tamil. Build i18n in from the start; the strings can arrive later |
 | O-9 | Hazard construct — components vs composite | Decides whether the composition panel shows hazard components or one index. **Ask before building F6** |
-| O-2 | 330 divisions in the shapefile, 331 usually quoted | Do not hardcode either number; read the count |
+| ~~O-2~~ | **Answered 10 Aug 2026 — the Kalmunai split.** Two rows registered before their polygons exist | Do not hardcode any count, and **never read `features.length` as the division count**. A division in the register with no geometry renders as *boundary pending* — listed and named, never dropped, never drawn at a guessed location |
+| **O-12** | **The official count moved again — the owner reports 340, against a register of 331 (14 Aug 2026).** Nine divisions unregistered; names, codes and geometry all awaited | **No frontend change is needed**, and that is the point: if you built F1/F2 off the API rather than a constant, nine new divisions appear on their own. If any literal count survives anywhere in the client, this is when it becomes a visible bug. Grep for it now, not then |
 | — | Province-relative scores move as data arrives (§7) | Unresolved. Until settled, over-communicate coverage |
 
 ---

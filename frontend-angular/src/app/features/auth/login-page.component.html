@@ -1,0 +1,25 @@
+<div class="auth">
+  <h2>Sign in</h2>
+
+  <form class="auth__form" (submit)="$event.preventDefault(); submit()">
+    <label class="auth__field">
+      <span>Email</span>
+      <input type="email" autocomplete="username" [ngModel]="email()" name="email" (ngModelChange)="email.set($event)" required />
+    </label>
+
+    <label class="auth__field">
+      <span>Password</span>
+      <input type="password" autocomplete="current-password" [ngModel]="password()" name="password" (ngModelChange)="password.set($event)" required />
+    </label>
+
+    @if (error(); as message) {
+      <p class="auth__error" role="alert">{{ message }}</p>
+    }
+
+    <button type="submit" [disabled]="submitting() || !email() || !password()">
+      {{ submitting() ? 'Signing in…' : 'Sign in' }}
+    </button>
+  </form>
+
+  <p class="auth__switch">No account yet? <a routerLink="/register">Register</a></p>
+</div>

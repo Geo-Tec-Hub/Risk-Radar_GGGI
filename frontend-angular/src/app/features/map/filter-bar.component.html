@@ -1,0 +1,83 @@
+<form class="filter-bar" (submit)="$event.preventDefault()">
+  @if (taxonomyError()) {
+    <p class="filter-bar__error" role="status">
+      Filter options could not be loaded, so no selection can be offered yet.
+      {{ taxonomyError() }}
+    </p>
+  }
+
+  <label class="filter-bar__field">
+    <span>Province</span>
+    <select [ngModel]="province()" name="province" (ngModelChange)="province.set($event); onFieldChange()">
+      @for (p of provinces(); track p.code) {
+        <option [ngValue]="p.code">{{ p.name }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="filter-bar__field">
+    <span>Sector</span>
+    <select [ngModel]="sector()" name="sector" (ngModelChange)="onSectorChange($event)">
+      @for (s of sectors(); track s.code) {
+        <option [ngValue]="s.code">{{ s.name }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="filter-bar__field">
+    <span>Subsector</span>
+    <select
+      [ngModel]="subsector()"
+      name="subsector"
+      [disabled]="subsectorOptions().length === 0"
+      (ngModelChange)="onSubsectorChange($event)"
+    >
+      @for (s of subsectorOptions(); track s.code) {
+        <option [ngValue]="s.code">{{ s.name }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="filter-bar__field">
+    <span>Hazard</span>
+    <select [ngModel]="hazard()" name="hazard" (ngModelChange)="hazard.set($event); onFieldChange()">
+      @for (h of hazards(); track h.code) {
+        <option [ngValue]="h.code">{{ h.name }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="filter-bar__field">
+    <span>Track</span>
+    <select [ngModel]="track()" name="track" (ngModelChange)="track.set($event); onFieldChange()">
+      @for (t of tracks; track t) {
+        <option [ngValue]="t">{{ t }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="filter-bar__field">
+    <span>Period</span>
+    <select [ngModel]="period()" name="period" (ngModelChange)="period.set($event); onFieldChange()">
+      @for (p of periods(); track p) {
+        <option [ngValue]="p">{{ p }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="filter-bar__field" [title]="nationalScopeDisabledReason()">
+    <span>Index scope</span>
+    <select [ngModel]="indexScope()" name="indexScope" (ngModelChange)="indexScope.set($event); onFieldChange()">
+      <option [ngValue]="'provincial'">Provincial (published score)</option>
+      <option [ngValue]="'national'" disabled>National — unavailable, see below</option>
+    </select>
+    <!-- Explains the DISABLED option. It used to sit here bare, which read as
+         an error about the current view: a user seeing a blank map and the
+         words "National index unavailable" underneath reasonably concludes
+         that is why nothing rendered. It is not — provincial is the published
+         score and works on its own. -->
+    <span class="filter-bar__field-note">
+      Provincial is the published score. {{ nationalScopeDisabledReason() }}
+    </span>
+  </label>
+</form>

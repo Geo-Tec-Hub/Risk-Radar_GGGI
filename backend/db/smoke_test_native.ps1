@@ -34,8 +34,16 @@ function Find-Psql {
         'C:\Program Files (x86)\PostgreSQL\*\bin',
         "$env:LOCALAPPDATA\Programs\PostgreSQL\*\bin"
     )
+    # NOTE: deliberately not `-Filter psql.exe`. Combining a wildcarded -Path
+    # (the '*' version segment) with -Filter silently returns zero results on
+    # some PowerShell versions, though the same -Path works alone. This branch
+    # only runs when psql is NOT already on PATH -- i.e. exactly when it is
+    # needed -- so the failure stays invisible until it matters. Found 2026-08-09.
     $found = foreach ($r in $roots) {
-        Get-ChildItem -Path $r -Filter psql.exe -ErrorAction SilentlyContinue
+        Get-ChildItem -Path $r -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+            $candidate = Join-Path $_.FullName 'psql.exe'
+            if (Test-Path $candidate) { Get-Item $candidate }
+        }
     }
     if (-not $found) { return $null }
 

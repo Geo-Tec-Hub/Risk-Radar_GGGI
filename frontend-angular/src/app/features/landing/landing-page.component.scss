@@ -1,0 +1,57 @@
+.landing {
+  max-width: 640px;
+  margin: 4rem auto;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.landing__title {
+  font-size: 2rem;
+  margin: 0 0 0.25rem;
+  color: #1c3d5a;
+}
+
+.landing__subtitle {
+  color: #495057;
+  margin: 0 0 1.5rem;
+}
+
+.landing__lead {
+  color: #343a40;
+  line-height: 1.5;
+}
+
+.landing__actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 1.75rem 0;
+  flex-wrap: wrap;
+}
+
+.landing__cta {
+  padding: 0.6rem 1.25rem;
+  border-radius: 4px;
+  border: 1px solid #1c3d5a;
+  color: #1c3d5a;
+  text-decoration: none;
+  font-size: 0.9375rem;
+}
+
+.landing__cta:hover {
+  background: #eef2f6;
+}
+
+.landing__cta--primary {
+  background: #1c3d5a;
+  color: #fff;
+}
+
+.landing__cta--primary:hover {
+  background: #163049;
+}
+
+.landing__note {
+  color: #868e96;
+  font-size: 0.8125rem;
+}

@@ -1,0 +1,84 @@
+<div class="context">
+  <h2>Data entry — choose a profile</h2>
+  <p class="context__hint">Sector → subsector → hazard → province → period resolves to exactly one profile.</p>
+
+  <form class="context__form" (submit)="$event.preventDefault()">
+    <label class="context__field">
+      <span>Sector <em>required</em></span>
+      <select [ngModel]="sector()" name="sector" (ngModelChange)="onSectorChange($event)">
+        <option [ngValue]="undefined">Choose a sector…</option>
+        @for (s of sectors; track s.code) {
+          <option [ngValue]="s.code">{{ s.name }}</option>
+        }
+      </select>
+    </label>
+
+    @if (needsSubsector()) {
+      <label class="context__field">
+        <span>Subsector <em>required</em></span>
+        <select [ngModel]="subsector()" name="subsector" (ngModelChange)="subsector.set($event)">
+          <option [ngValue]="undefined">Choose a subsector…</option>
+          @for (s of subsectorOptions(); track s) {
+            <option [ngValue]="s">{{ s }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    <label class="context__field">
+      <span>Hazard <em>required</em></span>
+      <select [ngModel]="hazard()" name="hazard" (ngModelChange)="hazard.set($event)">
+        <option [ngValue]="undefined">Choose a hazard…</option>
+        @for (h of hazards; track h) {
+          <option [ngValue]="h">{{ h }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="context__field">
+      <span>Province <em>required</em></span>
+      <select
+        [ngModel]="province()"
+        name="province"
+        [disabled]="provinceLocked()"
+        (ngModelChange)="province.set($event)"
+      >
+        <option [ngValue]="undefined">Choose a province…</option>
+        @for (p of provinces; track p) {
+          <option [ngValue]="p">{{ p }}</option>
+        }
+      </select>
+      @if (provinceLocked()) {
+        <em class="context__field-note">Locked to your assigned province (SRS §3.2)</em>
+      }
+    </label>
+
+    <label class="context__field">
+      <span>Period <em>required</em></span>
+      <select [ngModel]="period()" name="period" (ngModelChange)="period.set($event)">
+        <option [ngValue]="undefined">Choose a period…</option>
+        @for (p of periods; track p) {
+          <option [ngValue]="p">{{ p }}</option>
+        }
+      </select>
+    </label>
+  </form>
+
+  @if (resolved(); as r) {
+    <div class="context__resolved">
+      <p class="context__resolved-line">
+        <strong>{{ r.sectorName }}{{ r.subsector ? ' · ' + r.subsector : '' }} × {{ r.hazard }}</strong>
+        · {{ r.province }} Province · {{ r.period }}
+      </p>
+      <p class="context__resolved-note">
+        Parameter and division counts populate once the catalogue API (Stage 2) exists.
+      </p>
+      <div class="context__actions">
+        <button type="button" (click)="goToWeights()">Set weights</button>
+        <button type="button" (click)="goToImport()">Import a workbook</button>
+      </div>
+    </div>
+  } @else {
+    <p class="context__incomplete">Choose every required field to resolve a profile.</p>
+  }
+</div>

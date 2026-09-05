@@ -8,9 +8,12 @@
 #   docker compose exec -u root db bash -c "apt-get update && apt-get install -y gdal-bin"
 #
 # What it does
-#   1. ds_division  <- SL_RDSD.shp (ADM3, 330 polygons), joined to the register
-#      for district + province + official code. Geometry stored in EPSG:4326;
-#      area_km2 computed in EPSG:5235 (SLD99) so it comes out in metres, not degrees.
+#   1. ds_division  <- 331 register rows LEFT JOINed to SL_RDSD.shp's 330
+#      polygons (ADM3) by name, for district + province + official code. A
+#      register row with no matching polygon still loads (geom/area_km2 NULL,
+#      reading as boundary_pending -- Stage 1.14, the Kalmunai split, O-2), it
+#      is not silently dropped. Geometry stored in EPSG:4326; area_km2
+#      computed in EPSG:5235 (SLD99) so it comes out in metres, not degrees.
 #   2. spatial_layer features for the province and district layers, so the map
 #      has admin outlines to draw and the toolbox has something to test against.
 set -euo pipefail
@@ -26,7 +29,7 @@ ogr2ogr -f PostgreSQL "$PG" "$SHP/SL_RDSD.shp" \
         -nln stg_dsd -overwrite -lco GEOMETRY_NAME=geom \
         -t_srs EPSG:4326 -nlt MULTIPOLYGON
 
-echo "  loading the DS-division register (330 rows, district + province)..."
+echo "  loading the DS-division register (331 rows, district + province)..."
 $PSQL <<'SQL'
 DROP TABLE IF EXISTS stg_register;
 CREATE TABLE stg_register (
@@ -36,23 +39,30 @@ SQL
 $PSQL -c "\copy stg_register FROM '/design/ingestion/dsd_register.csv' WITH (FORMAT csv, HEADER true)"
 
 echo "  merging geometry + register -> ds_division..."
+# LEFT JOIN, not JOIN: a register row with no matching polygon (boundary
+# pending -- Stage 1.14, O-2) must still be INSERTed with geom/area_km2 NULL,
+# not silently dropped by an inner join.
 $PSQL <<'SQL'
 INSERT INTO ds_division (code, name, district_name, province_id, geom, area_km2)
 SELECT r.ds_code,
        r.ds_division,
        r.district,
        p.id,
-       ST_Multi(ST_MakeValid(s.geom)),
-       ST_Area(ST_Transform(s.geom, 5235)) / 1000000.0   -- SLD99, so km2 not deg2
+       CASE WHEN s.geom IS NOT NULL THEN ST_Multi(ST_MakeValid(s.geom)) END,
+       CASE WHEN s.geom IS NOT NULL THEN ST_Area(ST_Transform(s.geom, 5235)) / 1000000.0 END  -- SLD99, so km2 not deg2
   FROM stg_register r
   JOIN province p  ON p.name = r.province
-  JOIN stg_dsd  s  ON s."ADM3_EN" = r.ds_division
+  LEFT JOIN stg_dsd s  ON s."ADM3_EN" = r.ds_division
 ON CONFLICT (code) DO UPDATE
    SET name = EXCLUDED.name, district_name = EXCLUDED.district_name,
        province_id = EXCLUDED.province_id, geom = EXCLUDED.geom,
        area_km2 = EXCLUDED.area_km2;
 
--- anything in the register that found no polygon, or vice versa
+-- anything in the register that found no polygon, or vice versa. Since the
+-- Kalmunai split (O-2, Stage 1.14) these are EXPECTED non-zero: 2 register
+-- rows with no polygon (Kalmunai Muslim/Tamil), 1 polygon with no register
+-- row (the old undivided "Kalmunai" feature -- EAS-008 is retired). Not a
+-- sign the load is broken.
 SELECT 'register rows with no matching polygon' AS check, count(*) AS n
   FROM stg_register r LEFT JOIN stg_dsd s ON s."ADM3_EN" = r.ds_division
  WHERE s."ADM3_EN" IS NULL

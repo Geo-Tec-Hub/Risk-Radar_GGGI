@@ -8,7 +8,7 @@
 - **Owner:** Milinda
 - **Created:** 2026-06-20
 > **⚠ Superseded, 2026-08-08.** The build plan is now **SRS §10's ten stages**
-> (`design/srs/SRS_v2.2.md`). The B1–B8 / F1–F6 numbering below and the prompts
+> (`design/srs/SRS_v2.3.md`). The B1–B8 / F1–F6 numbering below and the prompts
 > attached to it are kept as a record of what was run and why, not as
 > instructions. Where a prompt names React or MapLibre it is describing a
 > superseded decision — see the stack line.
@@ -144,7 +144,8 @@ Legend: ☐ = not started · ◐ = in progress · ☑ = done
 - **Produced (2026-07-26):** **243 per-profile workbooks** in `design/templates/generated/<Province>/`
   + `MANIFEST.csv`, built by `generate_templates.py` from `design/ingestion/FINAL_VARIABLES.xlsx`
   (174 canonical variables, 33 national profiles) and `design/ingestion/dsd_register.csv`
-  (330 official DS divisions). Each workbook: 2 period tabs (2020–2025, 2025–2030) × real
+  (**the register is the authority for how many divisions there are — it has changed
+  twice and will change again; see SRS §11.3 O-2 and O-12**). Each workbook: 2 period tabs (2020–2025, 2025–2030) × real
   DS-division rows grouped by district, a reference-only WEIGHTS tab, README and hidden `_META`.
   Superseded the original two-generic-template idea — one workbook per province × sector × hazard
   is what the provincial teams actually fill.
@@ -287,8 +288,10 @@ D7 is an ongoing loop that begins as soon as D3's schema exists.
   `SL_GND` (ADM4, 14,019 GNDs, parked). All WGS84/EPSG:4326, staged in `design/spatial/`.
   None carried parent columns, so district and province were derived by **max-area spatial overlap**
   — zero ambiguity, zero overlapping polygons, tiles the country to within 0.054%.
-  Register: `design/ingestion/dsd_register.csv`. *Open:* file has 330 divisions, the usual figure is
-  331 — confirm against the source register. No official DSD code in the attribute table, so codes
+  Register: `design/ingestion/dsd_register.csv`. *Superseded:* the 330 above is the
+  shapefile as supplied in July 2026. The register went to 331 on 10 Aug (Kalmunai split,
+  O-2) and the official total is now reported as **340** (O-12) — nine divisions still
+  unregistered. **Never take a division count from this file's history; count the register.** No official DSD code in the attribute table, so codes
   are generated (`CEN-001`…); swap for official codes before bulk data entry if they exist.
 - ☑ **Hazard types + sectors/subsectors + parameters — RESOLVED 2026-07-26.** Expert-refined
   `Variables by Sectors` → **174 canonical variables, 33 national profiles, 3 hazards**
@@ -321,7 +324,7 @@ D7 is an ongoing loop that begins as soon as D3's schema exists.
 | 2026-07-02 | D3 rev 2 — weighting layer | ☑ done | `schema.sql` (20 tables), updated ERD; sample archived at `design/ingestion/samples/` | From paddy sample: added vulnerability_profile + profile_indicator (per sector×hazard variable sets, weight %, +/- relationship, versioned, national scope); indicator_catalog is now a pure variable registry |
 | 2026-07-02 | D3 rev 3–4 + 9-province inventory | ☑ done | `schema.sql` (21 tables: + province, + norm_scope), updated ERD; `design/ingestion/variables_inventory.csv` + `VARIABLES_INVENTORY_NOTES.md` | Profiles are province-scoped (243 profiles parsed from `Variabes_9 Provinces/`); norm_scope added for valid temporal comparison; 3 data anomalies pending with sector teams |
 | 2026-07-10 | D4 UI wireframes (part 1) | ◐ in progress | `design/ui/risk-radar-ui-prototype.html` | Clickable prototype for GGGI: role-based login (admin/data/expert/community), admin user mgmt + registration monitor, 4-step data-entry wizard (province→DS→sector/subsector→hazard → parameter weights w/ 100% validation → Excel import or manual entry → review). Uses real Central-Province profiles from variables inventory. Map dashboard + remaining screens pending |
-| 2026-07-16 | D4 UI wireframes (part 2) — prototype v2 | ◐ in progress | `design/ui/risk-radar-ui-prototype.html` | Decisions: actual-data uploads versioned w/ last-active + admin revert (not silent overwrite); general users rate 1–5 + comment (shown w/ n, hidden below n≥10); public read-only map (login only for data entry). Added: public visualization tab (schematic DS tile choropleth, radio track switch actual/expert/ratings/compare, divergence table, per-DS bar charts, weight-composition donuts, LULC/water/roads/buildings layer toggles + opacity), expert rules (actual-table params locked 🔒, own params added → renormalised mean, n≥2 threshold; free selection if no actual table), community 3-step rating wizard, version history panel in admin. Real MapLibre map still pending |
+| 2026-07-16 | D4 UI wireframes (part 2) — prototype v2 | ◐ in progress | `design/ui/risk-radar-ui-prototype.html` | Decisions: actual-data uploads versioned w/ last-active + admin revert (not silent overwrite); general users rate 1–5 + comment (shown w/ n, hidden below n≥10); public read-only map (login only for data entry). Added: public visualization tab (schematic DS tile choropleth, radio track switch actual/expert/ratings/compare, divergence table, per-DS bar charts, weight-composition donuts, LULC/water/roads/buildings layer toggles + opacity), expert rules (actual-table params locked 🔒, own params added → renormalised mean, n≥2 threshold; free selection if no actual table), community 3-step rating wizard, version history panel in admin. Real OpenLayers map still pending |
 | 2026-07-18 | D3 rev 6 — year ranges | ☑ done | `schema.sql` | Datasets cover **year ranges**, not single years: `year` → `year_start`/`year_end` on indicator_value, vulnerability_result, impact_projection. Boundary-year rule and totals-vs-averages still pending expert confirmation |
 | 2026-07-26 | Catalog FINAL | ☑ done | `design/ingestion/FINAL_VARIABLES.xlsx`, `seed_indicator_catalog_final.sql` | Expert-refined `Variables by Sectors` supersedes the 213-variable provisional dedup: **174 canonical variables, 33 profiles, 463 profile-variable rows**. Crosswalk: 129 unchanged, 76 renamed, 8 retired, 4 new. 2 malformed codes fixed; livestock share-denominators standardised on `_LIVESTOCK_OPERATORS` (old codes kept as aliases) |
 | 2026-07-26 | DS-division register | ☑ done | `design/ingestion/dsd_register.csv`, `design/spatial/*.shp` | §5 open question closed. **330 DS divisions** with district + province, derived from official ADM3/ADM2/ADM1 shapefiles by spatial overlap — zero ambiguity, zero overlaps, tiles to within 0.054%. Codes generated (no official code in the source) |

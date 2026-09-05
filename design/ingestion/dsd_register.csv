@@ -1,331 +1,341 @@
-province,district,ds_code,ds_division,ds_division_si,level,source
-Central,Kandy,CEN-001,Akurana,අකුරණ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-002,Deltota,දෙල්තොට,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-003,Doluwa,දොලුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-004,Ganga Ihala Korale,ගඟඉහළකෝරලේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-005,Gangawata Korale,ගඟවටකෝරලේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-006,Harispattuwa,හාරිස්පත්තුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-007,Hatharaliyadda,හතරලියද්ද,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-008,Kundasale,කුන්ඩසාලේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-009,Medadumbara,මැදදුම්බර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-010,Minipe,මිනිපේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-011,Panvila,පන්විල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-012,Pasbagekorale,පස්බාගේකෝරලේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-013,Pathadumbara,පාතදුම්බර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-014,Pathahewaheta,පාතහේවාහැට,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-015,Poojapitiya,පූජාපිටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-016,Tumpane,තුම්පනේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-017,Udapalatha,උඩපළාත,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-018,Ududumbara,උඩදුම්බර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-019,Udunuwara,උඩුනුවර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Kandy,CEN-020,Yatinuwara,යටිනුවර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Matale,CEN-021,Ambanganga,අඹන්ගඟ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Matale,CEN-022,Dambulla,දඹුල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Matale,CEN-023,Galewela,ගලේවෙල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Matale,CEN-024,Laggala,ලග්ගල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Matale,CEN-025,Matale,මාතලේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Matale,CEN-026,Naula,නාඋල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Matale,CEN-027,Pallepola,පල්ලේපොල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Matale,CEN-028,Rattota,රත්තොට,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Matale,CEN-029,Ukuwela,උකුවෙල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Matale,CEN-030,Wilgamuwa,විල්ගමුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Matale,CEN-031,Yatawatta,යටවත්ත,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Nuwara Eliya,CEN-032,Ambagamuwa,අඹගමුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Nuwara Eliya,CEN-033,Hanguranketa,හගුරන්කේත,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Nuwara Eliya,CEN-034,Kothmale,කොත්මලේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Nuwara Eliya,CEN-035,Nuwara Eliya,නුවර එළිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Central,Nuwara Eliya,CEN-036,Walapane,වලපනේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-001,Addalaichenai,අඩ්ඩාලච්චේන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-002,Akkaraipattu,අක්කරපත්තුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-003,Alayadivembu,අලයාඩිවෙම්බු,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-004,Ampara,අම්පාර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-005,Damana,දමන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-006,Dehiattakandiya,දෙහිඅත්තකණ්ඩිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-007,Irakkamam,ඉරක්කාමම්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-008,Kalmunai,කල්මුනේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-009,Karaitivu,කරෙයිතිවු,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-010,Lahugala,ලාහුගල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-011,Mahaoya,මහඔය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-012,Navithanveli,නවිදන්වැලි,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-013,Nintavur,නීන්දවුර්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-014,Padiyathalawa,පදියතලාව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-015,Pottuvil,පොතුවිල්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-016,Sainthamaruthu,සයින්දමරුතු,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-017,Sammanthurai,සම්මන්තුරේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-018,Tirukkovil,තිරුක්කෝවිල්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Ampara,EAS-019,Uhana,උහන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-020,Eravur Pattu,එරාවූර් පත්තු,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-021,Eravur Town,එරාවූර් නගර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-022,Kattankudy,කාත්තන්කුඩි,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-023,Koralai Pattu,කෝරළේ පත්තු,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-024,Koralai Pattu Central,කෝරළේ පත්තු මධ්‍යම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-025,Koralai Pattu North,කෝරළේ පත්තු උතුර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-026,Koralai Pattu South,කෝරළේ පත්තු දකුණ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-027,Koralai Pattu West,කෝරළේ පත්තු බටහිර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-028,Manmunai North,මාන්මුනේ උතුර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-029,Manmunai Pattu,මාන්මුනේ පත්තු,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-030,Manmunai South & Eruvil Pattu,මාන්මුනේ දකුණ සහ එ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-031,Manmunai South West,මාන්මුනේ නිරිත,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-032,Manmunai West,මාන්මුනේ බටහිර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Batticaloa,EAS-033,Porativu Pattu,පොරතිවු පත්තු,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Trincomalee,EAS-034,Gomarankadawala,ගෝමරන්කඩවල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Trincomalee,EAS-035,Kantale,කන්තලේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Trincomalee,EAS-036,Kinniya,කින්නියා,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Trincomalee,EAS-037,Kuchchaweli,කුච්චවේලි,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Trincomalee,EAS-038,Morawewa,මොරවැව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Trincomalee,EAS-039,Muthur,මුත්තූර්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Trincomalee,EAS-040,Padavi Sri Pura,පදවි ශ්‍රී පුර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Trincomalee,EAS-041,Seruvila,සේරුවිල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Trincomalee,EAS-042,Thambalagamuwa,තඹලගමුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Trincomalee,EAS-043,Town & Gravets,ත්‍රිකුණාමල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Eastern,Trincomalee,EAS-044,Verugal,වෙරුගල්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-001,Galenbidunuwewa,ගලෙන්බිදුනුවැව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-002,Galnewa,ගල්නෑව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-003,Horowpathana,හොරොව්පොතාන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-004,Ipalogama,ඉපලෝගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-005,Kahatagasdigiliya,කහටගස්දිගිලිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-006,Kebithigollewa,කැඹිතිගොල්ලෑව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-007,Kekirawa,කැකිරාව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-008,Mahawilachchiya,මහාවිලච්චිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-009,Medawachchiya,මැදවච්චිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-010,Mihinthale,මිහින්තලේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-011,Nachchaduwa,නච්චදූව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-012,Nochchiyagama,නොච්චියාගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-013,Nuwaragam Palatha Central,නුවරගම් පළාත මධ්‍ය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-014,Nuwaragam Palatha East,නුවරගම් පළාත නැගෙන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-015,Padaviya,පදවිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-016,Palagala,පළාගල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-017,Palugaswewa,පලුගස්වැව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-018,Rajanganaya,රාජාංගනය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-019,Rambewa,රඹෑව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-020,Thalawa,තලාව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-021,Thambuththegama,තඹුත්තේගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Anuradhapura,NCE-022,Thirappane,තිරප්පනේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Polonnaruwa,NCE-023,Dimbulagala,දිඹුලාගල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Polonnaruwa,NCE-024,Elahera,ඇලහැර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Polonnaruwa,NCE-025,Higurakgoda,හිඟුරක්ගොඩ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Polonnaruwa,NCE-026,Lankapura,ලංකාපුර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Polonnaruwa,NCE-027,Medirigiriya,මැදිරිගිරිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Polonnaruwa,NCE-028,Thamankaduwa,තමන්කඩුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-North Central,Polonnaruwa,NCE-029,Welikanda,වැලිකන්ද,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-001,Delft,ඩෙල්ෆ්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-002,Islands North (Kayts),දුපත උතුර (කයිට්ස්),DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-003,Islands South (Velanai),දුපත දකුණ (වෙලනයි),DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-004,Jaffna,යාපනය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-005,Karainagar,කාරෛනගර්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-006,Nallur,නල්ලූර්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-007,Thenmaradchi (Chavakachcheri),තේන්මාරච්චි (ජාවකච,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-008,Vadamaradchchi East,වඩමාරච්චි නැගෙනහි,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-009,Vadamaradchchi South-West (Karaveddy),වඩමාරච්චි නිරිත (ක,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-010,Vadamaradchi North (Point Pedro),වඩමාරච්චි උතුර (පේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-011,Valikamam East (Kopay),වලිකාමම් නැගෙනහිර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-012,Valikamam North (Thllippalai),වලිකාමම් උතුර (තෙල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-013,Valikamam South (Uduvil),වලිකාමම් දකුණ (උඩු,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-014,Valikamam South West (Sandilipay),වලිකාමම් නිරිත (සං,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Jaffna,NOR-015,Valikamam West (Chankanai),වලිකාමම් බටහිර (චන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Kilinochchi,NOR-016,Kandavalai,කණ්ඩාවලෙයි,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Kilinochchi,NOR-017,Karachchi,කරච්චි,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Kilinochchi,NOR-018,Pachchilaipalli,පලෙයි (පච්චිලේපලෙය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Kilinochchi,NOR-019,Poonakary,පුනරීන්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Mannar,NOR-020,Madhu,මඩු,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Mannar,NOR-021,Mannar Town,මන්නාරම නගර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Mannar,NOR-022,Manthai West,මාන්තෛ බටහිර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Mannar,NOR-023,Musali,මූසාලේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Mannar,NOR-024,Nanaddan,නානාට්ටාන්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Mullaitivu,NOR-025,Manthai East,මාන්තේ නැගෙනහිර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Mullaitivu,NOR-026,Maritimepattu,මුහුදුබඩපත්තුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Mullaitivu,NOR-027,Oddusuddan,ඔඩ්ඩුසුඩාන්,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Mullaitivu,NOR-028,Puthukkudiyiruppu,පුදුකුඩිඉරිප්පු,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Mullaitivu,NOR-029,Thunukkai,තුනුක්‌කායි,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Mullaitivu,NOR-030,Welioya,වැලි ඔය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Vavuniya,NOR-031,Vavuniya,වවුනියාව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Vavuniya,NOR-032,Vavuniya North,වවුනියාව උතුර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Vavuniya,NOR-033,Vavuniya South,වවුනියාව දකුණ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northern,Vavuniya,NOR-034,Vengalacheddikulam,වෙන්ගලචෙඩ්ඩිකුලම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-001,Alawwa,අලව්ව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-002,Ambanpola,අඹන්පොළ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-003,Bamunakotuwa,බමුණුකොටුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-004,Bingiriya,බිංගිරිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-005,Ehetuwewa,ඇහැටුවැව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-006,Galgamuwa,ගල්ගමුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-007,Ganewatta,ගනේවත්ත,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-008,Giribawa,ගිරිබාව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-009,Ibbagamuwa,ඉබ්බාගමුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-010,Kobeigane,කොබෙයිගනේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-011,Kotawehera,කොටවෙහෙර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-012,Kuliyapitiya East,කුලියාපිටිය නැගෙන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-013,Kuliyapitiya West,කුලියාපිටිය බටහිර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-014,Kurunegala,කුරුණෑගල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-015,Maho,මහව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-016,Mallawapitiya,මල්ලවපිටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-017,Maspotha,මාස්පොත,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-018,Mawathagama,මාවතගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-019,Narammala,නාරම්මල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-020,Nikaweratiya,නිකවැරටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-021,Panduwasnuwara East,පඩුවස්නුවර නැගෙනහ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-022,Panduwasnuwara West,පඩුවස්නුවර බටහිර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-023,Pannala,පන්නල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-024,Polgahawela,පොල්ගහවෙල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-025,Polpitigama,පොල්පිතිගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-026,Rasnayakapura,රස්නායකපුර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-027,Rideegama,රිදිගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-028,Udubaddawa,උඩුබැද්දාව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-029,Wariyapola,වාරියපොල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Kurunegala,NWE-030,Weerabugedara,වීරඹුගෙදර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-031,Anamaduwa,ආණමඩුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-032,Arachchikattuwa,ආරච්චිකට්ටුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-033,Chilaw,හලාවත,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-034,Dankotuwa,දංකොටුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-035,Kalpitiya,කල්පිටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-036,Karuwalagaswewa,කරුවලගස්වැව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-037,Madampe,මාදම්පෙ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-038,Mahakumbukkadawala,මහකුඹුක්කඩවල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-039,Mahawewa,මහවැව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-040,Mundel,මුන්දලම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-041,Nattandiya,නාත්තන්ඩිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-042,Nawagattegama,නවගත්තේගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-043,Pallama,පල්ලම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-044,Puttalam,පුත්තලම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-045,Vanathavilluwa,වනාතවිල්ලුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Northwestern,Puttalam,NWE-046,Wennappuwa,වෙන්නප්පුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Kegalle,SAB-001,Aranayake,අරණායක,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Kegalle,SAB-002,Bulathkohipitiya,බුලත්කොහුපිටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Kegalle,SAB-003,Dehiowita,දෙහිඕවිට,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Kegalle,SAB-004,Deraniyagala,දැරණියගල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Kegalle,SAB-005,Galigamuwa,ගලිගමුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Kegalle,SAB-006,Kegalle,කෑගල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Kegalle,SAB-007,Mawanella,මාවනැල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Kegalle,SAB-008,Rambukkana,රඹුක්කන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Kegalle,SAB-009,Ruwanwella,රුවන්වැල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Kegalle,SAB-010,Warakapola,වරකාපොළ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Kegalle,SAB-011,Yatiyantota,යටියන්තොට,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-012,Ayagama,අයගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-013,Balangoda,බලංගොඩ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-014,Eheliyagoda,ඇහැලියගොඩ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-015,Elapatha,ඇලපාත,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-016,Embilipitiya,ඇඹිලිපිටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-017,Godakawela,ගොඩකවෙල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-018,Imbulpe,ඉඹුල්පේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-019,Kahawattha,කහවත්ත,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-020,Kalawana,කලවාන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-021,Kiriella,කිරිඇල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-022,Kolonna,කොලොන්න,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-023,Kuruvita,කුරුවිට,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-024,Nivithigala,නිවිතිගල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-025,Opanayake,ඕපනායක,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-026,Pelmadulla,පැල්මඩුල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-027,Ratnapura,රත්නපුර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Sabaragamuwa,Ratnapura,SAB-028,Weligepola,වැලිගෙපොල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-001,Akmeemana,අක්මීමණ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-002,Ambalangoda,අම්බලන්ගොඩ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-003,Baddegama,බද්දේගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-004,Balapitiya,බලපිටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-005,Bentota,බෙන්තොට,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-006,Bope-Poddala,බෝපෙ-පෝද්දල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-007,Elpitiya,ඇල්පිටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-008,Galle4Gravets,කඩවත්සතර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-009,Gonapinuwala,ගෝනපීනුවල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-010,Habaraduwa,හබරාදුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-011,Hikkaduwa,හික්කඩුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-012,Imaduwa,ඉමදුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-013,Karandeniya,කරන්දෙනිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-014,Nagoda,නාගොඩ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-015,Neluwa,නෙළුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-016,Niyagama,නියාගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-017,Thawalama,තවලම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-018,Welivitiya-Divitura,වැලිවිටිය-දිවිතුර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Galle,SOU-019,Yakkalamulla,යක්කලමුල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-020,Ambalantota,අම්බලන්තොට,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-021,Angunakolapelessa,අඟුණුකොළපැලැස්ස,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-022,Beliatta,බෙලිඅත්ත,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-023,Hambantota,හම්බන්තොට,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-024,Katuwana,කටුවන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-025,Lunugamwehera,ලුණුගම්වෙහෙර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-026,Okewela,ඕකේවෙල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-027,Sooriyawewa,සූරියවැව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-028,Tangalle,තංගල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-029,Thissamaharama,තිස්සමහාරාම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-030,Walasmulla,වලස්මුල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Hambantota,SOU-031,Weeraketiya,වීරකැටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-032,Akuressa,අකුරැස්ස,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-033,Athuraliya,අතුරලිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-034,Devinuwara,දෙවිනුවර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-035,Dikwella,දික්වැල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-036,Hakmana,හක්මන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-037,Kaburupitiya,කඹුරුපිටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-038,Kirinda Puhulwella,කිරින්ද පුහුල්වැල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-039,Kotapola,කොටපොල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-040,Malimbada,මාලිම්බඩ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-041,Matara Four Gravets,මාතර කඩවත්සතර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-042,Mulatiyana,මුලටියන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-043,Pasgoda,පස්ගොඩ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-044,Pitabaddara,පිටබැද්දර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-045,Thihagoda,තිහගොඩ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-046,Weligama,වැලිගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Southern,Matara,SOU-047,Welipitiya,වැලිපිටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-001,Badulla,බදුල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-002,Bandarawela,බණ්ඩාරවෙල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-003,Ella,ඇල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-004,Haldummulla,හල්දුම්මුල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-005,Hali-Ela,හාලිඇල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-006,Haputale,හපුතලේ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-007,Kandeketiya,කන්දෙකැටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-008,Lunugala,ලුණුගල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-009,Mahiyanganaya,මහියංගනය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-010,Meegahakiula,මීගහකිවුල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-011,Passara,පස්සර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-012,Rideemaliyadda,රිදීමාලියැද්ද,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-013,Soranathota,සොරණාතොට,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-014,Uvaparanagama,ඌවපරණගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Badulla,UVA-015,Welimada,වැලිමඩ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Monaragala,UVA-016,Badalkumbura,බඩල්කුඹුර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Monaragala,UVA-017,Bibile,බිබිල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Monaragala,UVA-018,Buttala,බුත්තල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Monaragala,UVA-019,Katharagama,කතරගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Monaragala,UVA-020,Madulla,මඩුල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Monaragala,UVA-021,Medagama,මැදගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Monaragala,UVA-022,Monaragala,මොණරාගල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Monaragala,UVA-023,Sevanagala,සෙවනගල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Monaragala,UVA-024,Siyambalanduwa,සියඹලාණ්ඩුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Monaragala,UVA-025,Thanamalwila,තණමල්විල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Uva,Monaragala,UVA-026,Wellawaya,වැල්ලවාය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-001,Colombo,කොළඹ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-002,Dehiwala,දෙහිවල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-003,Homagama,හෝමාගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-004,Kaduwela,කඩුවෙල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-005,Kesbewa,කැස්බෑව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-006,Kolonnawa,කොලොන්නාව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-007,Maharagama,මහරගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-008,Moratuwa,මොරටුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-009,Padukka,පාදුක්ක,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-010,Ratmalana,රත්මලාන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-011,Seethawaka,සීතාවක,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-012,Sri Jayawardanapura Kotte,ශ්‍රී ජයවර්ධනපුර ක,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Colombo,WES-013,Thimbirigasyaya,තිඹිරිගස්යාය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-014,Attanagalla,අත්තනගල්ල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-015,Biyagama,බියගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-016,Divulapitiya,දිවුලපිටිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-017,Dompe,දොම්පෙ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-018,Gampaha,ගම්පහ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-019,Ja Ela,ජා-ඇල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-020,Katana,කටාන,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-021,Kelaniya,කැළණිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-022,Mahara,මහර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-023,Minuwangoda,මිනුවන්ගොඩ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-024,Mirigama,මීරිගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-025,Negombo,මීගමුව,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Gampaha,WES-026,Wattala,වත්තල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-027,Agalawatta,අගලවත්ත,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-028,Bandaragama,බණ්ඩාරගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-029,Beruwala,බේරුවල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-030,Bulathsinhala,බුලත්සිංහල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-031,Dodangoda,දොඩංගොඩ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-032,Horana,හොරණ,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-033,Ingiriya,ඉංගිරිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-034,Kalutara,කඵතර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-035,Madurawala,මදුරාවෙල,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-036,Matugama,මතුගම,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-037,Millaniya,මිල්ලනිය,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-038,Palindanuwara,පාලින්දනුවර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-039,Panadura,පානදුර,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
-Western,Kalutara,WES-040,Walallawita,වලල්ලාවිට,DS_DIVISION,SL_RDSD.shp ADM3 + SL_DSD.shp ADM2 + SL_PD.shp ADM1 (spatial join)
+province,district,ds_code,ds_division,ds_division_si,ds_code_official_num,ds_code_legacy,split_from,lon,lat,level,source
+Central,Kandy,KA1,Akurana,අකුරණ,153,CEN-001,,80.619585,7.394799,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA2,Deltota,දෙල්තොට,154,CEN-002,,80.71493,7.179305,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA3,Doluwa,දොලුව,155,CEN-003,,80.632279,7.167808,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA4,Ganga Ihala Korale,ගඟඉහළකෝරලේ,156,CEN-004,,80.510195,7.115281,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA5,Gangawata Korale,ගඟවටකෝරලේ,157,CEN-005,,80.644512,7.273917,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA6,Harispattuwa,හාරිස්පත්තුව,158,CEN-006,,80.584541,7.326442,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA7,Hatharaliyadda,හතරලියද්ද,159,CEN-007,,80.463802,7.336763,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA8,Kundasale,කුන්ඩසාලේ,160,CEN-008,,80.718933,7.307005,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA9,Medadumbara,මැදදුම්බර,161,CEN-009,,80.796454,7.293951,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA10,Minipe,මිනිපේ,162,CEN-010,,80.949087,7.343377,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA11,Panvila,පන්විල,163,CEN-011,,80.756853,7.411237,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA12,Pasbagekorale,පස්බාගේකෝරලේ,164,CEN-012,,80.545543,7.017195,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA13,Pathadumbara,පාතදුම්බර,165,CEN-013,,80.657881,7.346554,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA14,Pathahewaheta,පාතහේවාහැට,166,CEN-014,,80.705906,7.227093,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA15,Poojapitiya,පූජාපිටිය,167,CEN-015,,80.553454,7.403008,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA16,Tumpane,තුම්පනේ,168,CEN-016,,80.5142,7.368616,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA17,Udapalatha,උඩපළාත,170,CEN-017,,80.6257,7.144555,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA18,Ududumbara,උඩදුම්බර,169,CEN-018,,80.882035,7.333205,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA19,Udunuwara,උඩුනුවර,171,CEN-019,,80.561731,7.2222,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Kandy,KA20,Yatinuwara,යටිනුවර,172,CEN-020,,80.541066,7.283412,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Matale,MA1,Ambanganga,අඹන්ගඟ,222,CEN-021,,80.677879,7.56277,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Matale,MA2,Dambulla,දඹුල්ල,223,CEN-022,,80.717118,7.874443,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Matale,MA3,Galewela,ගලේවෙල,224,CEN-023,,80.56433,7.769177,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Matale,MA4,Laggala,ලග්ගල,225,CEN-024,,80.793819,7.564491,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Matale,MA5,Matale,මාතලේ,226,CEN-025,,80.625305,7.543563,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Matale,MA6,Naula,නාඋල,227,CEN-026,,80.695054,7.700916,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Matale,MA7,Pallepola,පල්ලේපොල,228,CEN-027,,80.589782,7.651882,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Matale,MA8,Rattota,රත්තොට,229,CEN-028,,80.683103,7.48449,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Matale,MA9,Ukuwela,උකුවෙල,230,CEN-029,,80.612661,7.437219,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Matale,MA10,Wilgamuwa,විල්ගමුව,231,CEN-030,,80.924727,7.589189,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Matale,MA11,Yatawatta,යටවත්ත,232,CEN-031,,80.581318,7.543856,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Nuwara Eliya,NU1,Ambagamuwa Korale,,264,,Ambagamuwa (CEN-032),80.474234,6.951382,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Nuwara Eliya,NU2,Hanguranketa,හගුරන්කේත,265,CEN-033,,80.791419,7.174685,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Nuwara Eliya,NU3,Kothmale East,,266,,Kothmale (CEN-034),80.6982,7.037375,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Nuwara Eliya,NU4,Kothmale West,,338,,Kothmale (CEN-034),80.612003,7.028795,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Nuwara Eliya,NU5,Mathurata,,337,,Hanguranketa (CEN-033),80.788718,7.088705,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Nuwara Eliya,NU6,Nildandahinna,,340,,Walapane (CEN-036),80.913975,7.088632,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Nuwara Eliya,NU7,Norwood,,336,,Ambagamuwa (CEN-032),80.578133,6.856014,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Nuwara Eliya,NU8,Nuwara Eliya,නුවර එළිය,267,CEN-035,,80.778033,6.897998,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Nuwara Eliya,NU9,Thalawakele,,339,,Nuwara Eliya (CEN-035),80.705843,6.889229,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Central,Nuwara Eliya,NU10,Walapane,වලපනේ,268,CEN-036,,80.834132,7.088056,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM1,Addalaichenai,අඩ්ඩාලච්චේන,1,EAS-001,,81.811947,7.263232,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM2,Akkaraipattu,අක්කරපත්තුව,2,EAS-002,,81.765404,7.207869,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM3,Alayadivembu,අලයාඩිවෙම්බු,3,EAS-003,,81.80503,7.175412,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM4,Ampara,අම්පාර,4,EAS-004,,81.593022,7.273715,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM5,Damana,දමන,5,EAS-005,,81.619361,7.123332,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM6,Dehiattakandiya,දෙහිඅත්තකණ්ඩිය,6,EAS-006,,81.093203,7.620365,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM7,Irakkamam,ඉරක්කාමම්,7,EAS-007,,81.721239,7.24373,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM8,Kalmunai,(pending — official source not yet available),8,EAS-045,"Kalmunai (EAS-008, retired)",81.826528,7.404026,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM20,Kalmunai Tamil Division,(pending — official source not yet available),326,EAS-046,"Kalmunai (EAS-008, retired)",81.821497,7.421727,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM9,Karaitivu,කරෙයිතිවු,9,EAS-009,,81.833925,7.37431,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM10,Lahugala,ලාහුගල,10,EAS-010,,81.71443,6.746005,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM11,Mahaoya,මහඔය,11,EAS-011,,81.367151,7.548355,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM12,Navithanveli,නවිදන්වැලි,12,EAS-012,,81.758948,7.422379,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM13,Nintavur,නීන්දවුර්,13,EAS-013,,81.840846,7.327664,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM14,Padiyathalawa,පදියතලාව,14,EAS-014,,81.252947,7.42687,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM15,Pottuvil,පොතුවිල්,15,EAS-015,,81.799095,6.926285,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM16,Sainthamaruthu,සයින්දමරුතු,16,EAS-016,,81.833765,7.392039,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM17,Sammanthurai,සම්මන්තුරේ,17,EAS-017,,81.773466,7.332418,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM18,Tirukkovil,තිරුක්කෝවිල්,18,EAS-018,,81.7855,7.102299,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Ampara,AM19,Uhana,උහන,19,EAS-019,,81.603815,7.399129,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT1,Eravur Pattu,එරාවූර් පත්තු,57,EAS-020,,81.457323,7.678243,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT2,Eravur Town,එරාවූර් නගර,58,EAS-021,,81.609875,7.776559,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT3,Kattankudy,කාත්තන්කුඩි,59,EAS-022,,81.73101,7.683898,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT4,Koralai Pattu (Valachchenai),කෝරළේ පත්තු,61,EAS-023,,81.549387,7.907877,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT5,Koralai Pattu Central,කෝරළේ පත්තු මධ්‍යම,324,EAS-024,,81.513122,7.934349,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT6,Koralai Pattu North (Vaharai),කෝරළේ පත්තු උතුර,62,EAS-025,,81.361531,8.101425,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT7,Koralai Pattu South (Kiran),කෝරළේ පත්තු දකුණ,331,EAS-026,,81.377278,7.862768,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT8,Koralai Pattu West (Oddamavadi),කෝරළේ පත්තු බටහිර,60,EAS-027,,81.491379,7.918079,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT9,Manmunai North,මාන්මුනේ උතුර,63,EAS-028,,81.679775,7.73664,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT10,Manmunai Pattu (Araipattai),මාන්මුනේ පත්තු,64,EAS-029,,81.759159,7.636741,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT11,Manmunai South & Eruvil Pattu,මාන්මුනේ දකුණ සහ එ,65,EAS-030,,81.795028,7.520934,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT12,Manmunai South West,මාන්මුනේ නිරිත,66,EAS-031,,81.695382,7.577799,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT13,Manmunai West,මාන්මුනේ බටහිර,67,EAS-032,,81.606874,7.634191,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Batticaloa,BT14,Porativu Pattu,පොරතිවු පත්තු,68,EAS-033,,81.711718,7.481545,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Trincomalee,TR1,Gomarankadawala,ගෝමරන්කඩවල,310,EAS-034,,80.970923,8.753869,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Trincomalee,TR2,Kantale,කන්තලේ,311,EAS-035,,81.067501,8.339124,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Trincomalee,TR3,Kinniya,කින්නියා,312,EAS-036,,81.158392,8.440754,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Trincomalee,TR4,Kuchchaweli,කුච්චවේලි,313,EAS-037,,81.059703,8.807325,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Trincomalee,TR5,Morawewa,මොරවැව,314,EAS-038,,81.013999,8.638586,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Trincomalee,TR6,Muthur,මුත්තූර්,315,EAS-039,,81.292095,8.430083,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Trincomalee,TR7,Padavi Sri Pura,පදවි ශ්‍රී පුර,316,EAS-040,,80.864081,8.907215,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Trincomalee,TR8,Seruvila,සේරුවිල,317,EAS-041,,81.245903,8.280181,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Trincomalee,TR9,Thambalagamuwa,තඹලගමුව,318,EAS-042,,81.035543,8.50956,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Trincomalee,TR10,Town & Gravets,ත්‍රිකුණාමල,319,EAS-043,,81.172085,8.584109,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Eastern,Trincomalee,TR11,Verugal,වෙරුගල්,309,EAS-044,,81.36875,8.331852,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN1,Galenbidunuwewa,ගලෙන්බිදුනුවැව,20,NCE-001,,80.71404,8.258783,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN2,Galnewa,ගල්නෑව,21,NCE-002,,80.465914,8.017574,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN3,Horowpathana,හොරොව්පොතාන,22,NCE-003,,80.831599,8.519996,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN4,Ipalogama,ඉපලෝගම,23,NCE-004,,80.522006,8.0721,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN5,Kahatagasdigiliya,කහටගස්දිගිලිය,24,NCE-005,,80.708452,8.449249,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN6,Kebithigollewa,කැඹිතිගොල්ලෑව,25,NCE-006,,80.687055,8.710958,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN7,Kekirawa,කැකිරාව,26,NCE-007,,80.596942,8.05598,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN8,Mahawilachchiya,මහාවිලච්චිය,27,NCE-008,,80.168677,8.53175,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN9,Medawachchiya,මැදවච්චිය,28,NCE-009,,80.501991,8.595501,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN10,Mihinthale,මිහින්තලේ,29,NCE-010,,80.529902,8.351668,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN11,Nachchaduwa,නච්චදූව,30,NCE-011,,80.438771,8.242628,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN12,Nochchiyagama,නොච්චියාගම,31,NCE-012,,80.118248,8.35149,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN13,Nuwaragam Palatha Central,නුවරගම් පළාත මධ්‍ය,32,NCE-013,,80.371005,8.418507,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN14,Nuwaragam Palatha East,නුවරගම් පළාත නැගෙන,33,NCE-014,,80.447501,8.309282,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN15,Padaviya,පදවිය,34,NCE-015,,80.798606,8.838763,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN16,Palagala,පළාගල,35,NCE-016,,80.546296,7.911342,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN17,Palugaswewa,පලුගස්වැව,36,NCE-017,,80.71546,8.093111,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN18,Rajanganaya,රාජාංගනය,37,NCE-018,,80.171657,8.182009,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN19,Rambewa,රඹෑව,38,NCE-019,,80.604498,8.491037,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN20,Thalawa,තලාව,39,NCE-020,,80.380926,8.18944,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN21,Thambuththegama,තඹුත්තේගම,40,NCE-021,,80.307217,8.14723,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Anuradhapura,AN22,Thirappane,තිරප්පනේ,41,NCE-022,,80.545477,8.208995,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Polonnaruwa,PO1,Dimbulagala,දිඹුලාගල,269,NCE-023,,81.104502,7.809938,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Polonnaruwa,PO2,Elahera,ඇලහැර,270,NCE-024,,80.854499,7.82855,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Polonnaruwa,PO3,Higurakgoda,හිඟුරක්ගොඩ,271,NCE-025,,80.825266,8.142538,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Polonnaruwa,PO4,Lankapura,ලංකාපුර,272,NCE-026,,81.077457,8.062303,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Polonnaruwa,PO5,Medirigiriya,මැදිරිගිරිය,273,NCE-027,,81.055542,8.192922,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Polonnaruwa,PO6,Thamankaduwa,තමන්කඩුව,274,NCE-028,,80.982532,7.868,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+North Central,Polonnaruwa,PO7,Welikanda,වැලිකන්ද,275,NCE-029,,81.227901,8.060154,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA1,Delft,ඩෙල්ෆ්,127,NOR-001,,79.690383,9.51545,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA2,Islands North(kayts),දුපත උතුර (කයිට්ස්),130,NOR-002,,79.869781,9.669863,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA3,Islands South(velanai),දුපත දකුණ (වෙලනයි),138,NOR-003,,79.967102,9.624367,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA4,Jaffna,යාපනය,128,NOR-004,,80.010893,9.670388,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA5,Karainagar,කාරෛනගර්,328,NOR-005,,79.87637,9.735398,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA6,Nallur,නල්ලූර්,133,NOR-006,,80.049264,9.661755,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA7,Thenmaradchi(chavakachcheri),තේන්මාරච්චි (ජාවකච,126,NOR-007,,80.181758,9.671357,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA8,Vadamaradchchi East,වඩමාරච්චි නැගෙනහි,132,NOR-008,,80.398573,9.618998,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA9,Vadamaradchchi South-west(karaveddy),වඩමාරච්චි නිරිත (ක,129,NOR-009,,80.190359,9.772721,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA10,Vadamaradchi North(point Pedro),වඩමාරච්චි උතුර (පේ,134,NOR-010,,80.24357,9.801578,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA11,Valikamam East(kopay),වලිකාමම් නැගෙනහිර,131,NOR-011,,80.112365,9.74189,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA12,Valikamam North(thllippalai),වලිකාමම් උතුර (තෙල,136,NOR-012,,80.049504,9.787625,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA13,Valikamam South West(sandilipay),වලිකාමම් නිරිත (සං,135,NOR-014,,79.986879,9.747076,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA14,Valikamam South(uduvil),වලිකාමම් දකුණ (උඩු,137,NOR-013,,80.016891,9.737478,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Jaffna,JA15,Valikamam West(chankanai),වලිකාමම් බටහිර (චන,125,NOR-015,,79.949856,9.737743,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Kilinochchi,KI1,Kandavalai,කණ්ඩාවලෙයි,327,NOR-016,,80.531011,9.431608,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Kilinochchi,KI2,Karachchi,කරච්චි,184,NOR-017,,80.356017,9.352448,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Kilinochchi,KI3,Pachchilaipalli,පලෙයි (පච්චිලේපලෙය,185,NOR-018,,80.348389,9.596668,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Kilinochchi,KI4,Poonakary,පුනරීන්,186,NOR-019,,80.194699,9.410948,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Mannar,MN1,Madhu,මඩු,217,NOR-020,,80.158047,8.808521,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Mannar,MN2,Mannar Town,මන්නාරම නගර,218,NOR-021,,79.842745,9.035187,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Mannar,MN3,Manthai West,මාන්තෛ බටහිර,219,NOR-022,,80.121731,9.0383,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Mannar,MN4,Musali,මූසාලේ,220,NOR-023,,79.998066,8.665624,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Mannar,MN5,Nanaddan,නානාට්ටාන්,221,NOR-024,,79.97026,8.86542,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Mullaitivu,MU1,Manthai East,මාන්තේ නැගෙනහිර,261,NOR-025,,80.321765,9.080716,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Mullaitivu,MU2,Maritimepattu,මුහුදුබඩපත්තුව,260,NOR-026,,80.772537,9.221645,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Mullaitivu,MU3,Oddusuddan,ඔඩ්ඩුසුඩාන්,329,NOR-027,,80.544698,9.188277,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Mullaitivu,MU4,Puthukkudiyiruppu,පුදුකුඩිඉරිප්පු,262,NOR-028,,80.661941,9.316703,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Mullaitivu,MU5,Thunukkai,තුනුක්‌කායි,263,NOR-029,,80.263704,9.202558,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Mullaitivu,MU6,Welioya,වැලි ඔය,330,NOR-030,,80.796346,8.977618,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Vavuniya,VA1,Vavuniya,වවුනියාව,320,NOR-031,,80.405162,8.823304,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Vavuniya,VA2,Vavuniya North,වවුනියාව උතුර,321,NOR-032,,80.557213,8.997128,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Vavuniya,VA3,Vavuniya South,වවුනියාව දකුණ,322,NOR-033,,80.573433,8.764746,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northern,Vavuniya,VA4,Vengalacheddikulam,වෙන්ගලචෙඩ්ඩිකුලම,323,NOR-034,,80.296874,8.686393,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU1,Alawwa,අලව්ව,187,NWE-001,,80.22155,7.327042,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU2,Ambanpola,අඹන්පොළ,188,NWE-002,,80.22165,7.911589,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU3,Bamunakotuwa,බමුණුකොටුව,189,NWE-003,,80.243533,7.543582,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU4,Bingiriya,බිංගිරිය,190,NWE-004,,79.951226,7.610545,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU5,Ehetuwewa,ඇහැටුවැව,191,NWE-005,,80.376159,7.972488,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU6,Galgamuwa,ගල්ගමුව,192,NWE-006,,80.287163,8.030759,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU7,Ganewatta,ගනේවත්ත,193,NWE-007,,80.385022,7.660202,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU8,Giribawa,ගිරිබාව,194,NWE-008,,80.188013,8.110461,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU9,Ibbagamuwa,ඉබ්බාගමුව,195,NWE-009,,80.457568,7.611305,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU10,Kobeigane,කොබෙයිගනේ,197,NWE-010,,80.113783,7.677083,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU11,Kotawehera,කොටවෙහෙර,198,NWE-011,,80.120035,7.876368,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU12,Kuliyapitiya East,කුලියාපිටිය නැගෙන,199,NWE-012,,80.15356,7.464848,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU13,Kuliyapitiya West,කුලියාපිටිය බටහිර,200,NWE-013,,80.06,7.477451,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU14,Kurunegala,කුරුණෑගල,201,NWE-014,,80.354055,7.577328,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU15,Maho,මහව,202,NWE-015,,80.283854,7.799966,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU16,Mallawapitiya,මල්ලවපිටිය,203,NWE-016,,80.393976,7.468873,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU17,Maspotha,මාස්පොත,204,NWE-017,,80.313223,7.579693,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU18,Mawathagama,මාවතගම,205,NWE-018,,80.442576,7.434082,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU19,Narammala,නාරම්මල,206,NWE-019,,80.218693,7.397567,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU20,Nikaweratiya,නිකවැරටිය,207,NWE-020,,80.152328,7.770744,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU21,Panduwasnuwara East,පඩුවස්නුවර නැගෙනහ,196,NWE-021,,80.134423,7.559032,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU22,Panduwasnuwara West,පඩුවස්නුවර බටහිර,208,NWE-022,,80.068453,7.58478,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU23,Pannala,පන්නල,209,NWE-023,,80.034826,7.353049,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU24,Polgahawela,පොල්ගහවෙල,210,NWE-024,,80.311716,7.37895,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU25,Polpitigama,පොල්පිතිගම,211,NWE-025,,80.420807,7.821542,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU26,Rasnayakapura,රස්නායකපුර,212,NWE-026,,80.033085,7.76387,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU27,Rideegama,රිදිගම,213,NWE-027,,80.524457,7.524267,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU28,Udubaddawa,උඩුබැද්දාව,214,NWE-028,,79.948398,7.481455,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU29,Wariyapola,වාරියපොල,215,NWE-029,,80.231167,7.66056,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Kurunegala,KU30,Weerabugedara,වීරඹුගෙදර,216,NWE-030,,80.271631,7.468801,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU1,Anamaduwa,ආණමඩුව,276,NWE-031,,80.00218,7.893527,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU2,Arachchikattuwa,ආරච්චිකට්ටුව,277,NWE-032,,79.851084,7.67514,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU3,Chilaw,හලාවත,278,NWE-033,,79.830604,7.571796,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU4,Dankotuwa,දංකොටුව,279,NWE-034,,79.90714,7.322254,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU5,Kalpitiya,කල්පිටිය,280,NWE-035,,79.722305,8.156064,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU6,Karuwalagaswewa,කරුවලගස්වැව,281,NWE-036,,80.019244,8.124161,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU7,Madampe,මාදම්පෙ,282,NWE-037,,79.863372,7.529034,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU8,Mahakumbukkadawala,මහකුඹුක්කඩවල,283,NWE-038,,79.901574,7.872791,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU9,Mahawewa,මහවැව,284,NWE-039,,79.857873,7.464009,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU10,Mundel,මුන්දලම,285,NWE-040,,79.815985,7.846237,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU11,Nattandiya,නාත්තන්ඩිය,286,NWE-041,,79.873823,7.397061,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU12,Nawagattegama,නවගත්තේගම,287,NWE-042,,80.085583,8.008101,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU13,Pallama,පල්ලම,288,NWE-043,,79.930454,7.705629,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU14,Puttalam,පුත්තලම,289,NWE-044,,79.874132,8.022249,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU15,Vanathavilluwa,වනාතවිල්ලුව,290,NWE-045,,79.904627,8.325439,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Northwestern,Puttalam,PU16,Wennappuwa,වෙන්නප්පුව,291,NWE-046,,79.852853,7.320063,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Kegalle,KE1,Aranayake,අරණායක,173,SAB-001,,80.450421,7.158896,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Kegalle,KE2,Bulathkohipitiya,බුලත්කොහුපිටිය,174,SAB-002,,80.347375,7.107101,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Kegalle,KE3,Dehiowita,දෙහිඕවිට,175,SAB-003,,80.264818,6.937338,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Kegalle,KE4,Deraniyagala,දැරණියගල,176,SAB-004,,80.375294,6.914293,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Kegalle,KE5,Galigamuwa,ගලිගමුව,177,SAB-005,,80.3134,7.213872,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Kegalle,KE6,Kegalle,කෑගල්ල,178,SAB-006,,80.36444,7.201406,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Kegalle,KE7,Mawanella,මාවනැල්ල,179,SAB-007,,80.494171,7.225226,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Kegalle,KE8,Rambukkana,රඹුක්කන,180,SAB-008,,80.388898,7.321908,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Kegalle,KE9,Ruwanwella,රුවන්වැල්ල,181,SAB-009,,80.222522,7.067041,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Kegalle,KE10,Warakapola,වරකාපොළ,182,SAB-010,,80.235193,7.205965,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Kegalle,KE11,Yatiyantota,යටියන්තොට,183,SAB-011,,80.37014,7.018502,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA1,Ayagama,අයගම,292,SAB-012,,80.291477,6.642544,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA2,Balangoda,බලංගොඩ,293,SAB-013,,80.659184,6.659204,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA3,Eheliyagoda,ඇහැලියගොඩ,294,SAB-014,,80.239442,6.841765,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA4,Elapatha,ඇලපාත,295,SAB-015,,80.356103,6.661977,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA5,Embilipitiya,ඇඹිලිපිටිය,296,SAB-016,,80.802696,6.359565,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA6,Godakawela,ගොඩකවෙල,297,SAB-017,,80.641462,6.509197,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA7,Imbulpe,ඉඹුල්පේ,298,SAB-018,,80.73647,6.711979,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA8,Kahawattha,කහවත්ත,299,SAB-019,,80.549305,6.522633,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA9,Kalawana,කලවාන,300,SAB-020,,80.448525,6.474673,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA10,Kalthota,,341,,Balangoda (SAB-013),80.845239,6.601114,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA11,Kiriella,කිරිඇල්ල,301,SAB-021,,80.266635,6.75996,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA12,Kolonna,කොලොන්න,302,SAB-022,,80.686866,6.383262,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA13,Kuruvita,කුරුවිට,303,SAB-023,,80.342543,6.789412,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA14,Nivithigala,නිවිතිගල,304,SAB-024,,80.458402,6.556131,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA15,Opanayake,ඕපනායක,305,SAB-025,,80.620244,6.60678,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA16,Pelmadulla,පැල්මඩුල්ල,306,SAB-026,,80.493516,6.639002,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA17,Ratnapura,රත්නපුර,307,SAB-027,,80.484429,6.742331,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Sabaragamuwa,Ratnapura,RA18,Weligepola,වැලිගෙපොල,308,SAB-028,,80.72576,6.541747,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA1,Akmeemana,අක්මීමණ,82,SOU-001,,80.265003,6.054199,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA2,Ambalangoda,අම්බලන්ගොඩ,83,SOU-002,,80.114538,6.214433,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA3,Baddegama,බද්දේගම,84,SOU-003,,80.188526,6.139698,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA4,Balapitiya,බලපිටිය,85,SOU-004,,80.051202,6.306975,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA5,Bentota,බෙන්තොට,86,SOU-005,,80.058048,6.388563,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA6,Bope-poddala,බෝපෙ-පෝද්දල,87,SOU-006,,80.209395,6.086598,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA7,Elpitiya,ඇල්පිටිය,88,SOU-007,,80.167428,6.285798,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA8,Galle4gravets,කඩවත්සතර,89,SOU-008,,80.203884,6.057286,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA9,Gonapinuwala,ගෝනපීනුවල,325,SOU-009,,80.133803,6.168155,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA10,Habaraduwa,හබරාදුව,90,SOU-010,,80.307423,6.001258,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA11,Hikkaduwa,හික්කඩුව,91,SOU-011,,80.124649,6.124196,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA12,Imaduwa,ඉමදුව,92,SOU-012,,80.357429,6.032458,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA13,Karandeniya,කරන්දෙනිය,93,SOU-013,,80.100004,6.311387,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA14,Madampagama,,335,,Hikkaduwa (SOU-011),80.07575,6.192558,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA15,Nagoda,නාගොඩ,94,SOU-014,,80.326416,6.210246,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA16,Neluwa,නෙළුව,95,SOU-015,,80.40813,6.354583,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA17,Niyagama,නියාගම,96,SOU-016,,80.257222,6.292306,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA18,Rathgama,,334,,Hikkaduwa (SOU-011),80.155188,6.098538,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA19,Thawalama,තවලම,97,SOU-017,,80.346598,6.306362,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA20,Wanduramba,,333,,Baddegama (SOU-003),80.268504,6.124616,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA21,Welivitiya-divitura,වැලිවිටිය-දිවිතුර,98,SOU-018,,80.163708,6.216768,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Galle,GA22,Yakkalamulla,යක්කලමුල්ල,99,SOU-019,,80.358274,6.109268,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA1,Ambalantota,අම්බලන්තොට,113,SOU-020,,80.96438,6.163519,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA2,Angunakolapelessa,අඟුණුකොළපැලැස්ස,114,SOU-021,,80.876548,6.197586,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA3,Beliatta,බෙලිඅත්ත,115,SOU-022,,80.717097,6.052686,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA4,Hambantota,හම්බන්තොට,116,SOU-023,,81.119727,6.222509,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA5,Katuwana,කටුවන,117,SOU-024,,80.734216,6.261067,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA6,Lunugamwehera,ලුණුගම්වෙහෙර,118,SOU-025,,81.15993,6.307921,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA7,Okewela,ඕකේවෙල,119,SOU-026,,80.669808,6.142166,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA8,Sooriyawewa,සූරියවැව,120,SOU-027,,80.996796,6.297653,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA9,Tangalle,තංගල්ල,121,SOU-028,,80.81127,6.054984,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA10,Thissamaharama,තිස්සමහාරාම,122,SOU-029,,81.462601,6.387402,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA11,Walasmulla,වලස්මුල්ල,123,SOU-030,,80.673742,6.187697,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Hambantota,HA12,Weeraketiya,වීරකැටිය,124,SOU-031,,80.751166,6.17202,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT1,Akuressa,අකුරැස්ස,233,SOU-032,,80.435987,6.13522,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT2,Athuraliya,අතුරලිය,234,SOU-033,,80.50805,6.115931,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT3,Devinuwara,දෙවිනුවර,235,SOU-034,,80.632746,5.97255,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT4,Dikwella,දික්වැල්ල,236,SOU-035,,80.681849,5.985076,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT5,Hakmana,හක්මන,237,SOU-036,,80.637303,6.098156,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT6,Kaburupitiya,කඹුරුපිටිය,238,SOU-037,,80.55653,6.064925,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT7,Kirinda Puhulwella,කිරින්ද පුහුල්වැල,239,SOU-038,,80.63366,6.040367,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT8,Kotapola,කොටපොල,240,SOU-039,,80.526781,6.312302,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT9,Malimbada,මාලිම්බඩ,241,SOU-040,,80.509994,6.015694,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT10,Matara Four Gravets,මාතර කඩවත්සතර,242,SOU-041,,80.55482,5.964015,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT11,Mulatiyana,මුලටියන,243,SOU-042,,80.591456,6.147783,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT12,Pasgoda,පස්ගොඩ,244,SOU-043,,80.615286,6.270239,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT13,Pitabaddara,පිටබැද්දර,245,SOU-044,,80.469046,6.247151,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT14,Thihagoda,තිහගොඩ,246,SOU-045,,80.568757,6.00798,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT15,Weligama,වැලිගම,247,SOU-046,,80.404728,5.969211,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Southern,Matara,MT16,Welipitiya,වැලිපිටිය,248,SOU-047,,80.452806,6.017366,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA1,Badulla,බදුල්ල,42,UVA-001,,81.08905,6.981654,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA2,Bandarawela,බණ්ඩාරවෙල,43,UVA-002,,81.021279,6.83271,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA3,Ella,ඇල්ල,44,UVA-003,,81.062206,6.86076,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA4,Haldummulla,හල්දුම්මුල්ල,45,UVA-004,,81.001748,6.677729,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA5,Hali-ela,හාලිඇල,46,UVA-005,,81.02637,6.959819,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA6,Haputale,හපුතලේ,47,UVA-006,,80.946709,6.79877,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA7,Kandeketiya,කන්දෙකැටිය,48,UVA-007,,80.999122,7.120797,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA8,Lunugala,ලුණුගල,49,UVA-008,,81.198088,7.031003,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA9,Mahiyanganaya,මහියංගනය,50,UVA-009,,81.081603,7.418532,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA10,Meegahakiula,මීගහකිවුල,51,UVA-010,,81.081591,7.141127,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA11,Passara,පස්සර,52,UVA-011,,81.154263,6.976843,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA12,Rideemaliyadda,රිදීමාලියැද්ද,53,UVA-012,,81.118557,7.281968,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA13,Soranathota,සොරණාතොට,54,UVA-013,,81.055062,7.044027,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA14,Uvaparanagama,ඌවපරණගම,55,UVA-014,,80.94683,6.984779,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Badulla,BA15,Welimada,වැලිමඩ,56,UVA-015,,80.89111,6.85289,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Monaragala,MO1,Badalkumbura,බඩල්කුඹුර,249,UVA-016,,81.206656,6.872863,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Monaragala,MO2,Bibile,බිබිල,250,UVA-017,,81.303005,7.210013,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Monaragala,MO3,Buttala,බුත්තල,251,UVA-018,,81.308665,6.656556,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Monaragala,MO4,Katharagama,කතරගම,252,UVA-019,,81.361595,6.492568,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Monaragala,MO5,Madulla,මඩුල්ල,253,UVA-020,,81.478099,7.181226,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Monaragala,MO6,Medagama,මැදගම,254,UVA-021,,81.293819,7.04312,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Monaragala,MO7,Monaragala,මොණරාගල,255,UVA-022,,81.350252,6.843641,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Monaragala,MO8,Sevanagala,සෙවනගල,256,UVA-023,,80.937845,6.365258,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Monaragala,MO9,Siyambalanduwa,සියඹලාණ්ඩුව,257,UVA-024,,81.536575,6.87286,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Monaragala,MO10,Thanamalwila,තණමල්විල,258,UVA-025,,80.93707,6.515551,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Uva,Monaragala,MO11,Wellawaya,වැල්ලවාය,259,UVA-026,,81.121748,6.6398,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO1,Colombo,කොළඹ,69,WES-001,,79.865263,6.946987,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO2,Dehiwala,දෙහිවල,70,WES-002,,79.871595,6.856856,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO3,Homagama,හෝමාගම,72,WES-003,,80.024442,6.836353,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO4,Kaduwela,කඩුවෙල,73,WES-004,,79.972773,6.901985,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO5,Kesbewa,කැස්බෑව,74,WES-005,,79.927436,6.804772,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO6,Kolonnawa,කොලොන්නාව,75,WES-006,,79.914709,6.934943,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO7,Maharagama,මහරගම,76,WES-007,,79.943828,6.855809,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO8,Moratuwa,මොරටුව,77,WES-008,,79.886569,6.767099,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO9,Padukka,පාදුක්ක,78,WES-009,,80.122845,6.829202,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO10,Ratmalana,රත්මලාන,79,WES-010,,79.879129,6.827587,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO11,Seethawaka,සීතාවක,71,WES-011,,80.152703,6.919902,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO12,Sri Jayawardanapura Kotte,ශ්‍රී ජයවර්ධනපුර ක,80,WES-012,,79.900842,6.8905,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Colombo,CO13,Thimbirigasyaya,තිඹිරිගස්යාය,81,WES-013,,79.86748,6.902967,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP1,Attanagalla,අත්තනගල්ල,100,WES-014,,80.128587,7.113343,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP2,Biyagama,බියගම,101,WES-015,,79.975343,6.971358,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP3,Divulapitiya,දිවුලපිටිය,102,WES-016,,80.014491,7.255454,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP4,Dompe,දොම්පෙ,103,WES-017,,80.109689,6.988589,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP5,Gampaha,ගම්පහ,104,WES-018,,79.976426,7.065554,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP6,Ja Ela,ජා-ඇල,105,WES-019,,79.902029,7.072957,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP7,Katana,කටාන,106,WES-020,,79.896992,7.193,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP8,Kelaniya,කැළණිය,107,WES-021,,79.910134,6.971662,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP9,Mahara,මහර,108,WES-022,,80.061324,7.036817,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP10,Minuwangoda,මිනුවන්ගොඩ,109,WES-023,,79.980329,7.155139,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP11,Mirigama,මීරිගම,110,WES-024,,80.14283,7.232907,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP12,Negombo,මීගමුව,111,WES-025,,79.842047,7.191782,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Gampaha,GP13,Wattala,වත්තල,112,WES-026,,79.871533,7.04126,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT1,Agalawatta,අගලවත්ත,139,WES-027,,80.171374,6.508475,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT2,Bandaragama,බණ්ඩාරගම,140,WES-028,,79.985465,6.722881,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT3,Beruwala,බේරුවල,141,WES-029,,80.007908,6.49114,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT4,Bulathsinhala,බුලත්සිංහල,142,WES-030,,80.182877,6.645718,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT5,Dodangoda,දොඩංගොඩ,143,WES-031,,80.046652,6.558668,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT6,Horana,හොරණ,144,WES-032,,80.041867,6.75446,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT7,Ingiriya,ඉංගිරිය,145,WES-033,,80.152479,6.762783,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT8,Kalutara,කඵතර,146,WES-034,,79.962779,6.621044,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT9,Madurawala,මදුරාවෙල,147,WES-035,,80.075134,6.653103,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT10,Matugama,මතුගම,148,WES-036,,80.103131,6.495407,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT11,Millaniya,මිල්ලනිය,149,WES-037,,80.022844,6.655215,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT12,Palindanuwara,පාලින්දනුවර,150,WES-038,,80.260719,6.509185,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT13,Panadura,පානදුර,151,WES-039,,79.909316,6.712885,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"
+Western,Kalutara,KT14,Walallawita,වලල්ලාවිට,152,WES-040,,80.196179,6.398458,DS_DIVISION,"DS_Boundary.shp (2025-10-09), EPSG:5234 reprojected to 4326"

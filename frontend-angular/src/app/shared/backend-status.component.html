@@ -1,0 +1,16 @@
+<button
+  type="button"
+  class="backend-status"
+  [class.backend-status--connected]="status() === 'connected'"
+  [class.backend-status--error]="status() === 'error'"
+  [class.backend-status--checking]="status() === 'checking'"
+  [title]="error() ?? 'GET /api/health — click to recheck'"
+  (click)="check()"
+>
+  <span class="backend-status__dot"></span>
+  @switch (status()) {
+    @case ('connected') { Backend connected }
+    @case ('error') { Backend unreachable }
+    @default { Checking backend… }
+  }
+</button>

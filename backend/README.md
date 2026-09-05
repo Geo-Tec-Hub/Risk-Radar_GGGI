@@ -17,7 +17,9 @@ route** — it's fewer moving parts.
 2. **PostGIS** — install through *Stack Builder* (bundled with that installer):
    Spatial Extensions → PostGIS. Required.
 3. **pgvector** — *optional*, not needed until Phase 3. Skipped automatically if absent.
-4. **GDAL** — optional, only for loading the 330 DS-division polygons. Comes with
+4. **GDAL** — optional, only for loading the DS-division polygons that exist
+   (more divisions are registered than have polygons — since the Kalmunai split, two
+   divisions are boundary-pending until a boundary is supplied). Comes with
    QGIS or OSGeo4W.
 
 **Run** from PowerShell in `backend\`:
@@ -99,9 +101,10 @@ saying `/design` is empty, that's the cause.
 | 3 | `design/database/spatial-model.sql` | D8 spatial layers + analysis toolbox |
 | 3b | `design/database/schema_agent_pgvector.sql` | 4 agent RAG tables — **only if pgvector is present** |
 | 4 | `design/ingestion/seed_all.sql` | 9 provinces · 3 hazards · 8 sectors · 12 subsectors · **174 variables** · 269 aliases · **243 profiles** · **3,664 memberships** |
-| 5 | `db/load_spatial.ps1` / `.sh` | **330 DS divisions** with geometry, plus province and district outlines |
+| 5 | `db/load_spatial.ps1` / `.sh` | **Every registered DS division loaded; those with a polygon get geometry**, the rest stay boundary-pending, plus province and district outlines |
 
-Expected after a clean run: 28 tables (24 without pgvector), 330 DS divisions, 243 profiles, and
+Expected after a clean run: 28 tables (24 without pgvector), every registered DS division
+loaded (the counts are reported by `smoke_test`, not asserted as literals — see O-12), 243 profiles, and
 1,783 memberships with `weight_pct IS NULL` — those are the variables the expert
 refresh added, which get their weights in the app at import.
 
@@ -115,7 +118,7 @@ docker compose restart db
 .\db\apply.ps1
 ```
 
-**GDAL is not either**, so step 5 (the 330 DS divisions) is skipped unless you install it:
+**GDAL is not either**, so step 5 (the DS-division polygons) is skipped unless you install it:
 
 ```powershell
 docker compose exec -u root db bash -c "apt-get update && apt-get install -y gdal-bin"
@@ -138,7 +141,8 @@ behaves as documented, and each one raises an exception on failure:
 - A `derivation='computed'` value is **rejected** without a `computation_job_id`
 - A polygon is **rejected** on the LINESTRING-only ROAD layer
 - A LULC feature is **rejected** without its required `class` attribute
-- 330 divisions, all geometry valid, no overlapping pairs
+- every registered division loaded; those with polygons carry valid geometry, the rest boundary-pending
+  with none (never a fabricated one), no overlapping pairs
 - Total area lands near 65,600 km² — the check that proves areas were computed
   in EPSG:5235 and not in degrees
 

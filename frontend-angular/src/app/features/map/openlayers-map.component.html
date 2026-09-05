@@ -1,0 +1,13 @@
+<div class="map-shell">
+  <div #mapEl class="map-canvas"></div>
+
+  @if (loading()) {
+    <div class="map-overlay map-overlay--loading" role="status">Loading boundaries…</div>
+  }
+
+  @if (error(); as message) {
+    <div class="map-overlay map-overlay--error" role="alert">
+      Could not load the map: {{ message }}
+    </div>
+  }
+</div>

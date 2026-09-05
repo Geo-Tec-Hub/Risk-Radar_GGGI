@@ -1,0 +1,34 @@
+<div class="legend">
+  <h3 class="legend__title">
+    Coverage — {{ indexScope() === 'provincial' ? 'provincial index' : 'national index' }}
+  </h3>
+
+  <ul class="legend__states">
+    @for (item of legend; track item.state) {
+      <li class="legend__state">
+        <span
+          class="legend__swatch"
+          [class.legend__swatch--hatched]="item.state === 'unassessed'"
+          [class.legend__swatch--dashed]="item.state === 'pending'"
+          [style.background]="item.state === 'assessed' || item.state === 'not_applicable' ? item.swatch : null"
+        ></span>
+        <span class="legend__label">{{ item.label }}</span>
+        <span class="legend__hint">({{ item.hint }})</span>
+      </li>
+    }
+  </ul>
+
+  @if (coverage(); as c) {
+    <p class="legend__statement">
+      {{ c.assessed }} assessed ({{ pct(c.assessed, c.total) }}) ·
+      {{ c.pending }} pending ({{ pct(c.pending, c.total) }}) ·
+      {{ c.unassessed }} unassessed ({{ pct(c.unassessed, c.total) }})
+      @if (c.notApplicable > 0) {
+        · {{ c.notApplicable }} where the sector is not present ({{ pct(c.notApplicable, c.total) }})
+      }
+      — {{ c.total }} DS divisions
+    </p>
+  } @else {
+    <p class="legend__statement legend__statement--muted">Coverage statement unavailable.</p>
+  }
+</div>

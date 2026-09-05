@@ -23,13 +23,23 @@ from collections import OrderedDict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FILES = ["schema.sql", "schema_weights_addendum.sql", "spatial-model.sql",
+         # consensus marker on profile_indicator + publication state on
+         # vulnerability_profile (2026-08-09). Adds no tables, only columns.
+         "schema_consensus_addendum.sql",
+         # registration, approval and provincial scope on app_user (2026-08-09)
+         "schema_auth_addendum.sql",
+         # nullable geom + boundary_status on ds_division, the Kalmunai split
+         # (O-2, Stage 1.14, 2026-08-10). Adds no tables, only columns.
+         "schema_boundary_pending_addendum.sql",
+         # server-side sessions, one new table (T2b, Stage 9.6, 2026-08-11)
+         "schema_session_addendum.sql",
          # optional (needs pgvector) but always drawn - the diagram documents the
          # full design even when a given install skips this file
          "schema_agent_pgvector.sql"]
 
 # module -> (colour, tables). Anything unlisted lands in "other".
 MODULES = OrderedDict([
-    ("Auth & users",        ("#7c5cbf", ["role", "app_user", "user_role"])),
+    ("Auth & users",        ("#7c5cbf", ["role", "app_user", "user_role", "app_session"])),
     ("Geography",           ("#2e7d32", ["province", "ds_division"])),
     ("Catalog",             ("#c77400", ["hazard_type", "sector", "subsector",
                                          "indicator_catalog", "indicator_alias"])),
@@ -56,6 +66,24 @@ ALWAYS_SHOW = {
     "vulnerability_index", "exposure_index", "hazard_index", "attributes",
     "attribute_schema", "geometry_type", "kind", "value", "embedding",
     "panel_note", "filename", "params", "area_km2", "norm_scope",
+    # decision-bearing, so shown even though neither is a key: `consensus` is
+    # whether a variable belongs in a profile at all (distinct from weight_pct,
+    # which is how much it counts), and `publication` separates the official
+    # profile version from a user's exploratory one.
+    "consensus", "publication", "status", "organization",
+    # which bounds produced the index — provincial (the headline) or national.
+    # Part of the unique key since 2026-08-09, so a division holds both.
+    "index_scope",
+    # derived from geom IS NULL, but shown anyway: it is the whole point of
+    # the Kalmunai split addendum — a division can be registered before it is
+    # surveyed, and the diagram should say so, not just imply it via a
+    # now-nullable geometry column.
+    "boundary_status",
+    # T2b: the whole point of app_session is that a row can be revoked —
+    # sign-out and admin deactivation both act on this field, not on deleting
+    # the row. token_hash is deliberately NOT shown (it is a digest, not
+    # something anyone reads to understand the model, unlike revoked_at).
+    "revoked_at", "expires_at",
 }
 TYPE_HINT = {
     "geom": "geometry 4326", "embedding": "vector(1024)",
@@ -190,9 +218,10 @@ def build_dot(tables, fks, title):
 def main():
     tables, fks = parse()
     title = (f"Climate Vulnerability Web-GIS - ERD  |  {len(tables)} tables  "
-             f"|  schema.sql + weights addendum + spatial-model (D8)\\n"
+             f"|  schema.sql + weights, spatial (D8), consensus, auth, "
+             f"boundary-pending and session addenda\\n"
              f"PostgreSQL 16 + PostGIS + pgvector  |  generated from DDL by "
-             f"generate_erd.py  |  2026-07-26")
+             f"generate_erd.py  |  2026-08-11")
     dot, n_edges, n_other = build_dot(tables, fks, title)
 
     dot_path = os.path.join(HERE, "erd.dot")

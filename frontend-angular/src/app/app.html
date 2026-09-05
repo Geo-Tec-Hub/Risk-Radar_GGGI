@@ -1,0 +1,33 @@
+<div class="app-shell">
+  <header class="app-header">
+    <a class="app-header__title" routerLink="/">Risk Radar</a>
+    <span class="app-header__subtitle">DS-Division Climate Vulnerability — Sri Lanka</span>
+    <nav class="app-header__nav">
+      <a routerLink="/map" routerLinkActive="is-active">Map</a>
+      <a routerLink="/coverage" routerLinkActive="is-active">Coverage</a>
+      <a routerLink="/import" routerLinkActive="is-active">Import</a>
+      <a routerLink="/entry" routerLinkActive="is-active">Data entry</a>
+      @if (auth.hasRole('admin')) {
+        <a routerLink="/admin/registrations" routerLinkActive="is-active">Registrations</a>
+      }
+    </nav>
+
+    @if (auth.checked() && auth.isAuthenticated()) {
+      <span class="app-header__user">
+        {{ auth.currentUser()?.full_name }}
+        <button type="button" class="app-header__signout" (click)="signOut()">Sign out</button>
+      </span>
+    } @else if (auth.checked()) {
+      <span class="app-header__user">
+        <a routerLink="/login">Sign in</a>
+        <a routerLink="/register">Register</a>
+      </span>
+    }
+
+    <app-backend-status />
+  </header>
+
+  <main class="app-main">
+    <router-outlet />
+  </main>
+</div>

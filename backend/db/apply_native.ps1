@@ -30,6 +30,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# Force UTF-8 on the wire regardless of the console code page - the seed and
+# register files carry Sinhala. See the longer note in load_spatial.ps1.
+$env:PGCLIENTENCODING = 'UTF8'
+
+
 function Say($m) { Write-Host "`n==> $m" -ForegroundColor Cyan }
 function Ok($m)  { Write-Host "    ok  $m"  -ForegroundColor Green }
 function Warn($m){ Write-Host "    $m"      -ForegroundColor Yellow }
@@ -49,8 +54,16 @@ function Find-Psql {
         'C:\Program Files (x86)\PostgreSQL\*\bin',
         "$env:LOCALAPPDATA\Programs\PostgreSQL\*\bin"
     )
+    # NOTE: deliberately not `-Filter psql.exe`. Combining a wildcarded -Path
+    # (the '*' version segment) with -Filter silently returns zero results on
+    # some PowerShell versions, though the same -Path works alone. This branch
+    # only runs when psql is NOT already on PATH -- i.e. exactly when it is
+    # needed -- so the failure stays invisible until it matters. Found 2026-08-09.
     $found = foreach ($r in $roots) {
-        Get-ChildItem -Path $r -Filter psql.exe -ErrorAction SilentlyContinue
+        Get-ChildItem -Path $r -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+            $candidate = Join-Path $_.FullName 'psql.exe'
+            if (Test-Path $candidate) { Get-Item $candidate }
+        }
     }
     if (-not $found) { return $null }
 
@@ -156,9 +169,9 @@ function Apply-File {
     Ok (Split-Path $Path -Leaf)
 }
 
-Apply-File '1/5  Base schema (18 tables)'                    (Join-Path $Design 'database\schema.sql')
-Apply-File '2/5  Addendum: imports, weights, period rules'   (Join-Path $Design 'database\schema_weights_addendum.sql')
-Apply-File '3/5  D8: spatial layers + analysis toolbox'      (Join-Path $Design 'database\spatial-model.sql')
+Apply-File '1/9  Base schema (18 tables)'                    (Join-Path $Design 'database\schema.sql')
+Apply-File '2/9  Addendum: imports, weights, period rules'   (Join-Path $Design 'database\schema_weights_addendum.sql')
+Apply-File '3/9  D8: spatial layers + analysis toolbox'      (Join-Path $Design 'database\spatial-model.sql')
 
 if ($HasVector) {
     Apply-File '3b   Agent RAG layer (pgvector)'             (Join-Path $Design 'database\schema_agent_pgvector.sql')
@@ -167,10 +180,54 @@ if ($HasVector) {
     Warn 'skipped (no pgvector). Run it later: psql -d riskradar -f design\database\schema_agent_pgvector.sql'
 }
 
-Apply-File '4/5  Seed: reference data, catalog, 243 profiles' (Join-Path $Design 'ingestion\seed_all.sql')
+Apply-File '4/9  Seed: reference data, catalog, 243 profiles' (Join-Path $Design 'ingestion\seed_all.sql')
+
+# Must run AFTER the seed, which creates the catalogue rows it marks. It adds
+# indicator_catalog.value_kind ('absolute' | 'signed') and marks the variables
+# that legitimately carry negative values -- a change or trend rather than a
+# quantity. Without it, seed_central.py fails on the first Central workbook with
+# `column "value_kind" does not exist`, which is how its absence was found: it
+# was written on 3 Sep, named in RUN_LOCALLY.md's manual order, and never
+# registered here. Nothing else in design\database is unregistered -- checked.
+Apply-File '4b   Addendum: signed (change/trend) indicator values' (Join-Path $Design 'database\schema_signed_values_addendum.sql')
+
+# The 2026-08-09/10/11 addenda run AFTER the seed on purpose. The consensus
+# addendum opens with a pre-flight check that no two active profile versions
+# share a scope; run before the seed it would pass trivially against an empty
+# table, which is the opposite of the point. All four are no-ops on the
+# seeded data (schema only -- no rows are added, changed or removed).
+Apply-File '5/9  Addendum: consensus, publication, index scope' (Join-Path $Design 'database\schema_consensus_addendum.sql')
+# Must run AFTER the consensus addendum (which creates membership_consensus and
+# the profile_indicator columns) and BEFORE anyone saves weights. It replaces
+# save_profile_weights() with a version that carries consensus through; the
+# original silently reset every membership to 'agreed', discarding exclusions.
+# Nothing to repair on an existing database as long as this lands first: a
+# profile still at version 1 came from the seed and has never been saved.
+Apply-File '5b   Addendum: save_profile_weights carries consensus' (Join-Path $Design 'database\schema_profile_consensus_save_addendum.sql')
+
+Apply-File '6/9  Addendum: registration, approval, province scope' (Join-Path $Design 'database\schema_auth_addendum.sql')
+
+# Depends on app_user (schema_auth_addendum.sql, step 6/9): the revocation
+# trigger fires on app_user.status transitions, so auth must exist first.
+Apply-File '7/9  Addendum: server-side sessions (T2b, Stage 9.6)' (Join-Path $Design 'database\schema_session_addendum.sql')
+
+# Must run BEFORE the DS-division load below: it drops ds_division.geom's
+# NOT NULL constraint, which the Kalmunai split's two boundary-pending rows
+# (Stage 1.14, O-2) require in order to INSERT at all.
+Apply-File '8/9  Addendum: boundary-pending divisions (the Kalmunai split)' (Join-Path $Design 'database\schema_boundary_pending_addendum.sql')
+
+# Must run BEFORE the DS-division load below, because it adds ds_division.legacy_code.
+#
+# On a COLD build this is a near no-op and that is correct: load_spatial inserts
+# straight from the register, which already carries the official codes, so there
+# is no CEN-001 row to rename and legacy_code stays NULL. There is no legacy on a
+# fresh database. It earns its place on an EXISTING one, where it re-keys the 329
+# divisions that carry forward, retires Ambagamuwa and Kothmale, and adds the
+# eleven divisions the 2025 boundary revision created.
+Apply-File '8b   Addendum: official DS codes + the 2025 boundary revision' (Join-Path $Design 'database\schema_official_dscode_addendum.sql')
 
 # --- DS divisions -----------------------------------------------------------
-Say '5/5  DS divisions (330) + spatial layers'
+Say '9/9  DS divisions (register + surveyed polygons; counts reported by smoke_test) + spatial layers'
 if (Get-Command ogr2ogr -ErrorAction SilentlyContinue) {
     & (Join-Path $DbDir 'load_spatial.ps1') -PgHost $PgHost -Port $Port -Database $Database -User $User
     if ($LASTEXITCODE -ne 0) { Bad 'spatial load failed (see above)'; exit 1 }
@@ -188,6 +245,8 @@ UNION ALL SELECT 'hazard types',        count(*) FROM hazard_type
 UNION ALL SELECT 'sectors',             count(*) FROM sector
 UNION ALL SELECT 'subsectors',          count(*) FROM subsector
 UNION ALL SELECT 'ds divisions',        count(*) FROM ds_division
+UNION ALL SELECT '  ... surveyed',      count(*) FROM ds_division WHERE boundary_status = 'surveyed'
+UNION ALL SELECT '  ... boundary pending', count(*) FROM ds_division WHERE boundary_status = 'boundary_pending'
 UNION ALL SELECT 'indicator catalog',   count(*) FROM indicator_catalog
 UNION ALL SELECT 'aliases',             count(*) FROM indicator_alias
 UNION ALL SELECT 'profiles',            count(*) FROM vulnerability_profile
@@ -200,3 +259,7 @@ UNION ALL SELECT 'toolbox operations',  count(*) FROM spatial_operation;
 
 Write-Host "`nDatabase built." -ForegroundColor Green
 Write-Host "Next:  .\db\smoke_test_native.ps1"
+Write-Host "       .\db\consensus_test_native.ps1        (Stage 1.12)"
+Write-Host "       .\db\auth_test_native.ps1             (Stage 1.13)"
+Write-Host "       .\db\boundary_pending_test_native.ps1 (Stage 1.14)"
+Write-Host "       .\db\session_test_native.ps1          (Stage 9.6)"

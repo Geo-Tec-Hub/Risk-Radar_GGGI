@@ -1,0 +1,92 @@
+@if (division(); as d) {
+  <div class="panel">
+    <h3 class="panel__title">{{ d.ds_division }}</h3>
+    <p class="panel__meta">{{ d.district }} District · {{ d.province }} Province</p>
+    <p class="panel__code">{{ d.ds_code }}</p>
+
+    @if (loading()) {
+      <p class="panel__status" role="status">Loading score composition…</p>
+    } @else if (error(); as message) {
+      <p class="panel__status panel__status--error" role="alert">
+        Score composition unavailable: {{ message }}
+      </p>
+    } @else if (composition(); as c) {
+      <p class="panel__scope-note">
+        {{ query().indexScope === 'national' ? 'National index' : 'Provincial index' }} —
+        every value below is normalised within
+        {{ query().indexScope === 'national' ? 'the national register' : d.province + ' Province' }},
+        not on a common national scale (unless viewing the national index itself).
+      </p>
+
+      <dl class="panel__composition">
+        <dt>Hazard index</dt>
+        <dd>{{ c.hazardIndex ?? 'unassessed' }}</dd>
+        <dt>Exposure index</dt>
+        <dd>{{ c.exposureIndex ?? 'unassessed' }}</dd>
+        <dt>Raw index (H × E)</dt>
+        <dd>{{ c.rawIndex ?? 'unassessed' }}</dd>
+        <dt>Bounds used</dt>
+        <dd>{{ c.boundMin ?? '—' }} to {{ c.boundMax ?? '—' }}</dd>
+        <dt>Profile version</dt>
+        <dd>{{ c.profileVersion ?? '—' }}</dd>
+      </dl>
+
+      @if (c.hazardVariables.length > 0) {
+        <h4 class="panel__block-title">Hazard variables</h4>
+        <table class="panel__variables">
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Weight</th>
+              <th>Raw</th>
+              <th>Normalised<sup title="Normalised within the province, not nationally">†</sup></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (v of c.hazardVariables; track v.indicatorCode) {
+              <tr>
+                <td>{{ v.indicatorName }} ({{ v.direction }})</td>
+                <td>{{ v.weightPct }}</td>
+                <td>{{ v.rawValue ?? '—' }} {{ v.unit }}</td>
+                <td>{{ v.normalisedValue ?? '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+
+      @if (c.exposureVariables.length > 0) {
+        <h4 class="panel__block-title">Exposure variables</h4>
+        <table class="panel__variables">
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Weight</th>
+              <th>Raw</th>
+              <th>Normalised<sup title="Normalised within the province, not nationally">†</sup></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (v of c.exposureVariables; track v.indicatorCode) {
+              <tr>
+                <td>{{ v.indicatorName }} ({{ v.direction }})</td>
+                <td>{{ v.weightPct }}</td>
+                <td>{{ v.rawValue ?? '—' }} {{ v.unit }}</td>
+                <td>{{ v.normalisedValue ?? '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+
+      <p class="panel__footnote">
+        † Normalised within {{ d.province }} Province (CHANGES 2026-08-09 C1) — never compare this
+        column across divisions in different provinces.
+      </p>
+    }
+  </div>
+} @else {
+  <div class="panel panel--empty">
+    <p>Select a division on the map to see its score composition.</p>
+  </div>
+}

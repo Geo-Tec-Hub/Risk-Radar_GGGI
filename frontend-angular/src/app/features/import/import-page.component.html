@@ -1,0 +1,143 @@
+<div class="import">
+  <h2 class="import__title">Import raw data</h2>
+
+  @if (taxonomyError()) {
+    <p class="import__banner import__banner--error" role="status">
+      Filter options could not be loaded, so no scope can be chosen yet. {{ taxonomyError() }}
+    </p>
+  }
+
+  <form class="import__form" (submit)="$event.preventDefault()">
+    <label class="import__field">
+      <span>Province</span>
+      <select [ngModel]="province()" name="province" (ngModelChange)="province.set($event)">
+        @for (p of provinces(); track p.code) {
+          <option [ngValue]="p.code">{{ p.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="import__field">
+      <span>Sector</span>
+      <select [ngModel]="sector()" name="sector" (ngModelChange)="onSectorChange($event)">
+        @for (s of sectors(); track s.code) {
+          <option [ngValue]="s.code">{{ s.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="import__field">
+      <span>Subsector</span>
+      <select
+        [ngModel]="subsector()"
+        name="subsector"
+        [disabled]="subsectorOptions().length === 0"
+        (ngModelChange)="onSubsectorChange($event)"
+      >
+        @for (s of subsectorOptions(); track s.code) {
+          <option [ngValue]="s.code">{{ s.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="import__field">
+      <span>Hazard</span>
+      <select [ngModel]="hazard()" name="hazard" (ngModelChange)="hazard.set($event)">
+        @for (h of hazards(); track h.code) {
+          <option [ngValue]="h.code">{{ h.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="import__field import__field--file">
+      <span>Workbook</span>
+      <input type="file" accept=".xlsx" (change)="onFileSelected($event)" />
+    </label>
+
+    <div class="import__actions">
+      <button type="button" [disabled]="!canSubmit()" (click)="check()">Check only</button>
+      <button type="button" class="import__primary" [disabled]="!canSubmit()" (click)="load()">
+        Import
+      </button>
+    </div>
+  </form>
+
+  <p class="import__note">
+    <strong>Check</strong> runs exactly what <strong>Import</strong> runs and stops before writing,
+    so what it reports is what will happen. The sector and hazard above are compared against the
+    workbook's own record of which profile it is for — a mismatch is refused rather than loaded.
+    Nothing loads partially: any error means the file loaded nothing.
+  </p>
+
+  @if (busy()) {
+    <p class="import__banner" role="status">Working…</p>
+  }
+
+  @if (failure(); as message) {
+    <p class="import__banner import__banner--error" role="alert">{{ message }}</p>
+  }
+
+  @if (report(); as r) {
+    <section class="import__report" [class.import__report--bad]="!r.ok">
+      <h3>
+        {{ r.ok ? (r.dryRun ? 'Check passed' : 'Imported') : 'Refused — nothing was loaded' }}
+      </h3>
+      <p class="import__report-line">
+        {{ r.filename }}
+        @if (r.profileCode) {
+          · profile {{ r.profileCode }}
+        }
+        · {{ r.valuesRead }} values read
+        @if (!r.dryRun && r.ok) {
+          · {{ r.valuesLoaded }} loaded across {{ r.divisions }} divisions
+        }
+        @if (r.dryRun && r.ok) {
+          · {{ r.divisions }} divisions matched — nothing written
+        }
+      </p>
+
+      @if (r.errors.length) {
+        <ul class="import__errors">
+          @for (e of r.errors; track e) {
+            <li>{{ e }}</li>
+          }
+        </ul>
+      }
+
+      @if (r.warnings.length) {
+        <details class="import__warnings">
+          <summary>{{ r.warnings.length }} note(s) about how this file was read</summary>
+          <ul>
+            @for (w of r.warnings; track w) {
+              <li>{{ w }}</li>
+            }
+          </ul>
+        </details>
+      }
+    </section>
+  }
+
+  <h3 class="import__subtitle">Recent imports</h3>
+  @if (batches().length === 0) {
+    <p class="import__muted">Nothing imported yet, or you are not signed in.</p>
+  } @else {
+    <table class="import__batches">
+      <thead>
+        <tr><th>File</th><th>Profile</th><th>Status</th><th>Read</th><th>Loaded</th><th>Errors</th><th>When</th></tr>
+      </thead>
+      <tbody>
+        @for (b of batches(); track b.id) {
+          <tr [class.import__row--bad]="b.status === 'rejected'">
+            <td>{{ b.filename }}</td>
+            <td>{{ b.profileCode ?? '—' }}</td>
+            <td>{{ b.status }}</td>
+            <td>{{ b.rowsTotal ?? '—' }}</td>
+            <td>{{ b.rowsLoaded ?? '—' }}</td>
+            <td>{{ b.errorCount }}</td>
+            <td>{{ b.uploadedAt | date: 'short' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

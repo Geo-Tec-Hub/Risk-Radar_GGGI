@@ -1,0 +1,85 @@
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.6rem 1.25rem;
+  background: #1c3d5a;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.app-header__title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff;
+  text-decoration: none;
+}
+
+.app-header__subtitle {
+  font-size: 0.8125rem;
+  color: #cdd8e3;
+}
+
+.app-header__nav {
+  margin-left: auto;
+  display: flex;
+  gap: 1rem;
+
+  a {
+    color: #cdd8e3;
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+
+  a.is-active {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  a:hover {
+    color: #fff;
+  }
+}
+
+.app-header__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  color: #cdd8e3;
+
+  a {
+    color: #cdd8e3;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #fff;
+  }
+}
+
+.app-header__signout {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #4a6a89;
+  border-radius: 4px;
+  background: transparent;
+  color: #cdd8e3;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.app-header__signout:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+}

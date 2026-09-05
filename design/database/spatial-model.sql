@@ -8,7 +8,8 @@
 -- validated on import, so heterogeneity is data rather than schema.
 --
 -- DECISIONS BAKED IN
---   • Geometry is STORED in EPSG:4326 (what MapLibre wants).
+--   • Geometry is STORED in EPSG:4326 (what OpenLayers and the vector-tile
+--     pipeline want).
 --   • Area / length / density are COMPUTED in EPSG:5235 (SLD99, Sri Lanka grid).
 --     Computing them in 4326 would give degrees, not metres - the mistake this
 --     model exists to prevent (logged 2026-06-20).

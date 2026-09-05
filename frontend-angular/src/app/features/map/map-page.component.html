@@ -1,0 +1,27 @@
+<div class="map-page">
+  <app-filter-bar (queryChange)="onQueryChange($event)" />
+
+  @if (resultsError(); as message) {
+    <div class="map-page__banner" role="alert">
+      Results are unavailable ({{ message }}). Every division is shown as unassessed until this recovers.
+    </div>
+  }
+
+  <div class="map-page__body">
+    <div class="map-page__map">
+      <app-openlayers-map
+        [unitsByCode]="unitsByCode()"
+        [selectedCode]="selectedDivision()?.ds_code ?? null"
+        [provinceName]="provinceName()"
+        (divisionSelected)="onDivisionSelected($event)"
+        (boundariesLoaded)="onBoundariesLoaded($event)"
+        (boundariesFailed)="onBoundariesFailed($event)"
+      />
+    </div>
+
+    <aside class="map-page__sidebar">
+      <app-coverage-legend [coverage]="coverage()" [indexScope]="query().indexScope ?? 'provincial'" />
+      <app-division-panel [division]="selectedDivision()" [query]="query()" />
+    </aside>
+  </div>
+</div>

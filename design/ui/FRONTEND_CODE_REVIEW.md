@@ -198,7 +198,7 @@ over a preference stated before I had seen it. Worth your call.
 > **Settled 2026-08-08 — partly the other way.** OpenLayers stays and MapLibre is
 > dropped, as recommended. **React does not:** the frontend is rebuilt in
 > **Angular + TypeScript**, because that is what the maintaining team writes
-> (SRS v2.2 §4.1). This document therefore describes a **retired** codebase. It
+> (SRS v2.3 §4.1). This document therefore describes a **retired** codebase. It
 > stays useful for two things — the entry workflow it arrived at, which the
 > rebuild keeps, and the defect list below, which the rebuild must not repeat.
 > Read the rest of this file as findings, not as a work plan.

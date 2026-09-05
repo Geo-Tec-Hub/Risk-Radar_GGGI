@@ -1,0 +1,27 @@
+<div class="landing">
+  <h1 class="landing__title">Risk Radar</h1>
+  <p class="landing__subtitle">DS-Division Climate Vulnerability Assessment — Sri Lanka</p>
+
+  <p class="landing__lead">
+    Explore hazard and exposure across every DS division, no account required. Sign in to
+    submit data, set profile weights, or review community input.
+  </p>
+
+  <div class="landing__actions">
+    <a class="landing__cta landing__cta--primary" routerLink="/map">View the map</a>
+
+    @if (auth.checked() && auth.isAuthenticated()) {
+      <a class="landing__cta" [routerLink]="auth.landingRouteForCurrentUser()">
+        Continue as {{ auth.currentUser()?.full_name }}
+      </a>
+    } @else {
+      <a class="landing__cta" routerLink="/login">Sign in</a>
+      <a class="landing__cta" routerLink="/register">Register</a>
+    }
+  </div>
+
+  <p class="landing__note">
+    Registration is reviewed by an administrator before an account can enter or change any
+    data. Viewing the map never requires approval.
+  </p>
+</div>

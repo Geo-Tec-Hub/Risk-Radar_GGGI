@@ -31,7 +31,16 @@ if (-not $psql) {
                'C:\Program Files (x86)\PostgreSQL\*\bin',
                "$env:LOCALAPPDATA\Programs\PostgreSQL\*\bin")
     if ($env:PGBIN) { $roots = @($env:PGBIN) + $roots }
-    $hits = foreach ($r in $roots) { Get-ChildItem $r -Filter psql.exe -ErrorAction SilentlyContinue }
+    # See the note in apply_native.ps1: a wildcarded -Path plus -Filter can
+    # return nothing. This is the worst place for that bug -- it would report
+    # "PostgreSQL is not installed" on a machine that has it, and send someone
+    # off to install a second copy. Found 2026-08-09.
+    $hits = foreach ($r in $roots) {
+        Get-ChildItem -Path $r -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+            $candidate = Join-Path $_.FullName 'psql.exe'
+            if (Test-Path $candidate) { Get-Item $candidate }
+        }
+    }
     if ($hits) {
         $best = $hits | Sort-Object { if ($_.FullName -match '\\PostgreSQL\\(\d+)\\') { [int]$Matches[1] } else { 0 } } -Descending | Select-Object -First 1
         Yes "installed but not on PATH: $($best.FullName)"
@@ -86,12 +95,35 @@ if ($psql) {
     }
 }
 
-Head 'GDAL (optional - only for the 330 DS-division polygons)'
+Head 'GDAL (optional - only for loading the DS-division polygons)'
 if (Get-Command ogr2ogr -ErrorAction SilentlyContinue) {
     Yes "ogr2ogr: $((Get-Command ogr2ogr).Source)"
 } else {
     Opt 'ogr2ogr not found - the boundary load will be skipped'
     Note 'Comes with QGIS or OSGeo4W. Everything else builds without it.'
+}
+
+Head 'Design-tooling (optional - only for regenerating the ERD and checking DDL)'
+# Both were missing on the first machine that tried to run them (2026-08-09) and
+# had to be installed mid-task. Checked here so the next person finds out before
+# a schema change rather than after one.
+if (Get-Command dot -ErrorAction SilentlyContinue) {
+    Yes "Graphviz dot: $((Get-Command dot).Source)"
+} else {
+    Opt 'Graphviz not found - design\database\generate_erd.py cannot draw the ERD'
+    Note 'Install: winget install Graphviz.Graphviz  (then reopen the terminal)'
+}
+
+$py = Get-Command python -ErrorAction SilentlyContinue
+if ($py) {
+    $hasPglast = & $py.Source -c "import pglast" 2>$null; $ok = ($LASTEXITCODE -eq 0)
+    if ($ok) { Yes 'pglast installed (design\database\check_ddl.py can run)' }
+    else {
+        Opt 'pglast not installed - check_ddl.py cannot verify a schema addendum'
+        Note 'Install: pip install pglast'
+    }
+} else {
+    Opt 'python not on PATH - check_ddl.py and the generators cannot run'
 }
 
 Head 'Verdict'

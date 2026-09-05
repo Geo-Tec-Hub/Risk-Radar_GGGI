@@ -1,0 +1,99 @@
+.admin {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.admin__hint {
+  color: #495057;
+  margin-top: 0;
+}
+
+.admin__error {
+  color: #c92a2a;
+  background: #fff5f5;
+  border: 1px solid #ffc9c9;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.admin__empty {
+  color: #868e96;
+  font-style: italic;
+}
+
+.admin__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: top;
+  }
+
+  th {
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.8125rem;
+  }
+
+  select,
+  input[type='text'] {
+    padding: 0.35rem 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+  }
+}
+
+.admin__email,
+.admin__org {
+  color: #868e96;
+  font-size: 0.8125rem;
+}
+
+.admin__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 220px;
+
+  button {
+    padding: 0.4rem 0.75rem;
+    border: none;
+    border-radius: 4px;
+    background: #2f9e44;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.8125rem;
+  }
+
+  button:disabled {
+    background: #adb5bd;
+    cursor: not-allowed;
+  }
+}
+
+.admin__reject {
+  display: flex;
+  gap: 0.4rem;
+
+  input {
+    flex: 1;
+  }
+}
+
+.admin__reject-btn {
+  background: #c92a2a !important;
+}
+
+.admin__row-error {
+  color: #c92a2a;
+  font-size: 0.75rem;
+  margin: 0;
+}

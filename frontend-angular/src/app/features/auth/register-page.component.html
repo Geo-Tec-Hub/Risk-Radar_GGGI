@@ -1,0 +1,69 @@
+<div class="auth">
+  <h2>Register</h2>
+
+  @if (registeredEmail(); as email) {
+    <div class="auth__pending">
+      <p>
+        Thanks — the registration for <strong>{{ email }}</strong> is submitted. An
+        administrator reviews every registration before the account can enter or change any
+        data; you'll be able to sign in once it's approved.
+      </p>
+      <button type="button" (click)="goToLogin()">Go to sign in</button>
+    </div>
+  } @else {
+    <form class="auth__form" (submit)="$event.preventDefault(); submit()">
+      <label class="auth__field">
+        <span>Registering as</span>
+        <select [ngModel]="type()" name="type" (ngModelChange)="onTypeChange($event)">
+          @for (t of types; track t) {
+            <option [ngValue]="t">{{ typeLabel[t] }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="auth__field">
+        <span>Full name</span>
+        <input type="text" [ngModel]="fullName()" name="fullName" (ngModelChange)="fullName.set($event)" required />
+      </label>
+
+      @if (type() !== 'public') {
+        <label class="auth__field">
+          <span>Organization</span>
+          <input type="text" [ngModel]="organization()" name="organization" (ngModelChange)="organization.set($event)" />
+        </label>
+      }
+
+      @if (needsProvince()) {
+        <label class="auth__field">
+          <span>Province <em>required</em></span>
+          <select [ngModel]="provinceId()" name="province" (ngModelChange)="provinceId.set($event)">
+            <option [ngValue]="undefined">Choose a province…</option>
+            @for (p of provinces; track p.id) {
+              <option [ngValue]="p.id">{{ p.name }}</option>
+            }
+          </select>
+        </label>
+      }
+
+      <label class="auth__field">
+        <span>Email</span>
+        <input type="email" autocomplete="username" [ngModel]="email()" name="email" (ngModelChange)="email.set($event)" required />
+      </label>
+
+      <label class="auth__field">
+        <span>Password <em>8+ characters</em></span>
+        <input type="password" autocomplete="new-password" [ngModel]="password()" name="password" (ngModelChange)="password.set($event)" required minlength="8" />
+      </label>
+
+      @if (error(); as message) {
+        <p class="auth__error" role="alert">{{ message }}</p>
+      }
+
+      <button type="submit" [disabled]="submitting() || !canSubmit()">
+        {{ submitting() ? 'Registering…' : 'Register' }}
+      </button>
+    </form>
+
+    <p class="auth__switch">Already have an account? <a routerLink="/login">Sign in</a></p>
+  }
+</div>

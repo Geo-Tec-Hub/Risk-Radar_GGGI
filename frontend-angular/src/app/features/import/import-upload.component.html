@@ -1,0 +1,85 @@
+<div class="import">
+  <h2>Import a workbook</h2>
+
+  @if (scope(); as s) {
+    <p class="import__scope">
+      {{ s.sector }}{{ s.subsector ? ' · ' + s.subsector : '' }} × {{ s.hazard }} · {{ s.province }}
+    </p>
+  } @else {
+    <p class="import__error" role="alert">No profile selected. Go back and choose province, sector, subsector and hazard.</p>
+  }
+
+  @if (scope()) {
+    <div class="import__picker">
+      <input type="file" accept=".xlsx" (change)="onFileSelected($event)" />
+      <button type="button" [disabled]="!selectedFile() || uploading()" (click)="upload()">
+        {{ uploading() ? 'Uploading…' : 'Upload' }}
+      </button>
+    </div>
+    <p class="import__hint">
+      Structure is validated against the workbook's hidden metadata sheet. Any error means the whole
+      file loads nothing — fix everything listed below and re-upload.
+    </p>
+
+    @if (uploadError(); as message) {
+      <p class="import__error" role="alert">Upload failed: {{ message }}</p>
+    }
+
+    @if (batch(); as b) {
+      <div class="import__result" [class.import__result--failed]="b.errors.length > 0">
+        <p class="import__status">
+          Batch {{ b.id }} — <strong>{{ b.status }}</strong>
+        </p>
+
+        @if (b.errors.length > 0) {
+          <table class="import__errors">
+            <thead>
+              <tr>
+                <th>Division</th>
+                <th>Parameter</th>
+                <th>Error</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of b.errors; track e.dsDivision + e.parameter) {
+                <tr>
+                  <td>{{ e.dsDivision }}</td>
+                  <td>{{ e.parameter }}</td>
+                  <td>{{ e.message }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+
+        @if (b.variablesLackingWeight.length > 0) {
+          <p class="import__note">
+            Variables lacking a weight: {{ b.variablesLackingWeight.join(', ') }} — set them on the Weights screen.
+          </p>
+        }
+
+        @if (b.status === 'loaded') {
+          <button type="button" [disabled]="rollingBack()" (click)="rollback()">
+            {{ rollingBack() ? 'Rolling back…' : 'Roll back this batch' }}
+          </button>
+          @if (rollbackError(); as message) {
+            <p class="import__error" role="alert">Rollback failed: {{ message }}</p>
+          }
+
+          @if (summary(); as s2) {
+            <dl class="import__summary">
+              <dt>Loaded</dt>
+              <dd>{{ s2.loaded }}</dd>
+              <dt>Now computable</dt>
+              <dd>{{ s2.computable }}</dd>
+              <dt>Outstanding</dt>
+              <dd>{{ s2.outstanding }}</dd>
+            </dl>
+          } @else if (summaryError(); as message) {
+            <p class="import__error" role="alert">Summary unavailable: {{ message }}</p>
+          }
+        }
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,85 @@
+<div class="admin">
+  <h2>Pending registrations</h2>
+  <p class="admin__hint">
+    Every self-registration sits here until approved or rejected. Approving grants a role and,
+    for a data officer or expert, binds them to exactly one province (SRS §3.2) — nothing they
+    submit is written until that happens.
+  </p>
+
+  @if (loading()) {
+    <p>Loading…</p>
+  } @else if (error(); as message) {
+    <p class="admin__error" role="alert">{{ message }}</p>
+  } @else if (registrations().length === 0) {
+    <p class="admin__empty">Nothing waiting on approval.</p>
+  } @else {
+    <table class="admin__table">
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>Requested</th>
+          <th>Grant role</th>
+          <th>Province</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of registrations(); track r.id) {
+          <tr>
+            <td>
+              <strong>{{ r.full_name }}</strong><br />
+              <span class="admin__email">{{ r.email }}</span>
+              @if (r.organization) {
+                <br /><span class="admin__org">{{ r.organization }}</span>
+              }
+            </td>
+            <td>
+              {{ r.requested_role_name || r.requested_role || '—' }}
+              @if (r.requested_province) {
+                <br /><span class="admin__org">{{ r.requested_province }}</span>
+              }
+            </td>
+            <td>
+              <select [ngModel]="roleFor(r.id)" (ngModelChange)="setRole(r.id, $event)">
+                @for (role of roles; track role) {
+                  <option [ngValue]="role">{{ role }}</option>
+                }
+              </select>
+            </td>
+            <td>
+              @if (roleNeedsProvince(roleFor(r.id))) {
+                <select [ngModel]="selectedProvince()[r.id]" (ngModelChange)="setProvince(r.id, $event)">
+                  <option [ngValue]="undefined">Choose…</option>
+                  @for (p of provinces; track p.id) {
+                    <option [ngValue]="p.id">{{ p.name }}</option>
+                  }
+                </select>
+              } @else {
+                <span class="admin__org">national</span>
+              }
+            </td>
+            <td class="admin__actions">
+              <button type="button" [disabled]="rowBusy()[r.id] || !canApprove(r.id)" (click)="approve(r)">
+                Approve
+              </button>
+              <div class="admin__reject">
+                <input
+                  type="text"
+                  placeholder="Reason (required to reject)"
+                  [ngModel]="rejectReason()[r.id] ?? ''"
+                  (ngModelChange)="setReason(r.id, $event)"
+                />
+                <button type="button" class="admin__reject-btn" [disabled]="rowBusy()[r.id]" (click)="reject(r)">
+                  Reject
+                </button>
+              </div>
+              @if (rowError()[r.id]; as message) {
+                <p class="admin__row-error" role="alert">{{ message }}</p>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
