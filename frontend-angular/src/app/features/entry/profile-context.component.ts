@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { ReferenceDataService } from '../../core/services/reference-data.service';
-import { Hazard } from '../../core/models/reference-data.model';
+import { Hazard, PROVINCE_OPTIONS } from '../../core/models/reference-data.model';
 import { scopeToQueryParams } from '../../core/models/query-param.util';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -71,13 +71,25 @@ export class ProfileContextComponent {
 
   readonly resolved = computed(() => {
     const sector = this.sectors.find((s) => s.code === this.sector());
-    if (!sector || !this.hazard() || !this.province() || !this.period()) return null;
+    // The scope the API and encodeProfileScope() expect is the province
+    // CODE ('CEN'), not the display name this screen's <select> is bound to
+    // ('Central') -- passing the name through uppercased it into 'CENTRAL',
+    // which province.code never matches (`unknown province 'CENTRAL'`).
+    // Matched case/whitespace-insensitively, same as AuthService.matchProvinceOption():
+    // PROVINCES carries 'Northwestern' where PROVINCE_OPTIONS carries 'North
+    // Western' (reference-data.model.ts's note on the pre-existing mismatch).
+    const normalize = (s: string) => s.replace(/\s+/g, '').toLowerCase();
+    const provinceCode = PROVINCE_OPTIONS.find(
+      (p) => normalize(p.name) === normalize(this.province() ?? ''),
+    )?.code;
+    if (!sector || !this.hazard() || !this.province() || !provinceCode || !this.period()) return null;
     if (this.needsSubsector() && !this.subsector()) return null;
     return {
       sectorName: sector.name,
       subsector: this.subsector(),
       hazard: this.hazard()!,
       province: this.province()!,
+      provinceCode,
       period: this.period()!,
     };
   });
@@ -104,7 +116,7 @@ export class ProfileContextComponent {
       // separate query param for the screens that need it.
       queryParams: {
         ...scopeToQueryParams({
-          province: r.province,
+          province: r.provinceCode,
           sector: this.sector()!,
           subsector: r.subsector,
           hazard: r.hazard,

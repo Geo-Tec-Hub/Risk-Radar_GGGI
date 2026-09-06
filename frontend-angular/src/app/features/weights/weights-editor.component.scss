@@ -4,6 +4,18 @@
   padding: 0 1.5rem;
 }
 
+.weights__back {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  color: #1971c2;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.weights__back:hover {
+  text-decoration: underline;
+}
+
 .weights__scope {
   color: #495057;
 }
@@ -122,6 +134,26 @@
 .weights__row--excluded {
   background: #f1f3f5;
   color: #868e96;
+}
+
+.weights__row--invalid {
+  background: #fff5f5;
+}
+
+.weights__weight-input--invalid {
+  border-color: #c92a2a !important;
+  background: #fff5f5;
+}
+
+.weights__decision--invalid {
+  color: #c92a2a;
+  margin-right: 0.4rem;
+}
+
+.weights__decision-hint {
+  color: #c92a2a;
+  font-size: 0.75rem;
+  font-style: italic;
 }
 
 .weights__badge {

@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { ApiClientService } from '../../core/services/api-client.service';
 import { ApiError } from '../../core/models/api-error.model';
@@ -55,6 +55,18 @@ function isResolved(row: EditableRow): boolean {
   return row.consensus === 'rejected' || row.weightPct !== null;
 }
 
+/** A weight of exactly 0 passes isResolved() (it is not null) but the
+ * database's own CHECK -- profile_indicator_weight_pct_check, `weight_pct >
+ * 0` -- rejects it unconditionally. Nothing client-side caught that before:
+ * the domain total still summed to 100 (0 contributes nothing) and every row
+ * read as "resolved", so Save stayed enabled and the only sign anything was
+ * wrong was a generic "the saved weights violate a schema rule" AFTER
+ * clicking Save. A variable that should carry no weight is EXCLUDED
+ * (consensus: 'rejected'), never agreed at 0. */
+function hasInvalidZeroWeight(row: EditableRow): boolean {
+  return row.consensus !== 'rejected' && row.weightPct === 0;
+}
+
 /**
  * F4 / DATA_ENTRY_WORKFLOW.md Step 2, updated by CHANGES 2026-08-09 C4/C5/C6:
  *
@@ -62,9 +74,17 @@ function isResolved(row: EditableRow): boolean {
  *   (`consensus: 'rejected'`), never by equal-weighting it. Exclusion is a
  *   recorded decision (who, when, optional note), never inferred from the
  *   blank alone.
- * - **C5** -- in the hazard domain, exclusion is offered only on the
- *   composite-index row. A blank *component* row holds the profile instead;
- *   no exclude action is offered for it at all.
+ * - **C5, relaxed 5 Sep 2026** -- originally this editor offered exclusion
+ *   only on the hazard composite-index row. That turned out to be a UI-only
+ *   restriction the database never enforced (no CHECK or trigger blocks a
+ *   rejected component), and real data already contradicted it: the 3
+ *   September panel import excluded DROUGHT_EVENTS_1974_TO_2022, a component,
+ *   not the composite index (superseded by a two-way split). The old
+ *   restriction meant that once such a row was reconsidered in this editor,
+ *   it could never be re-excluded here again -- only reweighted -- which is a
+ *   dead end for exactly the case the real data already exercises. Exclusion
+ *   is now offered on every hazard row, matching what the backend already
+ *   allows.
  * - **C6** -- the accepted set is declared by the data-entering user, not by
  *   a vote tally. `decidedBy` is a free-text name for now (there is no auth
  *   yet -- Stage 9).
@@ -76,7 +96,7 @@ function isResolved(row: EditableRow): boolean {
 @Component({
   selector: 'app-weights-editor',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './weights-editor.component.html',
   styleUrl: './weights-editor.component.scss',
 })
@@ -98,14 +118,27 @@ export class WeightsEditorComponent {
 
   readonly hazardTotal = computed(() => includedTotal(this.hazardRows()));
   readonly exposureTotal = computed(() => includedTotal(this.exposureRows()));
-  readonly hazardComplete = computed(() => this.hazardTotal() === 100 && this.hazardRows().every(isResolved));
-  readonly exposureComplete = computed(() => this.exposureTotal() === 100 && this.exposureRows().every(isResolved));
+  readonly hazardComplete = computed(
+    () => this.hazardTotal() === 100 && this.hazardRows().every(isResolved) && !this.hazardRows().some(hasInvalidZeroWeight),
+  );
+  readonly exposureComplete = computed(
+    () => this.exposureTotal() === 100 && this.exposureRows().every(isResolved) && !this.exposureRows().some(hasInvalidZeroWeight),
+  );
   readonly canSave = computed(() => this.hazardComplete() && this.exposureComplete());
 
-  /** True while any blank hazard *component* row exists -- C5: the profile holds, no exclusion offered. */
-  readonly hazardHeldPendingComponents = computed(() =>
-    this.hazardRows().some((r) => !r.isCompositeHazardIndex && !isResolved(r)),
-  );
+  /** Named so the block header doesn't read "100 / 100" (implying ready to
+   * save) while a blank row is still silently missing from that total --
+   * a weightless row contributes 0 and is invisible to includedTotal(). */
+  readonly unresolvedHazard = computed(() => this.hazardRows().filter((r) => !isResolved(r)).map((r) => r.indicatorName));
+  readonly unresolvedExposure = computed(() => this.exposureRows().filter((r) => !isResolved(r)).map((r) => r.indicatorName));
+  readonly unresolvedNames = computed(() => this.unresolvedHazard().concat(this.unresolvedExposure()).join(', '));
+
+  /** Rows typed as exactly 0 -- invalid, see hasInvalidZeroWeight(). Tracked
+   * separately from "unresolved" because these rows are NOT blank; the fix
+   * is to exclude or re-weight them, not to fill in a first value. */
+  readonly zeroWeightHazard = computed(() => this.hazardRows().filter(hasInvalidZeroWeight).map((r) => r.indicatorName));
+  readonly zeroWeightExposure = computed(() => this.exposureRows().filter(hasInvalidZeroWeight).map((r) => r.indicatorName));
+  readonly zeroWeightNames = computed(() => this.zeroWeightHazard().concat(this.zeroWeightExposure()).join(', '));
 
   readonly saving = signal(false);
   readonly saveError = signal<string | null>(null);
@@ -140,9 +173,9 @@ export class WeightsEditorComponent {
     });
   }
 
-  /** May the exclude action be offered for this row? (C5: hazard components never get it.) */
-  canExclude(block: 'hazard' | 'exposure', row: EditableRow): boolean {
-    return block === 'exposure' || !!row.isCompositeHazardIndex;
+  /** Template-facing wrapper for hasInvalidZeroWeight() -- see its doc comment. */
+  isInvalidZero(row: EditableRow): boolean {
+    return hasInvalidZeroWeight(row);
   }
 
   /** FR-3.4: helps the user reach 100 rather than loosening the rule. Splits the shortfall evenly across undecided rows only -- never across excluded ones. */
