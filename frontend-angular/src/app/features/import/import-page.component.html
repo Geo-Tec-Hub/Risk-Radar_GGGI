@@ -9,6 +9,14 @@
 
   <form class="import__form" (submit)="$event.preventDefault()">
     <label class="import__field">
+      <span>Data type</span>
+      <select [ngModel]="kind()" name="kind" (ngModelChange)="onKindChange($event)">
+        <option value="sector">Sector workbook</option>
+        <option value="climate">Climate (whole province)</option>
+      </select>
+    </label>
+
+    <label class="import__field">
       <span>Province</span>
       <select [ngModel]="province()" name="province" (ngModelChange)="province.set($event)">
         @for (p of provinces(); track p.code) {
@@ -17,6 +25,7 @@
       </select>
     </label>
 
+    @if (kind() === 'sector') {
     <label class="import__field">
       <span>Sector</span>
       <select [ngModel]="sector()" name="sector" (ngModelChange)="onSectorChange($event)">
@@ -48,6 +57,16 @@
         }
       </select>
     </label>
+    }
+
+    @if (kind() === 'climate') {
+      <p class="import__note">
+        Climate variables belong to the division and the period, not to a sector &mdash; the same
+        rainfall is read by every sector. They are collected once per province, by the officer who
+        owns them, so that no sector import can overwrite them. Importing this file needs the
+        hazard-data grant.
+      </p>
+    }
 
     <label class="import__field import__field--file">
       <span>Workbook</span>

@@ -16,6 +16,12 @@ carries `profile_code`, `expected_columns` and `periods`. Validating against it
 means a renamed, reordered or inserted column is caught as a structural error
 naming the file, instead of being silently skipped.
 
+CLIMATE WORKBOOKS ARE A SECOND KIND, DECLARED IN `_META`. A workbook with
+`kind = climate` carries the hazard-domain variables for a whole province and
+belongs to no sector, so its `_META` has no main_sector/subsector/hazard to
+cross-check. `kind` defaults to "profile" so every workbook generated before
+this existed keeps its current meaning.
+
 PERIOD COMES FROM THE TAB NAME.  Not from the YEAR_START/YEAR_END cells. In the
 returned Central files those cells still read 2020/2025 because they were locked
 when the panel renamed the tabs to 2021-2025 / 2026-2030 (their NOTED.xlsx says
@@ -66,6 +72,7 @@ class TemplateSheet:
 class TemplateWorkbook:
     filename: str
     profile_code: Optional[str] = None
+    kind: str = "profile"          # "profile" | "climate"
     province: Optional[str] = None
     main_sector: Optional[str] = None
     subsector: Optional[str] = None
@@ -222,6 +229,9 @@ def read_workbook(path: str, expected: Optional[list[str]] = None,
         return out
 
     out.profile_code = meta.get("profile_code")
+    # Absent on every workbook generated before climate templates existed, and
+    # those are all sector files -- hence the default rather than an error.
+    out.kind = str(meta.get("kind") or "profile").strip().lower()
     out.province = meta.get("province")
     out.main_sector = meta.get("main_sector")
     out.subsector = meta.get("subsector") or None

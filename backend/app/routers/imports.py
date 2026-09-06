@@ -16,6 +16,11 @@ NOTHING LOADS PARTIALLY (FR-2.3). A file either loads completely or not at all,
 and every error is reported together rather than stopping at the first, so one
 upload gives the whole list to fix.
 
+TWO KINDS OF WORKBOOK, ONE ENDPOINT. `_META.kind` says whether a file is a
+sector workbook or a province-wide CLIMATE workbook, and the loader branches on
+it. The UI sends no sector or hazard for a climate file -- there is none to send
+-- so `_scope` narrows the cross-check to the province rather than skipping it.
+
 THE FILE IS AUTHORITATIVE ABOUT WHAT IT IS; THE UPLOADER IS ASKED ANYWAY.
 `_META` names the profile, so the sector and hazard chosen in the UI are not how
 the file is routed -- they are a cross-check. A mismatch is refused. Uploading
@@ -151,8 +156,17 @@ class _Done(Exception):
 
 def _scope(province: Optional[str], sector: Optional[str],
            subsector: Optional[str], hazard: Optional[str]):
-    if not (province and sector and hazard):
+    if not province:
         return None
+    if not (sector and hazard):
+        # A climate workbook is province-wide, so the UI sends the province
+        # alone. Returning None here instead would drop the cross-check
+        # entirely -- including the province -- and Central's rainfall written
+        # onto Uva's divisions is exactly the plausible-looking mistake the
+        # cross-check exists to catch. A SECTOR file uploaded with these fields
+        # missing still fails, because the loader compares the whole tuple and
+        # the file's own _META names a sector.
+        return (province, None, None, None)
     return (province, sector, subsector or None, hazard)
 
 

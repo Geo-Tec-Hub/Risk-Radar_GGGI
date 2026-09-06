@@ -12,6 +12,19 @@ WHAT IS AND IS NOT LOADED
   * Blank stays blank. A division with no value for a variable is absent, and
     absent is not zero - it must reach the map as "unassessed" (NFR-10).
   * Raw values only. Normalisation is server-side, always.
+
+TWO KINDS OF WORKBOOK
+  * A PROFILE workbook is one sector x hazard x province. Its columns are the
+    variables of that profile, and `may_write_profile()` decides who may load it.
+  * A CLIMATE workbook is one province, no sector. It carries hazard-domain
+    variables only -- the ~12 climate facts that `indicator_value` keys to a
+    division and a period with no sector column, and that every profile shares.
+    `may_write_hazard()` decides who may load it.
+
+  The two paths differ only in where the column contract comes from and which
+  authority is asked. Everything after that -- division lookup, blank handling,
+  delete-then-insert -- is the same code, deliberately: a climate value and a
+  sector value are the same kind of row and must not be written two ways.
 """
 
 from __future__ import annotations
@@ -34,6 +47,52 @@ class LoadResult:
     @property
     def ok(self) -> bool:
         return not self.errors
+
+
+async def _catalogue_maps(conn) -> tuple[dict[str, str], set[str]]:
+    """Header aliases and the signed-value codes. Shared by both contexts so a
+    workbook is read the same way whichever path it came in on."""
+    # An alias NEVER overrides a real code. Several legacy aliases point at a
+    # code that has since become a catalogue variable in its own right -
+    # 'VERY_WET_DAYS_95TH_PERCENTILE' was an alias for VERY_WET_DAYS before the
+    # Central panel made it a variable - and applying those would silently fold
+    # the panel's new column back into the one it replaced.
+    aliases = {r["alias"]: r["code"] for r in await conn.fetch(
+        """
+        SELECT ia.alias, ic.code
+          FROM indicator_alias ia
+          JOIN indicator_catalog ic ON ic.id = ia.indicator_id
+         WHERE NOT EXISTS (SELECT 1 FROM indicator_catalog self
+                            WHERE self.code = ia.alias)
+        """)}
+    signed = {r["code"] for r in await conn.fetch(
+        "SELECT code FROM indicator_catalog WHERE value_kind = 'signed'")}
+    return aliases, signed
+
+
+async def climate_context(conn, province: str) -> dict | None:
+    """Context for a CLIMATE workbook, which has no profile to look up.
+
+    The column contract cannot come from a profile here, so it comes from the
+    catalogue: every variable column must be an ACTIVE hazard-domain variable.
+    That is the check that keeps a coconut column out of a climate file -- and
+    it is stricter than the profile path, not looser, because a climate file
+    that carried an exposure column would write a sector's data under nobody's
+    ownership.
+    """
+    row = await conn.fetchrow("SELECT id FROM province WHERE name = $1", province)
+    if row is None:
+        return None
+    codes = [r["code"] for r in await conn.fetch(
+        """
+        SELECT code FROM indicator_catalog
+         WHERE domain = 'hazard' AND status = 'active'
+         ORDER BY code
+        """)]
+    aliases, signed = await _catalogue_maps(conn)
+    return dict(profile_id=None, profile_code=None, province_id=row["id"],
+                sector_id=None, subsector_id=None, codes=codes,
+                aliases=aliases, signed=signed, hazard_codes=set(codes))
 
 
 async def profile_context(conn, province: str, main_sector: str,
@@ -64,21 +123,7 @@ async def profile_context(conn, province: str, main_sector: str,
          WHERE pi.profile_id = $1
          ORDER BY (ic.domain <> 'hazard'), ic.code
         """, row["id"])]
-    # An alias NEVER overrides a real code. Several legacy aliases point at a
-    # code that has since become a catalogue variable in its own right -
-    # 'VERY_WET_DAYS_95TH_PERCENTILE' was an alias for VERY_WET_DAYS before the
-    # Central panel made it a variable - and applying those would silently fold
-    # the panel's new column back into the one it replaced.
-    aliases = {r["alias"]: r["code"] for r in await conn.fetch(
-        """
-        SELECT ia.alias, ic.code
-          FROM indicator_alias ia
-          JOIN indicator_catalog ic ON ic.id = ia.indicator_id
-         WHERE NOT EXISTS (SELECT 1 FROM indicator_catalog self
-                            WHERE self.code = ia.alias)
-        """)}
-    signed = {r["code"] for r in await conn.fetch(
-        "SELECT code FROM indicator_catalog WHERE value_kind = 'signed'")}
+    aliases, signed = await _catalogue_maps(conn)
     # Which of this profile's variables are hazard-domain. Held separately
     # because the hazard grant is separate: those twelve climate variables are
     # shared across ~13.5 profiles each and belong to the Met Department, not to
@@ -119,29 +164,56 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
         return LoadResult(probe.filename, probe.profile_code, 0, 0, 0,
                           probe.errors, probe.warnings)
 
+    is_climate = probe.kind == "climate"
+
     if expect_scope is not None:
-        want = tuple(x or None for x in expect_scope)
-        got = (probe.province, probe.main_sector, probe.subsector or None, probe.hazard)
-        if want != got:
-            return LoadResult(
-                probe.filename, probe.profile_code, 0, 0, 0,
-                ["this workbook is for %s / %s / %s / %s, but the import was "
-                 "started for %s / %s / %s / %s. Nothing was loaded."
-                 % (got + want)], probe.warnings)
+        if is_climate:
+            # A climate workbook belongs to a province, not to a sector, so
+            # there is no sector or hazard for the uploader to have got wrong --
+            # only the province, and that one still matters: Central's rainfall
+            # written onto Uva's divisions would be entirely plausible numbers
+            # in entirely the wrong place.
+            want_province = expect_scope[0] or None
+            if want_province and want_province != probe.province:
+                return LoadResult(
+                    probe.filename, probe.profile_code, 0, 0, 0,
+                    ["this is the climate workbook for %s Province, but the "
+                     "import was started for %s. Nothing was loaded."
+                     % (probe.province, want_province)], probe.warnings)
+        else:
+            want = tuple(x or None for x in expect_scope)
+            got = (probe.province, probe.main_sector, probe.subsector or None, probe.hazard)
+            if want != got:
+                return LoadResult(
+                    probe.filename, probe.profile_code, 0, 0, 0,
+                    ["this workbook is for %s / %s / %s / %s, but the import was "
+                     "started for %s / %s / %s / %s. Nothing was loaded."
+                     % (got + want)], probe.warnings)
 
     if review_copy is None:
         review_copy = probe.protection == "unlocked-review"
 
-    ctx = await profile_context(conn, probe.province, probe.main_sector,
-                                probe.subsector, probe.hazard)
-    if ctx is None:
-        return LoadResult(probe.filename, probe.profile_code, 0, 0, 0,
-                          ["no active profile for %s / %s / %s / %s"
-                           % (probe.province, probe.main_sector,
-                              probe.subsector, probe.hazard)], probe.warnings)
+    if is_climate:
+        ctx = await climate_context(conn, probe.province)
+        if ctx is None:
+            return LoadResult(probe.filename, probe.profile_code, 0, 0, 0,
+                              ["_META names province %r, which is not a province "
+                               "in the register" % probe.province], probe.warnings)
+    else:
+        ctx = await profile_context(conn, probe.province, probe.main_sector,
+                                    probe.subsector, probe.hazard)
+        if ctx is None:
+            return LoadResult(probe.filename, probe.profile_code, 0, 0, 0,
+                              ["no active profile for %s / %s / %s / %s"
+                               % (probe.province, probe.main_sector,
+                                  probe.subsector, probe.hazard)], probe.warnings)
 
     expected = None
-    if review_copy:
+    # Review-copy mode rebuilds the contract from the PROFILE's current variable
+    # list, which a climate file has none of. Its `_META` is the only statement
+    # of its columns, so that is what governs -- and every column it names is
+    # checked against the catalogue below regardless.
+    if review_copy and not is_climate:
         from app.importer.template_reader import FIXED_COLUMNS, TRAILING_COLUMNS
         expected = FIXED_COLUMNS + ctx["codes"] + TRAILING_COLUMNS
 
@@ -164,34 +236,55 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
     # is False only for the seed script, which runs as a service account with
     # no province and is not a person acting through the API.
     if enforce_scope:
-        allowed = await conn.fetchval(
-            "SELECT may_write_profile($1, $2, $3, $4)",
-            user_id, ctx["province_id"], ctx["sector_id"], ctx["subsector_id"])
-        if not allowed:
-            return LoadResult(
-                wb.filename, wb.profile_code, wb.value_count, 0, 0,
-                ["you are not authorised to write %s data for %s Province. A "
-                 "data officer is granted specific sectors; ask an administrator "
-                 "to widen your scope if this is your responsibility. Nothing "
-                 "was loaded."
-                 % (wb.main_sector + (" / " + wb.subsector if wb.subsector else ""),
-                    wb.province)], warnings)
-
-        if not await conn.fetchval(
-                "SELECT may_write_hazard_domain FROM app_user WHERE id = $1", user_id):
-            present = sorted(ctx["hazard_codes"].intersection(
-                {v.variable_code for s in wb.sheets for v in s.values}))
-            if present:
+        # Both authorities live in the schema (schema_write_scope_addendum.sql,
+        # schema_climate_scope_addendum.sql) rather than here, so the rule cannot
+        # drift between an endpoint and the database.
+        if is_climate:
+            if not await conn.fetchval(
+                    "SELECT may_write_hazard($1, $2)", user_id, ctx["province_id"]):
                 return LoadResult(
                     wb.filename, wb.profile_code, wb.value_count, 0, 0,
-                    ["this workbook carries hazard (climate) values you are not "
-                     "authorised to write: %s. Those variables are shared across "
-                     "most sectors and are held centrally, so a sector grant does "
-                     "not include them. Either clear those columns or ask an "
-                     "administrator for the hazard-data grant. Nothing was loaded."
-                     % ", ".join(present[:6])
-                     + ("" if len(present) <= 6 else " (and %d more)" % (len(present) - 6))],
+                    ["you are not authorised to write climate data for %s "
+                     "Province. These variables are shared by every sector and "
+                     "are held centrally, so they need the hazard-data grant "
+                     "rather than a sector one. Ask an administrator if this is "
+                     "your responsibility. Nothing was loaded." % wb.province],
                     warnings)
+        else:
+            allowed = await conn.fetchval(
+                "SELECT may_write_profile($1, $2, $3, $4)",
+                user_id, ctx["province_id"], ctx["sector_id"], ctx["subsector_id"])
+            if not allowed:
+                return LoadResult(
+                    wb.filename, wb.profile_code, wb.value_count, 0, 0,
+                    ["you are not authorised to write %s data for %s Province. A "
+                     "data officer is granted specific sectors; ask an administrator "
+                     "to widen your scope if this is your responsibility. Nothing "
+                     "was loaded."
+                     % (wb.main_sector + (" / " + wb.subsector if wb.subsector else ""),
+                        wb.province)], warnings)
+
+            # Same question, same authority as the climate path above -- asked
+            # only about the climate columns this sector file happens to carry.
+            # Once sector templates drop those columns this branch stops firing
+            # on its own; until then it is what stops the last sector officer to
+            # import from overwriting the province's weather.
+            if not await conn.fetchval(
+                    "SELECT may_write_hazard($1, $2)", user_id, ctx["province_id"]):
+                present = sorted(ctx["hazard_codes"].intersection(
+                    {v.variable_code for s in wb.sheets for v in s.values}))
+                if present:
+                    return LoadResult(
+                        wb.filename, wb.profile_code, wb.value_count, 0, 0,
+                        ["this workbook carries hazard (climate) values you are not "
+                         "authorised to write: %s. Those variables are shared across "
+                         "most sectors and are held centrally, so a sector grant does "
+                         "not include them. Either clear those columns, import them "
+                         "through the province's climate workbook, or ask an "
+                         "administrator for the hazard-data grant. Nothing was loaded."
+                         % ", ".join(present[:6])
+                         + ("" if len(present) <= 6 else " (and %d more)" % (len(present) - 6))],
+                        warnings)
 
     ind = {r["code"]: r["id"] for r in await conn.fetch(
         "SELECT id, code FROM indicator_catalog WHERE code = ANY($1::text[])",
@@ -207,8 +300,13 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
                               % (s.tab, v.excel_row, v.ds_code, wb.province))
                 continue
             if v.variable_code not in ind:
-                errors.append("%s row %d: %s is not a variable of this profile"
-                              % (s.tab, v.excel_row, v.variable_code))
+                errors.append(
+                    ("%s row %d: %s is not an active hazard (climate) variable. "
+                     "A climate workbook carries hazard-domain variables only -- "
+                     "a sector's own variables belong in that sector's workbook."
+                     if is_climate else
+                     "%s row %d: %s is not a variable of this profile")
+                    % (s.tab, v.excel_row, v.variable_code))
                 continue
             rows.append((ind[v.variable_code], div[v.ds_code], s.year_start,
                          s.year_end, v.raw_value, v.data_source, v.notes))

@@ -15,6 +15,13 @@ import { TaxonomyService } from '../../core/services/taxonomy.service';
  * with it, and the disagreement shows up as "it passed the check and then
  * failed to load", which destroys confidence in both.
  *
+ * TWO KINDS OF WORKBOOK. A sector workbook is one sector x hazard x province.
+ * A CLIMATE workbook is one province and no sector: it carries the hazard
+ * variables every sector shares, so that they are entered once by the officer
+ * who owns them instead of ~13 times inside sector files, where the last import
+ * silently overwrote all the others. Choosing "Climate" hides the sector and
+ * hazard pickers because there is nothing for them to mean.
+ *
  * THE SCOPE PICKERS ARE A CROSS-CHECK, NOT ROUTING. The workbook's hidden
  * `_META` says which profile it is for, and that is what the server uses. The
  * selection here is compared against it and a mismatch is refused. Uploading
@@ -68,6 +75,11 @@ export class ImportPageComponent implements OnInit {
   readonly taxonomy = this.taxonomyService.taxonomy;
   readonly taxonomyError = this.taxonomyService.error;
 
+  /** 'sector' = one sector x hazard workbook. 'climate' = the province-wide
+   * hazard-variable workbook. The server reads the kind from the file's _META
+   * regardless; this only decides what the form asks for and sends. */
+  readonly kind = signal<'sector' | 'climate'>('sector');
+
   readonly province = signal<string | undefined>(undefined);
   readonly sector = signal<string | undefined>(undefined);
   readonly subsector = signal<string | undefined>(undefined);
@@ -117,9 +129,11 @@ export class ImportPageComponent implements OnInit {
     };
   });
 
-  readonly canSubmit = computed(
-    () => !!this.file() && !!this.province() && !!this.sector() && !!this.hazard() && !this.busy(),
-  );
+  readonly canSubmit = computed(() => {
+    if (!this.file() || !this.province() || this.busy()) return false;
+    // A climate file has no sector or hazard to require.
+    return this.kind() === 'climate' || (!!this.sector() && !!this.hazard());
+  });
 
   constructor() {
     effect(() => {
@@ -155,6 +169,14 @@ export class ImportPageComponent implements OnInit {
     }
   }
 
+  onKindChange(kind: 'sector' | 'climate'): void {
+    this.kind.set(kind);
+    // A report about the previous kind of file would be read as being about
+    // this one.
+    this.report.set(null);
+    this.failure.set(null);
+  }
+
   onFileSelected(event: Event): void {
     this.file.set((event.target as HTMLInputElement).files?.[0] ?? null);
     this.report.set(null);
@@ -177,9 +199,13 @@ export class ImportPageComponent implements OnInit {
     const body = new FormData();
     body.append('file', file, file.name);
     if (n.province) body.append('province', n.province);
-    if (n.sector) body.append('sector', n.sector);
-    if (n.subsector) body.append('subsector', n.subsector);
-    if (n.hazard) body.append('hazard', n.hazard);
+    // Sending a stale sector for a climate file would be refused by the server,
+    // correctly -- the file names no sector to match it against.
+    if (this.kind() === 'sector') {
+      if (n.sector) body.append('sector', n.sector);
+      if (n.subsector) body.append('subsector', n.subsector);
+      if (n.hazard) body.append('hazard', n.hazard);
+    }
 
     this.busy.set(true);
     this.report.set(null);
