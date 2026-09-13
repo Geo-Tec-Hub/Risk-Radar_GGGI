@@ -21,7 +21,12 @@
 
     <label class="import__field">
       <span>Province</span>
-      <select [ngModel]="province()" name="province" (ngModelChange)="province.set($event)">
+      <select
+        [ngModel]="province()"
+        name="province"
+        [disabled]="provinceLocked()"
+        (ngModelChange)="province.set($event)"
+      >
         @for (p of provinces(); track p.code) {
           <option [ngValue]="p.code">{{ p.name }}</option>
         }
@@ -297,7 +302,12 @@
       </thead>
       <tbody>
         @for (b of batches(); track b.id) {
-          <tr [class.import__row--bad]="b.status === 'rejected'">
+          <tr
+            class="import__batchrow"
+            [class.import__row--bad]="b.status === 'rejected'"
+            [class.import__row--open]="openBatchId() === b.id"
+            (click)="openBatch(b.id)"
+          >
             <td>{{ b.filename }}</td>
             <td>{{ b.profileCode ?? '—' }}</td>
             <td>{{ b.status }}</td>
@@ -306,6 +316,110 @@
             <td>{{ b.errorCount }}</td>
             <td>{{ b.uploadedAt | date: 'short' }}</td>
           </tr>
+          @if (openBatchId() === b.id) {
+            <tr class="import__detailrow">
+              <td colspan="7">
+                @if (detailError()) {
+                  <p class="import__error">{{ detailError() }}</p>
+                }
+                @if (!detail() && !detailError()) {
+                  <p class="import__muted">Opening…</p>
+                }
+                @if (detail(); as d) {
+                  <div class="import__detailhead">
+                    <span>
+                      <strong>{{ d.values.length }}</strong> values
+                      @if (d.province) { in {{ d.province }} }
+                      @if (d.uploadedBy) { · uploaded by {{ d.uploadedBy }} }
+                    </span>
+                    <input
+                      type="search"
+                      placeholder="Filter by division or variable"
+                      [value]="detailFilter()"
+                      (input)="detailFilter.set($any($event.target).value)"
+                    />
+                    @if (d.editable) {
+                      <button type="button" (click)="toggleEditing()">
+                        {{ editing() ? 'Cancel editing' : 'Turn on editing' }}
+                      </button>
+                    } @else {
+                      <span class="import__muted">
+                        Read only — correcting this needs the grant that covers uploading it.
+                      </span>
+                    }
+                    <button type="button" (click)="closeBatch()">Close</button>
+                  </div>
+
+                  @if (editing()) {
+                    <p class="import__muted">
+                      Change a number and save. An edit corrects a value this import wrote; it
+                      cannot add one the file did not carry. The map keeps its current scores
+                      until the province is recomputed.
+                    </p>
+                  }
+
+                  @if (d.values.length === 0) {
+                    <p class="import__muted">This import wrote no values.</p>
+                  } @else {
+                    <div class="import__detailscroll">
+                      <table class="preview__table">
+                        <thead>
+                          <tr>
+                            <th>Period</th><th>Division</th><th>Variable</th>
+                            <th>Domain</th><th>Value</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (v of detailRows(); track v.id) {
+                            <tr [class.preview__row--edited]="valueEdits()[v.id] !== undefined">
+                              <td>{{ v.period }}</td>
+                              <td>{{ v.dsName }} <span class="import__muted">{{ v.dsCode }}</span></td>
+                              <td>{{ v.variableCode }}</td>
+                              <td>{{ v.domain }}</td>
+                              <td>
+                                @if (editing()) {
+                                  <input
+                                    type="number"
+                                    step="any"
+                                    [value]="valueEdits()[v.id] ?? v.value"
+                                    (input)="editValue(v, $any($event.target).value)"
+                                  />
+                                } @else {
+                                  {{ v.value }}
+                                }
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+
+                  @if (editing()) {
+                    <div class="import__detailhead">
+                      <button
+                        type="button"
+                        [disabled]="valueEditCount() === 0 || saving()"
+                        (click)="saveCorrections()"
+                      >
+                        {{ saving() ? 'Saving…' : 'Save ' + valueEditCount() + ' correction(s)' }}
+                      </button>
+                    </div>
+                  }
+
+                  @if (correction(); as c) {
+                    <p class="import__note">
+                      {{ c.updated }} value(s) corrected.
+                      @if (c.recomputeNeeded) {
+                        The published scores still reflect the old numbers — recompute
+                        {{ c.province ?? 'the province' }} above to update the map.
+                      }
+                    </p>
+                  }
+                }
+              </td>
+            </tr>
+          }
         }
       </tbody>
     </table>

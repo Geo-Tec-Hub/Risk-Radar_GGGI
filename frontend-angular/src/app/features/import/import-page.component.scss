@@ -81,3 +81,22 @@
 .recompute__actions { display: flex; gap: .75rem; align-items: flex-end; flex-wrap: wrap; }
 .recompute__done { margin: .6rem 0 0; font-size: .85rem; color: #2f9e44; }
 .import__field--inline { margin: 0; }
+
+/* ---- an opened dataset -------------------------------------------------
+   The row expands in place rather than opening a dialog: the list is how a
+   person finds the import, and a dialog would hide the list they are still
+   scanning. */
+.import__batchrow { cursor: pointer; }
+.import__batchrow:hover td { background: #f6f7f9; }
+.import__row--open td { background: #eef1f6; }
+.import__detailrow > td { padding: .8rem 1rem 1.1rem; background: #fbfcfd; }
+.import__detailhead {
+  display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+  margin-bottom: .6rem; font-size: .8rem;
+}
+.import__detailhead input[type='search'] { flex: 1 1 14rem; min-width: 10rem; padding: .3rem .5rem; }
+/* Bounded, because one import is up to ~12,700 values and an unbounded table
+   pushes the list it expanded from off the screen. */
+.import__detailscroll { max-height: 26rem; overflow: auto; }
+.import__detailscroll input[type='number'] { width: 8rem; padding: .2rem .35rem; }
+.import__error { margin: .4rem 0; font-size: .8rem; color: #a4243b; }

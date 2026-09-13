@@ -14,13 +14,13 @@ import {
 } from '../models/auth.model';
 import { PROVINCES } from '../models/reference-data.model';
 
-/** admin -> /admin/registrations, data_officer/expert -> /entry (their
+/** admin -> /admin/registrations, data_officer/expert -> /import (their
  * write workflow starts there), everyone else (community, or no role yet)
  * -> /map (FR-12.8: route by role on sign-in). */
 const ROLE_LANDING: Record<RoleCode, string> = {
   admin: '/admin/registrations',
-  data_officer: '/entry',
-  expert: '/entry',
+  data_officer: '/import',
+  expert: '/import',
   community: '/map',
 };
 

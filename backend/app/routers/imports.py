@@ -1,9 +1,27 @@
 """
 Workbook import -- Stage 3.2 / 3.4 / 3.7, SRS section 9 `/imports`.
 
-    POST /api/import/check    upload, validate, WRITE NOTHING
-    POST /api/import/load     upload, validate, load atomically
-    GET  /api/import/batches  what has been imported, most recent first
+    POST /api/import/check          upload, validate, WRITE NOTHING
+    POST /api/import/load           upload, validate, load atomically
+    GET  /api/import/batches        what has been imported, most recent first
+    GET  /api/import/batches/{id}   the values one import actually wrote
+    PUT  /api/import/batches/{id}/values   correct some of them
+
+A BATCH LIST IS SCOPED TO THE READER'S PROVINCE. An officer who writes in one
+province has no business browsing another's uploads, and a list of every
+province's imports is also unusable for the person who has to find their own.
+Administrators still see everything, and pass ?province= to narrow it.
+
+A LOADED BATCH CAN BE CORRECTED IN PLACE, UNDER THE SAME AUTHORITY AS THE
+IMPORT. The pre-load preview already lets a reviewer fix a cell before it is
+written; the same mistake found a day later had no answer but re-uploading the
+whole workbook. An edit here may only change a value the batch itself wrote --
+it cannot introduce a new fact, so the file stays the statement of what was
+imported and the edit is a recorded correction to it. `may_write_profile` and
+`may_write_hazard` are asked exactly as the loader asks them, so a correction
+can never reach further than the upload could. Results are NOT recomputed
+automatically: the map reads `vulnerability_result`, which only the engine
+writes, so the response says a recompute is owed and the caller runs it.
 
 TWO STEPS BECAUSE A REPORT YOU CANNOT ACT ON IS NOT A REPORT.
 `check` runs the identical code path as `load` up to the last statement and then
@@ -108,6 +126,51 @@ class BatchRow(BaseModel):
     errorCount: int
     uploadedAt: str
     uploadedBy: Optional[str]
+    province: Optional[str] = None
+
+
+class ValueRow(BaseModel):
+    """One value an import wrote, as it stands now -- not as the file had it.
+    `id` is the stored value's own id, which is what a correction names: a
+    correction changes a fact this batch wrote and can never introduce a new
+    one."""
+    id: int
+    dsCode: str
+    dsName: str
+    variableCode: str
+    domain: str
+    value: float
+    period: str
+
+
+class BatchDetail(BaseModel):
+    id: int
+    filename: str
+    profileCode: Optional[str]
+    status: str
+    province: Optional[str]
+    uploadedAt: str
+    uploadedBy: Optional[str]
+    # Whether THIS reader may correct it, answered by the same grant that
+    # governs uploading. The UI uses it to decide whether to offer editing at
+    # all -- the server checks again on the way in regardless.
+    editable: bool
+    values: list[ValueRow]
+
+
+class CorrectionIn(BaseModel):
+    id: int
+    value: float
+
+
+class CorrectionBody(BaseModel):
+    edits: list[CorrectionIn]
+
+
+class CorrectionReport(BaseModel):
+    updated: int
+    province: Optional[str]
+    recomputeNeeded: bool
 
 
 def _parse_edits(raw: Optional[str]) -> dict[tuple[str, str, str], float]:
@@ -164,6 +227,23 @@ async def _run(pool: asyncpg.Pool, file: UploadFile, user: CurrentUser,
                     result.values_read, 0 if dry_run else result.values_loaded,
                     len(result.errors),
                     json.dumps(result.errors) if result.errors else None)
+                if not dry_run and result.ok:
+                    # Stamp the province from the rows just written, so the
+                    # batch list can be scoped without re-deriving it every
+                    # time. Taken from the values rather than from the form:
+                    # the form is a cross-check, the values are where the
+                    # import actually landed.
+                    await conn.execute(
+                        """
+                        UPDATE import_batch b
+                           SET province_id = COALESCE(b.province_id, (
+                                   SELECT d.province_id
+                                     FROM indicator_value v
+                                     JOIN ds_division d ON d.id = v.ds_division_id
+                                    WHERE v.import_batch_id = b.id
+                                    LIMIT 1))
+                         WHERE b.id = $1
+                        """, batch_id)
                 if dry_run or not result.ok:
                     # A check never keeps its values, and a failed load never
                     # keeps anything at all -- including its own batch row, so a
@@ -253,23 +333,211 @@ async def load(
                       edits=_parse_edits(edits))
 
 
+# The province a batch belongs to. `import_batch.province_id` is filled in from
+# the loader's context on every import, but batches loaded before that was done
+# carry NULL, so it is COALESCEd with the province of the divisions the batch
+# actually wrote to. Derived rather than backfilled: the values are the evidence
+# of where an import landed, and they cannot disagree with themselves.
+_BATCH_PROVINCE = """
+    LEFT JOIN LATERAL (
+        SELECT d.province_id
+          FROM indicator_value v
+          JOIN ds_division d ON d.id = v.ds_division_id
+         WHERE v.import_batch_id = b.id
+         LIMIT 1) pv ON TRUE
+    LEFT JOIN province p ON p.id = COALESCE(b.province_id, pv.province_id)
+"""
+
+
+def _province_filter(user: CurrentUser, asked: Optional[str]) -> tuple[Optional[int], Optional[str]]:
+    """(province_id, province_name) to filter a batch list by.
+
+    An administrator has no province of their own and sees every province unless
+    they ask for one. Anyone else sees theirs and only theirs -- passing
+    ?province= for somebody else's province is not an error to argue about, it
+    is simply ignored in favour of their own."""
+    if user.has_role("admin"):
+        return None, asked
+    return user.province_id, None
+
+
 @router.get("/batches", response_model=list[BatchRow])
 async def batches(
     limit: int = 25,
+    province: Optional[str] = None,
     pool: asyncpg.Pool = Depends(db),
     user: CurrentUser = Depends(get_current_user),
 ) -> list[BatchRow]:
+    prov_id, prov_name = _province_filter(user, province)
     rows = await pool.fetch(
         """
         SELECT b.id, b.filename, b.profile_code, b.status, b.rows_total,
-               b.rows_loaded, b.error_count, b.uploaded_at, u.full_name
+               b.rows_loaded, b.error_count, b.uploaded_at, u.full_name,
+               p.name AS province
           FROM import_batch b
           LEFT JOIN app_user u ON u.id = b.uploaded_by
+        """ + _BATCH_PROVINCE + """
+         WHERE ($2::smallint IS NULL
+                OR COALESCE(b.province_id, pv.province_id) = $2)
+           AND ($3::text IS NULL OR p.name = $3)
          ORDER BY b.uploaded_at DESC, b.id DESC
          LIMIT $1
-        """, min(limit, 200))
+        """, min(limit, 200), prov_id, prov_name)
     return [BatchRow(
         id=r["id"], filename=r["filename"], profileCode=r["profile_code"],
         status=r["status"], rowsTotal=r["rows_total"], rowsLoaded=r["rows_loaded"],
         errorCount=r["error_count"], uploadedAt=r["uploaded_at"].isoformat(),
-        uploadedBy=r["full_name"]) for r in rows]
+        uploadedBy=r["full_name"], province=r["province"]) for r in rows]
+
+
+async def _batch_scope(conn, batch_id: int) -> asyncpg.Record:
+    """The batch, the province it wrote into, and the profile scope that governs
+    who may change it. A climate batch has no sector -- `sector_id` is NULL and
+    the hazard grant is the only authority that applies."""
+    row = await conn.fetchrow(
+        """
+        SELECT b.id, b.filename, b.profile_code, b.status,
+               b.uploaded_at, u.full_name,
+               COALESCE(b.province_id, pv.province_id) AS province_id,
+               p.name AS province,
+               vp.sector_id, vp.subsector_id
+          FROM import_batch b
+          LEFT JOIN app_user u ON u.id = b.uploaded_by
+        """ + _BATCH_PROVINCE + """
+          LEFT JOIN vulnerability_profile vp ON vp.code = b.profile_code
+         WHERE b.id = $1
+        """, batch_id)
+    if row is None:
+        raise HTTPException(404, "no such import")
+    return row
+
+
+def _readable(user: CurrentUser, row: asyncpg.Record) -> None:
+    if user.has_role("admin"):
+        return
+    if user.province_id is not None and row["province_id"] == user.province_id:
+        return
+    # Deliberately the same 404 a missing batch gets: whether an import exists in
+    # another province is itself not this account's business.
+    raise HTTPException(404, "no such import")
+
+
+@router.get("/batches/{batch_id}", response_model=BatchDetail)
+async def batch_detail(
+    batch_id: int,
+    pool: asyncpg.Pool = Depends(db),
+    user: CurrentUser = Depends(get_current_user),
+) -> BatchDetail:
+    async with pool.acquire() as conn:
+        b = await _batch_scope(conn, batch_id)
+        _readable(user, b)
+        rows = await conn.fetch(
+            """
+            SELECT v.id, d.code AS ds_code, d.name AS ds_name,
+                   ic.code AS variable_code, ic.domain, v.raw_value,
+                   v.year_start, v.year_end
+              FROM indicator_value v
+              JOIN ds_division d       ON d.id = v.ds_division_id
+              JOIN indicator_catalog ic ON ic.id = v.indicator_id
+             WHERE v.import_batch_id = $1
+             ORDER BY v.year_start, d.code, ic.code
+            """, batch_id)
+        editable = await _may_edit(conn, user, b)
+    return BatchDetail(
+        id=b["id"], filename=b["filename"], profileCode=b["profile_code"],
+        status=b["status"], province=b["province"],
+        uploadedAt=b["uploaded_at"].isoformat(), uploadedBy=b["full_name"],
+        editable=editable,
+        values=[ValueRow(
+            id=r["id"], dsCode=r["ds_code"], dsName=r["ds_name"],
+            variableCode=r["variable_code"], domain=r["domain"],
+            value=r["raw_value"],
+            period="%s-%s" % (r["year_start"], r["year_end"])
+                   if r["year_start"] else "") for r in rows])
+
+
+async def _may_edit(conn, user: CurrentUser, b: asyncpg.Record) -> bool:
+    """Asked of the database, exactly as the loader asks it. An administrator
+    bypasses inside `may_write_profile` itself, so there is no second rule
+    here."""
+    if b["status"] != "loaded":
+        return False
+    if b["province_id"] is None:
+        return False
+    if b["sector_id"] is None:          # climate batch: hazard grant only
+        return bool(await conn.fetchval(
+            "SELECT may_write_hazard($1, $2)", user.id, b["province_id"]))
+    return bool(await conn.fetchval(
+        "SELECT may_write_profile($1, $2, $3, $4)",
+        user.id, b["province_id"], b["sector_id"], b["subsector_id"]))
+
+
+@router.put("/batches/{batch_id}/values", response_model=CorrectionReport)
+async def correct_values(
+    batch_id: int,
+    body: CorrectionBody,
+    pool: asyncpg.Pool = Depends(db),
+    user: CurrentUser = Depends(get_current_user),
+) -> CorrectionReport:
+    if not body.edits:
+        raise HTTPException(400, "no corrections were sent")
+    async with pool.acquire() as conn:
+        b = await _batch_scope(conn, batch_id)
+        _readable(user, b)
+        if b["status"] != "loaded":
+            raise HTTPException(
+                409, "only a loaded import can be corrected; this one is %s"
+                     % b["status"])
+        if not await _may_edit(conn, user, b):
+            raise HTTPException(
+                403, "you are not authorised to change values in this import. "
+                     "The same grant that would let you upload this workbook is "
+                     "what allows correcting it.")
+        # Hazard columns are governed separately even inside a sector import --
+        # the same split the loader enforces, for the same reason: those
+        # variables are shared across most sectors and held centrally.
+        if b["sector_id"] is not None:
+            touches_hazard = await conn.fetchval(
+                """
+                SELECT EXISTS (
+                    SELECT 1 FROM indicator_value v
+                      JOIN indicator_catalog ic ON ic.id = v.indicator_id
+                     WHERE v.import_batch_id = $1 AND v.id = ANY($2::bigint[])
+                       AND ic.domain = 'hazard')
+                """, batch_id, [e.id for e in body.edits])
+            if touches_hazard and not await conn.fetchval(
+                    "SELECT may_write_hazard($1, $2)", user.id, b["province_id"]):
+                raise HTTPException(
+                    403, "those are hazard (climate) values, which are shared "
+                         "across most sectors and need the hazard-data grant "
+                         "rather than a sector one. Nothing was changed.")
+
+        async with conn.transaction():
+            # ALL OR NOTHING, like the import itself. An id that is not this
+            # batch's is refused rather than skipped: a silently-dropped
+            # correction looks exactly like one that was applied.
+            updated = 0
+            for e in body.edits:
+                row = await conn.fetchrow(
+                    """
+                    UPDATE indicator_value
+                       SET raw_value = $3,
+                           normalized_value = NULL,
+                           updated_at = now(),
+                           notes = trim(both E'\n' from
+                                   COALESCE(notes, '') || E'\n' ||
+                                   'corrected ' || to_char(now(), 'YYYY-MM-DD') ||
+                                   ' by ' || $4)
+                     WHERE id = $1 AND import_batch_id = $2
+                     RETURNING id
+                    """, e.id, batch_id, e.value,
+                    user.full_name or user.email)
+                if row is None:
+                    raise HTTPException(
+                        400, "value %d does not belong to this import" % e.id)
+                updated += 1
+    return CorrectionReport(
+        updated=updated, province=b["province"],
+        # The map shows yesterday's answer until the engine runs, and nothing on
+        # screen would say so. Telling the caller is the whole point.
+        recomputeNeeded=True)

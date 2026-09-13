@@ -43,22 +43,28 @@ export const routes: Routes = [
   },
   {
     path: 'coverage',
-    // Placeholder for FR-5.17 (Stage 5.6). Kept as its own route so linking
-    // works before the screen has real content.
+    // FR-5.17 / Stage 5.6: why each profile in a province is or is not on the
+    // map -- weights unfinished, values missing, or simply not recomputed.
     loadComponent: () => import('./features/coverage/coverage-page.component').then((m) => m.CoveragePageComponent),
     title: 'Risk Radar — Coverage',
   },
   {
-    // The import tab: pick a scope, check the workbook, load it. Separate from
-    // '/entry', which is the manual data-entry route.
+    // '/entry' WAS a scope picker that resolved province/sector/subsector/
+    // hazard/period and then handed them to this screen or to /weights through
+    // the URL. Import grew the same picker of its own, so the step became one
+    // extra click that asked for exactly what the next screen asked for again.
+    // Redirected rather than deleted: /weights, /admin/model and the post-login
+    // landing for officers all still point at it, and query params survive a
+    // router redirect, so a link carrying a scope still arrives with it.
+    path: 'entry',
+    redirectTo: 'import',
+    pathMatch: 'full',
+  },
+  {
+    // The import tab: pick a scope, check the workbook, load it.
     path: 'import',
     loadComponent: () => import('./features/import/import-page.component').then((m) => m.ImportPageComponent),
     title: 'Risk Radar — Import data',
-  },
-  {
-    path: 'entry',
-    loadComponent: () => import('./features/entry/profile-context.component').then((m) => m.ProfileContextComponent),
-    title: 'Risk Radar — Data entry',
   },
   {
     path: 'weights',

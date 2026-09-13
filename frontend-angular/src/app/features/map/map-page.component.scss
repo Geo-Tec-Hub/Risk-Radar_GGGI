@@ -26,6 +26,38 @@
 .map-page__map {
   flex: 1;
   min-width: 0;
+  /* The anchor for the legend overlay. */
+  position: relative;
+}
+
+.map-page__legend {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  max-width: 17rem;
+  /* Bounded and scrollable: the coverage legend grows with the number of
+     states, and a legend tall enough to cover the map it explains is worse
+     than one in the sidebar. */
+  max-height: calc(100% - 1.5rem);
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  padding: 0.6rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+/* Narrow screens: the map is small enough that an overlay covers it, so the
+   legend goes back to being an ordinary block above the map. */
+@media (max-width: 700px) {
+  .map-page__legend {
+    position: static;
+    max-width: none;
+    max-height: none;
+    margin: 0.5rem;
+  }
 }
 
 .map-page__sidebar {

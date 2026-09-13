@@ -1,0 +1,27 @@
+.coverage { padding: 1.5rem 2rem 3rem; color: #212529; }
+.coverage__title { margin: 0 0 .3rem; font-size: 1.25rem; }
+.coverage__lead { margin: 0 0 1.2rem; max-width: 46rem; font-size: .85rem; color: #495057; line-height: 1.55; }
+.coverage__controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; margin-bottom: 1rem; font-size: .8rem; }
+.coverage__controls label { display: flex; flex-direction: column; gap: .25rem; }
+.coverage__check { flex-direction: row !important; align-items: center; gap: .4rem !important; }
+.coverage__summary { font-size: .82rem; margin: 0 0 .8rem; display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.coverage__muted { color: #868e96; font-size: .78rem; }
+.coverage__bad { color: #a4243b; }
+.coverage__error { color: #a4243b; font-size: .85rem; }
+
+/* Status carries a word as well as a colour: the states are not a severity
+   ramp and nobody should have to learn four hues to read the table. */
+.coverage__pill { display: inline-block; padding: .05rem .45rem; border-radius: 999px; font-size: .72rem; background: #e9ecef; color: #343a40; }
+.coverage__pill--scored { background: #e3f2e6; color: #21603a; }
+.coverage__pill--weights { background: #fdecea; color: #8f2a1d; }
+.coverage__pill--partial { background: #fff4e0; color: #8a5a09; }
+.coverage__pill--no { background: #fdecea; color: #8f2a1d; }
+
+.coverage__table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+.coverage__table th, .coverage__table td { text-align: left; padding: .4rem .55rem; border-bottom: 1px solid #e9ecef; vertical-align: top; }
+.coverage__table th { font-weight: 600; color: #495057; }
+.coverage__row { cursor: pointer; }
+.coverage__row:hover td { background: #f6f7f9; }
+.coverage__detail > td { background: #fbfcfd; font-size: .78rem; }
+.coverage__gaps { margin: .3rem 0 .6rem; padding-left: 1.1rem; }
+.coverage__gaps li { margin-bottom: .15rem; }

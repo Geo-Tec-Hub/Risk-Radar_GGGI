@@ -9,6 +9,16 @@
 
   <div class="map-page__body">
     <div class="map-page__map">
+      <!-- The legend sits ON the map, not beside it. It describes what the
+           colours mean, so reading it means looking away from the thing it
+           explains when it lives in the sidebar - and on a laptop the sidebar
+           scrolls, which could put it out of sight entirely while the map it
+           describes stayed on screen. -->
+      <app-coverage-legend
+        class="map-page__legend"
+        [coverage]="coverage()"
+        [indexScope]="query().indexScope ?? 'provincial'"
+      />
       <app-openlayers-map
         [unitsByCode]="unitsByCode()"
         [selectedCode]="selectedDivision()?.ds_code ?? null"
@@ -20,7 +30,6 @@
     </div>
 
     <aside class="map-page__sidebar">
-      <app-coverage-legend [coverage]="coverage()" [indexScope]="query().indexScope ?? 'provincial'" />
       <app-division-panel [division]="selectedDivision()" [query]="query()" />
     </aside>
   </div>

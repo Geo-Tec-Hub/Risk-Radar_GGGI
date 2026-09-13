@@ -1,0 +1,126 @@
+<div class="coverage">
+  <h2 class="coverage__title">Coverage</h2>
+  <p class="coverage__lead">
+    Why each profile in a province is, or is not, on the map — whether the weights are
+    finished, whether every division has every weighted value, and whether the scores have
+    been computed since.
+  </p>
+
+  <div class="coverage__controls">
+    <label>
+      Province
+      <select [value]="province() ?? ''" (change)="choose($any($event.target).value)">
+        <option value="" disabled>Choose a province</option>
+        @for (p of provinces(); track p.code) {
+          <option [value]="p.name">{{ p.name }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Period
+      <select [value]="period()" (change)="setPeriod($any($event.target).value)">
+        @for (p of periods; track p) {
+          <option [value]="p">{{ p }}</option>
+        }
+      </select>
+    </label>
+    <label class="coverage__check">
+      <input
+        type="checkbox"
+        [checked]="onlyProblems()"
+        (change)="onlyProblems.set($any($event.target).checked)"
+      />
+      Only what is not finished
+    </label>
+    <button type="button" [disabled]="!province() || busy()" (click)="refresh()">
+      {{ busy() ? 'Loading…' : 'Refresh' }}
+    </button>
+  </div>
+
+  @if (error(); as e) {
+    <p class="coverage__error">{{ e }}</p>
+  }
+
+  @if (!province()) {
+    <p class="coverage__muted">Choose a province to see where its data stands.</p>
+  }
+
+  @if (report(); as r) {
+    <p class="coverage__summary">
+      <strong>{{ r.province }}</strong> · {{ r.period }} · {{ r.divisions }} divisions ·
+      {{ r.profiles.length }} profiles
+      @for (t of tally(); track t[0]) {
+        <span class="coverage__pill coverage__pill--{{ t[0] }}">{{ t[1] }} {{ t[0] }}</span>
+      }
+    </p>
+
+    @if (rows().length === 0) {
+      <p class="coverage__muted">Nothing to show — every profile here is complete and scored.</p>
+    } @else {
+      <table class="coverage__table">
+        <thead>
+          <tr>
+            <th>Profile</th>
+            <th>Hazard</th>
+            <th>Weights</th>
+            <th>Divisions complete</th>
+            <th>Scored</th>
+            <th>What is holding it up</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of rows(); track p.profileCode) {
+            <tr class="coverage__row" (click)="toggleProfile(p.profileCode)">
+              <td>
+                {{ p.sector }}@if (p.subsector) { / {{ p.subsector }} }
+                <span class="coverage__muted">{{ p.profileCode }}</span>
+              </td>
+              <td>{{ p.hazard }}</td>
+              <td>
+                @if (p.weightsOk) { complete } @else {
+                  <span class="coverage__bad">incomplete</span>
+                }
+              </td>
+              <td>{{ p.divisionsComplete }} / {{ r.divisions }}</td>
+              <td>{{ p.scored }}</td>
+              <td>
+                <span class="coverage__pill coverage__pill--{{ p.status }}">{{ p.status }}</span>
+                {{ p.note }}
+              </td>
+            </tr>
+            @if (openProfile() === p.profileCode) {
+              <tr class="coverage__detail">
+                <td colspan="6">
+                  <p>
+                    {{ p.variables }} weighted variables · hazard {{ p.hazardTotal ?? 0 }}% ·
+                    exposure {{ p.exposureTotal ?? 0 }}% ·
+                    {{ p.divisionsPartial }} division(s) part-filled ·
+                    {{ p.divisionsEmpty }} with nothing at all
+                  </p>
+                  @if (p.gaps.length === 0) {
+                    <p class="coverage__muted">Every weighted variable has a value everywhere.</p>
+                  } @else {
+                    <p class="coverage__muted">Missing values, most-missing first:</p>
+                    <ul class="coverage__gaps">
+                      @for (g of p.gaps; track g.variableCode) {
+                        <li>
+                          <code>{{ g.variableCode }}</code>
+                          <span class="coverage__muted">{{ g.domain }}</span>
+                          — missing in {{ g.missing }} division(s)
+                        </li>
+                      }
+                    </ul>
+                  }
+                  <p>
+                    <a routerLink="/import">Import data</a> ·
+                    <a routerLink="/weights">Weights</a>
+                  </p>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    }
+  }
+</div>
