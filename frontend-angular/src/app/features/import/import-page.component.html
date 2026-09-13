@@ -1,4 +1,7 @@
 <div class="import">
+  <a class="import__back" [routerLink]="backTarget()" [queryParams]="backParams()"
+    >&larr; {{ backLabel() }}</a
+  >
   <h2 class="import__title">Import raw data</h2>
 
   @if (taxonomyError()) {
@@ -135,6 +138,154 @@
       }
     </section>
   }
+
+  <!-- REVIEW BEFORE WRITING. A count tells an officer how much will be written
+       but never what, and "451 values loaded" reads identically whether the
+       file is right or a column is shifted by one. -->
+  @if (report(); as r) {
+    @if (r.dryRun && r.ok && previewRows().length) {
+      <section class="preview">
+        <div class="preview__head">
+          <h3>Review the {{ previewRows().length }} values before importing</h3>
+          <p class="preview__tally">
+            <span class="preview__pill preview__pill--new">{{ newCount() }} new</span>
+            <span class="preview__pill preview__pill--chg">{{ changedCount() }} change existing</span>
+            @if (editCount()) {
+              <span class="preview__pill preview__pill--edit">{{ editCount() }} corrected here</span>
+            }
+          </p>
+        </div>
+
+        <div class="preview__controls">
+          <input
+            type="search"
+            class="preview__search"
+            placeholder="Filter by division or variable…"
+            [ngModel]="rowFilter()"
+            name="rowFilter"
+            (ngModelChange)="rowFilter.set($event)"
+          />
+          <label class="preview__toggle">
+            <input
+              type="checkbox"
+              [ngModel]="showOnlyChanges()"
+              name="onlyChanges"
+              (ngModelChange)="showOnlyChanges.set($event)"
+            />
+            Only new or changed
+          </label>
+          @if (editCount()) {
+            <button type="button" class="preview__reset" (click)="clearEdits()">
+              Undo my {{ editCount() }} correction(s)
+            </button>
+          }
+        </div>
+
+        <div class="preview__scroll">
+          <table class="preview__table">
+            <thead>
+              <tr>
+                <th>Division</th>
+                <th>Variable</th>
+                <th>Period</th>
+                <th class="preview__num">In database</th>
+                <th class="preview__num">Will be written</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of visibleRows(); track rowKey(row)) {
+                <tr [class.preview__row--edited]="isEdited(row)">
+                  <td>{{ row.dsName }} <span class="preview__code">{{ row.dsCode }}</span></td>
+                  <td class="preview__var">{{ row.variableCode }}</td>
+                  <td>{{ row.period }}</td>
+                  <td class="preview__num preview__muted">
+                    {{ row.current === null ? '—' : row.current }}
+                  </td>
+                  <td class="preview__num">
+                    <input
+                      type="number"
+                      step="any"
+                      class="preview__input"
+                      [class.preview__input--edited]="isEdited(row)"
+                      [value]="effectiveValue(row)"
+                      (change)="onCellEdit(row, $any($event.target).value)"
+                    />
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (visibleRows().length === 0) {
+          <p class="import__muted">No row matches that filter.</p>
+        }
+
+        <p class="import__note">
+          A correction here replaces the workbook's number for that cell and is recorded against the
+          value as a correction, so the workbook stays the record of what was submitted. It cannot
+          add a value the file did not carry. Press <strong>Import</strong> to write these numbers.
+        </p>
+        <div class="import__actions">
+          <button type="button" class="import__primary" [disabled]="!canSubmit()" (click)="load()">
+            Import these {{ previewRows().length }} values
+          </button>
+        </div>
+      </section>
+    }
+  }
+
+  <!-- The map reads computed results, not values, so an import changes nothing
+       a person can see until the engine runs. -->
+  <section class="recompute">
+    <h3 class="import__subtitle">Published scores</h3>
+    @if (staleness(); as st) {
+      <p class="recompute__state" [class.recompute__state--stale]="st.stale">
+        {{ st.reason }}.
+        @if (st.lastComputed) {
+          Last computed {{ st.lastComputed | date: 'short' }}.
+        }
+      </p>
+    } @else {
+      <p class="import__muted">Score status unavailable — sign in to see it.</p>
+    }
+
+    <div class="recompute__actions">
+      <label class="import__field import__field--inline">
+        <span>Period</span>
+        <select [ngModel]="period() ?? periods()[0]" name="period" (ngModelChange)="period.set($event)">
+          @for (p of periods(); track p) {
+            <option [ngValue]="p">{{ p }}</option>
+          }
+        </select>
+      </label>
+      <button type="button" [disabled]="recomputing() || !province()" (click)="recompute()">
+        {{ recomputing() ? 'Recomputing…' : 'Recompute this province' }}
+      </button>
+    </div>
+
+    @if (recomputeError(); as m) {
+      <p class="import__banner import__banner--error" role="alert">{{ m }}</p>
+    }
+    @if (recomputeReport(); as rr) {
+      <p class="recompute__done">
+        {{ rr.computed }} profile(s) computed, {{ rr.refused }} refused, {{ rr.resultRows }} result
+        rows for {{ rr.province }} {{ rr.period }}.
+      </p>
+      @if (rr.refused) {
+        <details class="import__warnings">
+          <summary>{{ rr.refused }} profile(s) could not be scored</summary>
+          <ul>
+            @for (p of rr.profiles; track p.profileCode) {
+              @if (!p.ok) {
+                <li>{{ p.refusal }}</li>
+              }
+            }
+          </ul>
+        </details>
+      }
+    }
+  </section>
 
   <h3 class="import__subtitle">Recent imports</h3>
   @if (batches().length === 0) {

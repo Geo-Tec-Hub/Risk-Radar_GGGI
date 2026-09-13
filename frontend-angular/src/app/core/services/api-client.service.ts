@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import {
@@ -14,6 +15,7 @@ import {
   ScopeAmendPayload,
   WriteScope,
 } from '../models/auth.model';
+import { AdminUser, CatalogItem, HazardType, NewVariable, RoleOption } from '../models/catalog.model';
 import { ImportBatch, ImportSummary } from '../models/import.model';
 import { ProfileScope, ProfileWeights, ProfileWeightsVersion, SaveWeightsPayload, encodeProfileScope } from '../models/profile.model';
 import { CoverageSummary, VulnerabilityComposition, VulnerabilityQuery, VulnerabilityUnit } from '../models/vulnerability.model';
@@ -101,6 +103,67 @@ export class ApiClientService {
       { items, panelNote: payload.panelNote },
       WITH_CREDENTIALS,
     );
+  }
+
+  /** GET /admin/catalog -- the variable catalogue.
+   *
+   * `codes` fetches specific variables (the ?add= flow). The filter is applied
+   * client-side because the endpoint searches by substring, and a substring
+   * search for "PADDY_EXTENT" would also return "PADDY_EXTENT_FINAL" -- close
+   * enough to be picked up by mistake, which is exactly the confusion a code is
+   * supposed to prevent.
+   */
+  getCatalog(params: { q?: string; domain?: string; status?: string } = {}): Observable<CatalogItem[]> {
+    let qs = new HttpParams();
+    if (params.q) qs = qs.set('q', params.q);
+    if (params.domain) qs = qs.set('domain', params.domain);
+    if (params.status) qs = qs.set('status', params.status);
+    return this.http.get<CatalogItem[]>(`${this.base}/admin/catalog`, {
+      ...WITH_CREDENTIALS,
+      params: qs,
+    });
+  }
+
+  getCatalogItems(codes: string[]): Observable<CatalogItem[]> {
+    const wanted = new Set(codes);
+    return this.getCatalog({ status: 'active' }).pipe(
+      map((items) => items.filter((i) => wanted.has(i.code))),
+    );
+  }
+
+  proposeVariable(body: NewVariable): Observable<CatalogItem> {
+    return this.http.post<CatalogItem>(`${this.base}/admin/catalog`, body, WITH_CREDENTIALS);
+  }
+
+  setVariableStatus(id: number, status: string): Observable<CatalogItem> {
+    return this.http.post<CatalogItem>(
+      `${this.base}/admin/catalog/${id}/status`, { status }, WITH_CREDENTIALS);
+  }
+
+  getHazards(): Observable<HazardType[]> {
+    return this.http.get<HazardType[]>(`${this.base}/admin/hazards`, WITH_CREDENTIALS);
+  }
+
+  addHazard(body: { code: string; name: string; description?: string }): Observable<HazardType> {
+    return this.http.post<HazardType>(`${this.base}/admin/hazards`, body, WITH_CREDENTIALS);
+  }
+
+  getUsers(params: { province?: string; sector?: string } = {}): Observable<AdminUser[]> {
+    let qs = new HttpParams();
+    if (params.province) qs = qs.set('province', params.province);
+    if (params.sector) qs = qs.set('sector', params.sector);
+    return this.http.get<AdminUser[]>(`${this.base}/admin/users`, {
+      ...WITH_CREDENTIALS,
+      params: qs,
+    });
+  }
+
+  getRoles(): Observable<RoleOption[]> {
+    return this.http.get<RoleOption[]>(`${this.base}/admin/roles`, WITH_CREDENTIALS);
+  }
+
+  setUserRoles(id: number, roles: string[]): Observable<AdminUser> {
+    return this.http.put<AdminUser>(`${this.base}/admin/users/${id}/roles`, { roles }, WITH_CREDENTIALS);
   }
 
   /** GET /profiles/{scope}/weights/history -- version history. */

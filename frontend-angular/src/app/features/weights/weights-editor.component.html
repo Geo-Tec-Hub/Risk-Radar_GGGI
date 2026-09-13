@@ -2,6 +2,10 @@
   <a routerLink="/entry" class="weights__back">&larr; Back to Data entry</a>
   <h2>Profile weights</h2>
 
+  @if (addNotice(); as m) {
+    <p class="weights__added" role="status">{{ m }}</p>
+  }
+
   @if (scope(); as s) {
     <p class="weights__scope">
       {{ s.sector }}{{ s.subsector ? ' · ' + s.subsector : '' }} × {{ s.hazard }} · {{ s.province }}
@@ -205,6 +209,15 @@
       }
       @if (savedVersion(); as v) {
         <span class="weights__saved">Saved as version {{ v }}.</span>
+        <!-- Weights are almost always saved on the way to loading the data they
+             will score. Landing back on an empty scope picker made that a
+             four-dropdown detour every time. -->
+        <a
+          class="weights__next"
+          routerLink="/import"
+          [queryParams]="scopeParams()"
+          >Continue to import &rarr;</a
+        >
       }
     </div>
   }

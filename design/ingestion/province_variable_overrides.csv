@@ -177,3 +177,839 @@ Central,Water Sector,Potable Water,Landslide,THREE_DAY_CUMULATIVE_RAINFALL,add,1
 Central,Water Sector,Potable Water,Landslide,VERY_WET_DAYS_95TH_PERCENTILE,add,12,derived: 40% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
 Central,Water Sector,Potable Water,Landslide,VERY_WET_DAYS,retire,,,superseded by VERY_WET_DAYS_95TH_PERCENTILE + THREE_DAY_CUMULATIVE_RAINFALL
 Central,Water Sector,Potable Water,Landslide,PCT_LANDSLIDE_AFFECTED_AREA,weight,10,panel: entered in the returned WEIGHTS tab,was unweighted
+Eastern,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Livestock Sector,Buffalo Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Livestock Sector,Buffalo Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Livestock Sector,Cattle Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Livestock Sector,Cattle Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Livestock Sector,Cattle Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Livestock Sector,Cattle Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Livestock Sector,Goat Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Livestock Sector,Goat Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Human Settlements Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Human Settlements Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,3.75,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Eastern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,11.25,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Eastern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Eastern,Human Settlements Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Human Settlements Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Eastern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,22.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Eastern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Eastern,Human Settlements Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Human Settlements Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Industry Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Industry Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Eastern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,7.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Eastern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Eastern,Industry Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Industry Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Eastern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Eastern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Eastern,Industry Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Industry Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,10,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (40),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Eastern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,30,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (40),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Eastern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Eastern,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Eastern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Eastern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Eastern,Water Sector,Irrigation Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Water Sector,Irrigation Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Eastern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Eastern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Eastern,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Livestock Sector,Pig and Sheep Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Livestock Sector,Pig and Sheep Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Eastern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Eastern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Eastern,Water Sector,Potable Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Water Sector,Potable Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Eastern,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,22.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Eastern,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Eastern,Water Sector,Potable Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Water Sector,Potable Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Livestock Sector,Poultry Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Livestock Sector,Poultry Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Tourism Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Tourism Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Eastern,Tourism Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Tourism Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Tourism Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Tourism Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Transportation Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Transportation Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Eastern,Transportation Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Eastern,Transportation Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Livestock Sector,Buffalo Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Livestock Sector,Buffalo Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Livestock Sector,Cattle Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Livestock Sector,Cattle Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Livestock Sector,Cattle Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Livestock Sector,Cattle Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Livestock Sector,Goat Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Livestock Sector,Goat Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Human Settlements Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Human Settlements Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,3.75,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+North Central,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,11.25,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+North Central,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+North Central,Human Settlements Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Human Settlements Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,8.75,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (35),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+North Central,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,26.25,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (35),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+North Central,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+North Central,Human Settlements Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Human Settlements Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Industry Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Industry Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+North Central,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,7.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+North Central,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+North Central,Industry Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Industry Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+North Central,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+North Central,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+North Central,Industry Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Industry Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+North Central,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,22.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+North Central,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+North Central,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+North Central,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+North Central,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+North Central,Water Sector,Irrigation Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Water Sector,Irrigation Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+North Central,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,7.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+North Central,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+North Central,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Livestock Sector,Pig and Sheep Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Livestock Sector,Pig and Sheep Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+North Central,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+North Central,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+North Central,Water Sector,Potable Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Water Sector,Potable Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+North Central,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,22.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+North Central,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+North Central,Water Sector,Potable Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Water Sector,Potable Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Livestock Sector,Poultry Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Livestock Sector,Poultry Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Tourism Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Tourism Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+North Central,Tourism Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Tourism Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Tourism Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Tourism Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Transportation Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Transportation Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+North Central,Transportation Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+North Central,Transportation Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Livestock Sector,Buffalo Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Livestock Sector,Buffalo Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Livestock Sector,Cattle Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Livestock Sector,Cattle Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Livestock Sector,Cattle Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Livestock Sector,Cattle Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Livestock Sector,Goat Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Livestock Sector,Goat Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Human Settlements Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Human Settlements Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,3.75,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,11.25,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Northern,Human Settlements Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Human Settlements Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,8.25,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (33),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,24.75,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (33),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Northern,Human Settlements Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Human Settlements Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Industry Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Industry Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,7.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Northern,Industry Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Industry Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Northern,Industry Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Industry Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,22.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Northern,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Northern,Water Sector,Irrigation Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Water Sector,Irrigation Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Northern,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,3.75,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,11.25,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Northern,Water Sector,Potable Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Water Sector,Potable Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,6.25,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (25),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northern,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,18.75,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (25),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northern,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Northern,Water Sector,Potable Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Water Sector,Potable Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Livestock Sector,Poultry Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Livestock Sector,Poultry Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Tourism Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Tourism Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northern,Tourism Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Tourism Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Tourism Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Tourism Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Transportation Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Transportation Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northern,Transportation Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northern,Transportation Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Livestock Sector,Buffalo Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Livestock Sector,Buffalo Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Livestock Sector,Goat Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Livestock Sector,Goat Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Human Settlements Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Human Settlements Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,3.75,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northwestern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,11.25,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northwestern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Northwestern,Human Settlements Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Human Settlements Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,3,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (12),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northwestern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,9,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (12),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northwestern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Northwestern,Human Settlements Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Human Settlements Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Industry Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Industry Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northwestern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,7.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northwestern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Northwestern,Industry Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Industry Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northwestern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northwestern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Northwestern,Industry Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Industry Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northwestern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,22.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northwestern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Northwestern,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northwestern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northwestern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Northwestern,Water Sector,Irrigation Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Water Sector,Irrigation Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northwestern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northwestern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Northwestern,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Livestock Sector,Pig and Sheep Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Livestock Sector,Pig and Sheep Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northwestern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Northwestern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Northwestern,Water Sector,Potable Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Water Sector,Potable Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northwestern,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,22.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Northwestern,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Northwestern,Water Sector,Potable Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Water Sector,Potable Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Livestock Sector,Poultry Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Livestock Sector,Poultry Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Tourism Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Tourism Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Northwestern,Tourism Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Tourism Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Tourism Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Tourism Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Transportation Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Transportation Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Northwestern,Transportation Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Transportation Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Transportation Sector,,Landslide,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Northwestern,Transportation Sector,,Landslide,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Sabaragamuwa,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Sabaragamuwa,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Sabaragamuwa,Livestock Sector,Buffalo Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Livestock Sector,Buffalo Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Livestock Sector,Buffalo Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Sabaragamuwa,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Sabaragamuwa,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Sabaragamuwa,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Sabaragamuwa,Livestock Sector,Goat Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Livestock Sector,Goat Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Livestock Sector,Goat Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Sabaragamuwa,Human Settlements Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,10,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (40),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Human Settlements Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,30,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (40),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Human Settlements Sector,,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Sabaragamuwa,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,6.25,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (25),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Sabaragamuwa,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,18.75,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (25),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Sabaragamuwa,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Sabaragamuwa,Human Settlements Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Human Settlements Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Human Settlements Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Sabaragamuwa,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,8.75,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (35),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Sabaragamuwa,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,26.25,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (35),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Sabaragamuwa,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Sabaragamuwa,Human Settlements Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Human Settlements Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Human Settlements Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Sabaragamuwa,Industry Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Industry Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Industry Sector,,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Sabaragamuwa,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Sabaragamuwa,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,7.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Sabaragamuwa,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Sabaragamuwa,Industry Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Industry Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Industry Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Sabaragamuwa,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Sabaragamuwa,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Sabaragamuwa,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Sabaragamuwa,Industry Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Industry Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Industry Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Sabaragamuwa,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Sabaragamuwa,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Sabaragamuwa,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,22.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Sabaragamuwa,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Sabaragamuwa,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Sabaragamuwa,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Sabaragamuwa,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Sabaragamuwa,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Sabaragamuwa,Water Sector,Irrigation Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Water Sector,Irrigation Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Water Sector,Irrigation Water,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Sabaragamuwa,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Sabaragamuwa,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Sabaragamuwa,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Sabaragamuwa,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Sabaragamuwa,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Sabaragamuwa,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Sabaragamuwa,Livestock Sector,Pig and Sheep Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Livestock Sector,Pig and Sheep Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Livestock Sector,Pig and Sheep Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Sabaragamuwa,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Sabaragamuwa,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Sabaragamuwa,Livestock Sector,Poultry Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Livestock Sector,Poultry Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Livestock Sector,Poultry Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Sabaragamuwa,Agriculture Sector,Tea,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Agriculture Sector,Tea,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Agriculture Sector,Tea,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Sabaragamuwa,Agriculture Sector,Tea,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Agriculture Sector,Tea,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Agriculture Sector,Tea,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Sabaragamuwa,Agriculture Sector,Tea,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Agriculture Sector,Tea,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Agriculture Sector,Tea,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Sabaragamuwa,Tourism Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Tourism Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Sabaragamuwa,Tourism Sector,,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Sabaragamuwa,Tourism Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Tourism Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Tourism Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Sabaragamuwa,Tourism Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Tourism Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Tourism Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Sabaragamuwa,Transportation Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Transportation Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Sabaragamuwa,Transportation Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Sabaragamuwa,Transportation Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Transportation Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Sabaragamuwa,Transportation Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Sabaragamuwa,Transportation Sector,,Landslide,THREE_DAY_CUMULATIVE_RAINFALL,add,18,derived: 60% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Sabaragamuwa,Transportation Sector,,Landslide,VERY_WET_DAYS_95TH_PERCENTILE,add,12,derived: 40% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Sabaragamuwa,Transportation Sector,,Landslide,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Southern,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Southern,Livestock Sector,Buffalo Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Livestock Sector,Buffalo Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Livestock Sector,Buffalo Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Southern,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Southern,Livestock Sector,Goat Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Livestock Sector,Goat Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Livestock Sector,Goat Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Southern,Human Settlements Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,10,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (40),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Human Settlements Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,30,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (40),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Human Settlements Sector,,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,3.75,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Southern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,11.25,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Southern,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Southern,Human Settlements Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,10,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Human Settlements Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,30,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Human Settlements Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Southern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,3,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (12),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Southern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,9,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (12),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Southern,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Southern,Human Settlements Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,18,derived: 60% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Southern,Human Settlements Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,12,derived: 40% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Southern,Human Settlements Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Southern,Industry Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Industry Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Industry Sector,,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Southern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,7.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Southern,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Southern,Industry Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,10,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Industry Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,30,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Industry Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Southern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Southern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,22.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Southern,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Southern,Industry Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,18,derived: 60% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Southern,Industry Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,12,derived: 40% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Southern,Industry Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Southern,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Southern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,22.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Southern,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Southern,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Southern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,1.25,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (5),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Southern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,3.75,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (5),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Southern,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Southern,Water Sector,Irrigation Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Water Sector,Irrigation Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Water Sector,Irrigation Water,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Southern,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Southern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,7.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Southern,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Southern,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Southern,Livestock Sector,Pig and Sheep Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Livestock Sector,Pig and Sheep Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Livestock Sector,Pig and Sheep Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Southern,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,4.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (18),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Southern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,13.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (18),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Southern,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Southern,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Southern,Livestock Sector,Poultry Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Livestock Sector,Poultry Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Livestock Sector,Poultry Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Southern,Agriculture Sector,Tea,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Agriculture Sector,Tea,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Agriculture Sector,Tea,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Agriculture Sector,Tea,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Agriculture Sector,Tea,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Agriculture Sector,Tea,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Southern,Agriculture Sector,Tea,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Agriculture Sector,Tea,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Southern,Agriculture Sector,Tea,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Southern,Tourism Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Tourism Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Southern,Tourism Sector,,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Southern,Tourism Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,10,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Tourism Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,30,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Tourism Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Southern,Tourism Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,18,derived: 60% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Southern,Tourism Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,12,derived: 40% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Southern,Tourism Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Southern,Transportation Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,10,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Transportation Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,30,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Southern,Transportation Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Southern,Transportation Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,18,derived: 60% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Southern,Transportation Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,12,derived: 40% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Southern,Transportation Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Southern,Transportation Sector,,Landslide,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Southern,Transportation Sector,,Landslide,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Livestock Sector,Buffalo Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Livestock Sector,Buffalo Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Livestock Sector,Cattle Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Livestock Sector,Cattle Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Livestock Sector,Cattle Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Livestock Sector,Cattle Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Livestock Sector,Goat Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Livestock Sector,Goat Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Human Settlements Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Human Settlements Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,3.75,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Uva,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,11.25,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (15),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Uva,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Uva,Human Settlements Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Human Settlements Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,10,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (40),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Uva,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,30,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (40),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Uva,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Uva,Human Settlements Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Human Settlements Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Industry Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Industry Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Uva,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,7.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Uva,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Uva,Industry Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Industry Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Uva,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Uva,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Uva,Industry Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Industry Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Water Sector,Irrigation Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Uva,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,22.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (30),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Uva,Water Sector,Irrigation Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Uva,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Water Sector,Irrigation Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Uva,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Uva,Water Sector,Irrigation Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Uva,Water Sector,Irrigation Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Water Sector,Irrigation Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Uva,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Uva,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Uva,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Livestock Sector,Pig and Sheep Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Livestock Sector,Pig and Sheep Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Uva,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Uva,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Uva,Water Sector,Potable Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Water Sector,Potable Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Uva,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,22.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Uva,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Uva,Water Sector,Potable Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Water Sector,Potable Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Livestock Sector,Poultry Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Livestock Sector,Poultry Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Agriculture Sector,Tea,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Agriculture Sector,Tea,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Tourism Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Tourism Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,,component of unweighted DROUGHT_EVENTS_1974_TO_2022; no weight to split,added alongside DROUGHT_EVENTS_1974_TO_2022
+Uva,Tourism Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Tourism Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Tourism Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Tourism Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Transportation Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Transportation Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,,component of unweighted FLOOD_EVENTS_1974_TO_2023; no weight to split,added alongside FLOOD_EVENTS_1974_TO_2023
+Uva,Transportation Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Transportation Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Transportation Sector,,Landslide,THREE_DAY_CUMULATIVE_RAINFALL,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Uva,Transportation Sector,,Landslide,VERY_WET_DAYS_95TH_PERCENTILE,add,,component of unweighted VERY_WET_DAYS; no weight to split,added alongside VERY_WET_DAYS
+Western,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Livestock Sector,Buffalo Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Livestock Sector,Buffalo Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Western,Livestock Sector,Buffalo Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Livestock Sector,Buffalo Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Livestock Sector,Buffalo Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Western,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Livestock Sector,Cattle Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Livestock Sector,Cattle Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Livestock Sector,Cattle Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Livestock Sector,Cattle Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Western,Livestock Sector,Cattle Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Livestock Sector,Cattle Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Livestock Sector,Cattle Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Western,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Agriculture Sector,Coconut,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Livestock Sector,Goat Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Livestock Sector,Goat Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Western,Livestock Sector,Goat Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Livestock Sector,Goat Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Livestock Sector,Goat Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Western,Human Settlements Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,10,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (40),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Human Settlements Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,30,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (40),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Human Settlements Sector,,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Western,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Western,Human Settlements Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Western,Human Settlements Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,10,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Human Settlements Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,30,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Human Settlements Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Western,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,8.75,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (35),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Western,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,26.25,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (35),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Western,Human Settlements Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Western,Human Settlements Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,18,derived: 60% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Western,Human Settlements Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,12,derived: 40% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Western,Human Settlements Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Western,Industry Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Industry Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Industry Sector,,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Western,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,7.5,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (10),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Western,Industry Sector,,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Western,Industry Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,10,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Industry Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,30,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Industry Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Western,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,2.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Western,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,7.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (10),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Western,Industry Sector,,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Western,Industry Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,18,derived: 60% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Western,Industry Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,12,derived: 40% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Western,Industry Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Western,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_1974_TO_2004,add,17.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (70),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_2005_TO_2022,add,52.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (70),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Agriculture Sector,Paddy,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Western,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Western,Agriculture Sector,Paddy,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Western,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Livestock Sector,Pig and Sheep Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Livestock Sector,Pig and Sheep Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Western,Livestock Sector,Pig and Sheep Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Livestock Sector,Pig and Sheep Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Livestock Sector,Pig and Sheep Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Western,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Water Sector,Potable Water,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,5,derived: 25% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Western,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022,add,15,derived: 75% of retired MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022 (20),replaces MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022
+Western,Water Sector,Potable Water,Drought,MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2022,retire,,,superseded by MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_DROUGHT_AFFECTED_PEOPLE_DURING_2005_TO_2022
+Western,Water Sector,Potable Water,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Water Sector,Potable Water,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Water Sector,Potable Water,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Western,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004,add,7.5,derived: 25% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Western,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023,add,22.5,derived: 75% of retired MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023 (30),replaces MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023
+Western,Water Sector,Potable Water,Flood,MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2023,retire,,,superseded by MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_1974_TO_2004 + MAXIMUM_FLOOD_AFFECTED_PEOPLE_DURING_2005_TO_2023
+Western,Water Sector,Potable Water,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Water Sector,Potable Water,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Water Sector,Potable Water,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Western,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Livestock Sector,Poultry Farming,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Livestock Sector,Poultry Farming,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Western,Livestock Sector,Poultry Farming,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Livestock Sector,Poultry Farming,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Livestock Sector,Poultry Farming,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Western,Agriculture Sector,Tea,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Agriculture Sector,Tea,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Agriculture Sector,Tea,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Agriculture Sector,Tea,Flood,FLOOD_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Agriculture Sector,Tea,Flood,FLOOD_EVENTS_2005_TO_2023,add,37.5,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (50),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Agriculture Sector,Tea,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Western,Agriculture Sector,Tea,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,21,derived: 60% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Agriculture Sector,Tea,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,14,derived: 40% of retired VERY_WET_DAYS (35),replaces VERY_WET_DAYS
+Western,Agriculture Sector,Tea,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Western,Tourism Sector,,Drought,DROUGHT_EVENTS_1974_TO_2004,add,12.5,derived: 25% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Tourism Sector,,Drought,DROUGHT_EVENTS_2005_TO_2022,add,37.5,derived: 75% of retired DROUGHT_EVENTS_1974_TO_2022 (50),replaces DROUGHT_EVENTS_1974_TO_2022
+Western,Tourism Sector,,Drought,DROUGHT_EVENTS_1974_TO_2022,retire,,,superseded by DROUGHT_EVENTS_1974_TO_2004 + DROUGHT_EVENTS_2005_TO_2022
+Western,Tourism Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,10,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Tourism Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,30,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Tourism Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Western,Tourism Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,18,derived: 60% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Western,Tourism Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,12,derived: 40% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Western,Tourism Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Western,Transportation Sector,,Flood,FLOOD_EVENTS_1974_TO_2004,add,10,derived: 25% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Transportation Sector,,Flood,FLOOD_EVENTS_2005_TO_2023,add,30,derived: 75% of retired FLOOD_EVENTS_1974_TO_2023 (40),replaces FLOOD_EVENTS_1974_TO_2023
+Western,Transportation Sector,,Flood,FLOOD_EVENTS_1974_TO_2023,retire,,,superseded by FLOOD_EVENTS_1974_TO_2004 + FLOOD_EVENTS_2005_TO_2023
+Western,Transportation Sector,,Flood,THREE_DAY_CUMULATIVE_RAINFALL,add,18,derived: 60% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Western,Transportation Sector,,Flood,VERY_WET_DAYS_95TH_PERCENTILE,add,12,derived: 40% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Western,Transportation Sector,,Flood,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE
+Western,Transportation Sector,,Landslide,THREE_DAY_CUMULATIVE_RAINFALL,add,18,derived: 60% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Western,Transportation Sector,,Landslide,VERY_WET_DAYS_95TH_PERCENTILE,add,12,derived: 40% of retired VERY_WET_DAYS (30),replaces VERY_WET_DAYS
+Western,Transportation Sector,,Landslide,VERY_WET_DAYS,retire,,,superseded by THREE_DAY_CUMULATIVE_RAINFALL + VERY_WET_DAYS_95TH_PERCENTILE

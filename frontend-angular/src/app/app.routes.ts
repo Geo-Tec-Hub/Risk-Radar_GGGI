@@ -34,6 +34,14 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
   {
+    // The model behind the map: profile variables, hazard types, and who may
+    // write what. Separate from /admin/registrations, which approves accounts.
+    path: 'admin/model',
+    loadComponent: () => import('./features/admin/admin-model.component').then((m) => m.AdminModelComponent),
+    title: 'Risk Radar — Model administration',
+    canActivate: [adminGuard],
+  },
+  {
     path: 'coverage',
     // Placeholder for FR-5.17 (Stage 5.6). Kept as its own route so linking
     // works before the screen has real content.

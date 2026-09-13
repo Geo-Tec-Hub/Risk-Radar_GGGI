@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
 import { TaxonomyService } from '../../core/services/taxonomy.service';
@@ -32,6 +33,17 @@ import { TaxonomyService } from '../../core/services/taxonomy.service';
  * NOTHING LOADS PARTIALLY. Any error means the file loaded nothing, and every
  * error comes back together rather than one at a time (FR-2.3).
  */
+export interface PreviewRow {
+  period: string;
+  dsCode: string;
+  dsName: string;
+  variableCode: string;
+  value: number;
+  /** What the database holds for this cell today. null = a new fact. */
+  current: number | null;
+  edited: boolean;
+}
+
 export interface ImportReport {
   filename: string;
   profileCode: string | null;
@@ -43,6 +55,34 @@ export interface ImportReport {
   batchId: number | null;
   errors: string[];
   warnings: string[];
+  /** Populated on a check only. */
+  rows: PreviewRow[];
+  editsApplied: number;
+}
+
+export interface ProfileOutcome {
+  profileCode: string;
+  ok: boolean;
+  scored: number;
+  unassessed: string[];
+  refusal: string | null;
+}
+
+export interface RecomputeReport {
+  province: string;
+  period: string;
+  computed: number;
+  refused: number;
+  resultRows: number;
+  profiles: ProfileOutcome[];
+}
+
+export interface StalenessReport {
+  province: string;
+  lastValueChange: string | null;
+  lastComputed: string | null;
+  stale: boolean;
+  reason: string;
 }
 
 export interface BatchRow {
@@ -63,12 +103,13 @@ export interface BatchRow {
   // DatePipe is used by the recent-imports table. A standalone component must
   // import every pipe its template uses; `tsc --noEmit` does not check
   // templates, so a missing one surfaces only at `ng build`.
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, RouterLink],
   templateUrl: './import-page.component.html',
   styleUrl: './import-page.component.scss',
 })
 export class ImportPageComponent implements OnInit {
   private readonly http = inject(HttpClient);
+  private readonly route = inject(ActivatedRoute);
   private readonly taxonomyService = inject(TaxonomyService);
   private readonly base = environment.apiBaseUrl;
 
@@ -88,6 +129,38 @@ export class ImportPageComponent implements OnInit {
 
   readonly busy = signal(false);
   readonly report = signal<ImportReport | null>(null);
+
+  // ---- review before writing -------------------------------------------
+  /** Corrections keyed "period|dsCode|variableCode". Held apart from the
+   * preview rows so re-running Check does not discard what has been corrected,
+   * and so the payload is exactly the set of deliberate changes. */
+  readonly edits = signal<Record<string, number>>({});
+  readonly showOnlyChanges = signal(false);
+  readonly rowFilter = signal('');
+
+  readonly previewRows = computed(() => this.report()?.rows ?? []);
+  readonly changedCount = computed(
+    () => this.previewRows().filter((r) => r.current !== null && r.current !== r.value).length,
+  );
+  readonly newCount = computed(() => this.previewRows().filter((r) => r.current === null).length);
+  readonly editCount = computed(() => Object.keys(this.edits()).length);
+
+  readonly visibleRows = computed(() => {
+    const term = this.rowFilter().trim().toLowerCase();
+    return this.previewRows().filter((r) => {
+      if (this.showOnlyChanges() && r.current !== null && r.current === r.value) return false;
+      if (!term) return true;
+      return (r.dsName + ' ' + r.dsCode + ' ' + r.variableCode).toLowerCase().includes(term);
+    });
+  });
+
+  // ---- recompute --------------------------------------------------------
+  readonly period = signal<string | undefined>(undefined);
+  readonly periods = computed(() => this.taxonomy()?.periods ?? []);
+  readonly staleness = signal<StalenessReport | null>(null);
+  readonly recomputing = signal(false);
+  readonly recomputeReport = signal<RecomputeReport | null>(null);
+  readonly recomputeError = signal<string | null>(null);
   readonly failure = signal<string | null>(null);
   readonly batches = signal<BatchRow[]>([]);
 
@@ -135,20 +208,52 @@ export class ImportPageComponent implements OnInit {
     return this.kind() === 'climate' || (!!this.sector() && !!this.hazard());
   });
 
+  /** Where "Back" goes. The weights editor and the context selector both link
+   * here carrying `from`, so back returns to whichever one sent you rather than
+   * to a fixed page you may never have visited. */
+  readonly backTarget = computed(() =>
+    this.route.snapshot.queryParams['from'] === 'weights' ? '/weights' : '/entry',
+  );
+  readonly backLabel = computed(() =>
+    this.backTarget() === '/weights' ? 'Back to weights' : 'Back to data entry',
+  );
+  /** The scope this page is working in, so Back does not drop it either. */
+  readonly backParams = computed(() => {
+    const { province, sector, subsector, hazard, period } = this.route.snapshot.queryParams;
+    return { province, sector, subsector, hazard, period };
+  });
+
   constructor() {
     effect(() => {
       const t = this.taxonomy();
       if (!t || this.sector() !== undefined) return;
-      this.province.set(t.provinces[0]?.code);
-      this.sector.set(t.sectors[0]?.code);
-      this.subsector.set(t.sectors[0]?.subsectors[0]?.code);
-      this.hazard.set(this.hazards()[0]?.code);
+      // THE URL WINS OVER THE DEFAULTS. /weights and /entry both link here with
+      // the scope already chosen; ignoring it meant an officer who had just
+      // settled a profile's weights had to re-pick province, sector, subsector
+      // and hazard from scratch before they could load the data those weights
+      // score. Anything the URL does not carry still falls back to the first
+      // option, so a bare /import behaves exactly as before.
+      const q = this.route.snapshot.queryParams;
+      const known = <T extends { code: string }>(list: readonly T[], code: unknown) =>
+        typeof code === 'string' && list.some((x) => x.code === code) ? code : undefined;
+
+      this.province.set(known(t.provinces, q['province']) ?? t.provinces[0]?.code);
+      const sector = known(t.sectors, q['sector']) ?? t.sectors[0]?.code;
+      this.sector.set(sector);
+      const subs = t.sectors.find((x) => x.code === sector)?.subsectors ?? [];
+      this.subsector.set(known(subs, q['subsector']) ?? subs[0]?.code);
+      this.hazard.set(known(this.hazards(), q['hazard']) ?? this.hazards()[0]?.code);
+
+      // A climate workbook has no sector, so a scope arriving from the weights
+      // editor is by definition a sector import.
+      if (q['kind'] === 'climate') this.kind.set('climate');
     });
   }
 
   ngOnInit(): void {
     this.taxonomyService.load();
     this.loadBatches();
+    this.refreshStaleness();
   }
 
   onSectorChange(code: string): void {
@@ -181,6 +286,41 @@ export class ImportPageComponent implements OnInit {
     this.file.set((event.target as HTMLInputElement).files?.[0] ?? null);
     this.report.set(null);
     this.failure.set(null);
+    // Corrections belong to the file they were made against.
+    this.edits.set({});
+  }
+
+  rowKey(r: PreviewRow): string {
+    return r.period + '|' + r.dsCode + '|' + r.variableCode;
+  }
+
+  /** The number that will actually be written for a row. */
+  effectiveValue(r: PreviewRow): number {
+    const e = this.edits()[this.rowKey(r)];
+    return e === undefined ? r.value : e;
+  }
+
+  isEdited(r: PreviewRow): boolean {
+    return this.edits()[this.rowKey(r)] !== undefined;
+  }
+
+  onCellEdit(r: PreviewRow, raw: string): void {
+    const key = this.rowKey(r);
+    const next = { ...this.edits() };
+    const n = Number(raw);
+    if (raw.trim() === '' || Number.isNaN(n) || n === r.value) {
+      // Typing the workbook's own number back is not a correction, so it does
+      // not travel as one -- otherwise every visited cell would be marked
+      // "corrected during import review" in the audit trail.
+      delete next[key];
+    } else {
+      next[key] = n;
+    }
+    this.edits.set(next);
+  }
+
+  clearEdits(): void {
+    this.edits.set({});
   }
 
   check(): void {
@@ -207,6 +347,23 @@ export class ImportPageComponent implements OnInit {
       if (n.hazard) body.append('hazard', n.hazard);
     }
 
+    // Corrections ride with BOTH check and load, so the check the reviewer
+    // reads is the check of what will actually be written -- a preview of the
+    // uncorrected file would be a preview of something nobody intends to load.
+    const edits = this.edits();
+    const keys = Object.keys(edits);
+    if (keys.length) {
+      body.append(
+        'edits',
+        JSON.stringify(
+          keys.map((k) => {
+            const [period, dsCode, variableCode] = k.split('|');
+            return { period, dsCode, variableCode, value: edits[k] };
+          }),
+        ),
+      );
+    }
+
     this.busy.set(true);
     this.report.set(null);
     this.failure.set(null);
@@ -217,7 +374,13 @@ export class ImportPageComponent implements OnInit {
         next: (r) => {
           this.report.set(r);
           this.busy.set(false);
-          if (action === 'load') this.loadBatches();
+          if (action === 'load') {
+            this.loadBatches();
+            this.edits.set({});
+            // The map still shows the old scores until the engine runs, and
+            // nothing on screen would otherwise say so.
+            this.refreshStaleness();
+          }
         },
         error: (err) => {
           // 401 is the common one and deserves plain words: importing writes
@@ -228,6 +391,46 @@ export class ImportPageComponent implements OnInit {
               : (err?.error?.detail ?? err?.message ?? 'The import could not be completed.'),
           );
           this.busy.set(false);
+        },
+      });
+  }
+
+  refreshStaleness(): void {
+    const province = this.nameOf().province;
+    if (!province) return;
+    this.http
+      .get<StalenessReport>(`${this.base}/compute/status?province=${encodeURIComponent(province)}`, {
+        withCredentials: true,
+      })
+      .subscribe({ next: (s) => this.staleness.set(s), error: () => this.staleness.set(null) });
+  }
+
+  recompute(): void {
+    const province = this.nameOf().province;
+    const period = this.period() ?? this.periods()[0];
+    if (!province || !period) return;
+
+    this.recomputing.set(true);
+    this.recomputeError.set(null);
+    this.recomputeReport.set(null);
+
+    this.http
+      .post<RecomputeReport>(
+        `${this.base}/compute/run`,
+        { province, period },
+        { withCredentials: true },
+      )
+      .subscribe({
+        next: (r) => {
+          this.recomputeReport.set(r);
+          this.recomputing.set(false);
+          this.refreshStaleness();
+        },
+        error: (err) => {
+          this.recomputeError.set(
+            err?.error?.detail ?? err?.message ?? 'The recompute could not be completed.',
+          );
+          this.recomputing.set(false);
         },
       });
   }

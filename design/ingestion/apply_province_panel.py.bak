@@ -30,13 +30,7 @@ CONSENSUS, AND WHY EACH VALUE IS USED
 Nothing here writes a weight as 'agreed' that a person did not actually agree.
 
 Usage:
-    python apply_province_panel.py            # every province, writes panel_central.sql
-    python apply_province_panel.py --province Sabaragamuwa \
-        --out panel_sabaragamuwa.sql --returned 2026-09-13
-
---province takes one province or a comma-separated list, and limits the run to
-those rows, so re-saving a province that
-is already applied does not bump its profile versions again.
+    python apply_province_panel.py            # writes panel_central.sql
 """
 import csv
 import os
@@ -45,7 +39,7 @@ from collections import defaultdict
 HERE = os.path.dirname(os.path.abspath(__file__))
 ADDENDUM = os.path.join(HERE, "catalog_addendum.csv")
 OVERRIDES = os.path.join(HERE, "province_variable_overrides.csv")
-OUT = os.path.join(HERE, "panel_central.sql")   # default; --out overrides
+OUT = os.path.join(HERE, "panel_central.sql")
 USER_SQL = "(SELECT id FROM app_user ORDER BY id LIMIT 1)"
 
 # Variables that legitimately carry NEGATIVE values because they express a
@@ -191,27 +185,9 @@ def q(v):
     return "'" + str(v).replace("'", "''") + "'"
 
 
-def arg(name, default=None):
-    import sys
-    if name in sys.argv:
-        return sys.argv[sys.argv.index(name) + 1]
-    return default
-
-
 def main():
-    import sys
-    province = arg("--province")
-    out = arg("--out")
-    out = os.path.join(HERE, out) if out else OUT
-    returned = arg("--returned", "2026-09-03")
-
     defs = list(csv.DictReader(open(ADDENDUM, encoding="utf-8-sig")))
     rows = list(csv.DictReader(open(OVERRIDES, encoding="utf-8-sig")))
-    if province:
-        wanted = {x.strip() for x in province.split(",") if x.strip()}
-        rows = [r for r in rows if r["province"] in wanted]
-        if not rows:
-            sys.exit("no rows for province %r" % province)
 
     # variable -> the retired parent it replaces, for settings inheritance
     parent = {}
@@ -302,11 +278,11 @@ def main():
             q(r["basis"] or None), q(r["note"] or None)))
     add(",\n".join(vals) + ";")
     add("")
-    add(SAVE_BLOCK.replace("returned 2026-09-03", "returned " + returned))
+    add(SAVE_BLOCK)
     add("COMMIT;")
 
-    open(out, "w", encoding="utf-8", newline="\n").write("\n".join(L) + "\n")
-    print("wrote %s" % os.path.relpath(out, HERE))
+    open(OUT, "w", encoding="utf-8", newline="\n").write("\n".join(L) + "\n")
+    print("wrote %s" % os.path.relpath(OUT, HERE))
     print("  %d new catalogue variables" % len(defs))
     print("  %d override rows across %d profile scopes" % (len(rows), len(scopes)))
     return 0

@@ -29,9 +29,28 @@ TWO KINDS OF WORKBOOK
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from app.importer.template_reader import TemplateWorkbook, read_workbook
+
+
+@dataclass
+class PreviewRow:
+    """One value the file would write, with what is already there.
+
+    Returned on a dry run only. `current` is what the database holds for the
+    same (indicator, division, period) today: None means this is a new fact,
+    a different number means the import CHANGES a published one. Counting rows
+    told an officer how much would be written but never what -- and "451 values
+    loaded" reads identically whether the file is correct or a column is
+    shifted by one."""
+    period: str
+    ds_code: str
+    ds_name: str
+    variable_code: str
+    value: float
+    current: float | None
+    edited: bool = False
 
 
 @dataclass
@@ -43,6 +62,8 @@ class LoadResult:
     divisions: int
     errors: list[str]
     warnings: list[str]
+    rows: list[PreviewRow] = field(default_factory=list)
+    edits_applied: int = 0
 
     @property
     def ok(self) -> bool:
@@ -145,7 +166,8 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
                                review_copy: bool | None = None,
                                expect_scope: tuple[str, str, str | None, str] | None = None,
                                dry_run: bool = False,
-                               enforce_scope: bool = True) -> LoadResult:
+                               enforce_scope: bool = True,
+                               edits: dict[tuple[str, str, str], float] | None = None) -> LoadResult:
     """`review_copy=None` decides from the file itself: a workbook stamped
     `protection = unlocked-review` in `_META` was issued open for the panel to
     restructure, so its own `_META` no longer describes its columns and the
@@ -158,7 +180,14 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
     disagreement is refused rather than silently trusted either way: uploading
     the right file into the wrong sector is an easy mistake and an expensive one,
     because the values would key to real divisions under a real profile and look
-    entirely plausible."""
+    entirely plausible.
+
+    `edits` are corrections the reviewer made in the preview table, keyed
+    (period, ds_code, variable_code). They REPLACE the workbook's value for that
+    cell. An edit is only ever applied to a cell the workbook already has -- it
+    cannot introduce a value the file did not carry, so the file remains the
+    statement of what is being imported and the edit is a visible correction to
+    it, recorded in the row's notes and counted in `edits_applied`."""
     probe: TemplateWorkbook = read_workbook(path)
     if probe.errors:
         return LoadResult(probe.filename, probe.profile_code, 0, 0, 0,
@@ -292,6 +321,13 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
     div = {r["code"]: r["id"] for r in await conn.fetch(
         "SELECT id, code FROM ds_division WHERE province_id = $1", ctx["province_id"])}
 
+    # Division names for the preview: an officer checks a row by the name they
+    # know, not by KA1.
+    div_name = {r["code"]: r["name"] for r in await conn.fetch(
+        "SELECT code, name FROM ds_division WHERE province_id = $1", ctx["province_id"])}
+
+    edits = edits or {}
+    unmatched_edits = set(edits)
     rows, seen = [], set()
     for s in wb.sheets:
         for v in s.values:
@@ -308,9 +344,26 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
                      "%s row %d: %s is not a variable of this profile")
                     % (s.tab, v.excel_row, v.variable_code))
                 continue
+            key = (s.tab, v.ds_code, v.variable_code)
+            raw_value, notes = v.raw_value, v.notes
+            was_edited = key in edits
+            if was_edited:
+                unmatched_edits.discard(key)
+                raw_value = edits[key]
+                # Provenance, not decoration. A number that did not come out of
+                # the workbook must say so, or the workbook stops being an
+                # audit trail for what is in the database.
+                notes = ("%s; " % notes if notes else "") + (
+                    "corrected during import review from %s" % v.raw_value)
             rows.append((ind[v.variable_code], div[v.ds_code], s.year_start,
-                         s.year_end, v.raw_value, v.data_source, v.notes))
+                         s.year_end, raw_value, v.data_source, notes))
             seen.add(v.ds_code)
+    for period, ds_code, code in sorted(unmatched_edits):
+        # Silently dropping it would load the file's original number while the
+        # reviewer believed they had corrected it.
+        errors.append("the correction to %s / %s / %s does not match any cell "
+                      "in this workbook" % (period, ds_code, code))
+
     if errors:
         return LoadResult(wb.filename, wb.profile_code, wb.value_count, 0,
                           len(seen), errors, warnings)
@@ -319,8 +372,38 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
         # Everything above ran: the file parsed, every column resolved to a
         # variable of this profile and every DS_CODE to a division. Reporting
         # that without writing is the whole point of the check.
+        #
+        # What is already there, so the preview can say "new" or "changes 3.0 ->
+        # 4.0". Read on the same key the write uses, in one query rather than
+        # one per row.
+        code_of = {v: k for k, v in ind.items()}
+        name_of = {v: k for k, v in div.items()}
+        existing = {(r["indicator_id"], r["ds_division_id"], r["year_start"], r["year_end"]):
+                    float(r["raw_value"])
+                    for r in await conn.fetch(
+                        """
+                        SELECT indicator_id, ds_division_id, year_start, year_end, raw_value
+                          FROM indicator_value
+                         WHERE source = 'data' AND scenario_id IS NULL
+                           AND ds_division_id = ANY($1::bigint[])
+                           AND indicator_id   = ANY($2::bigint[])
+                        """,
+                        sorted({r[1] for r in rows}), sorted({r[0] for r in rows}))}
+        preview = []
+        for r in rows:
+            ds_code = name_of[r[1]]
+            preview.append(PreviewRow(
+                period="%d-%d" % (r[2], r[3]),
+                ds_code=ds_code,
+                ds_name=div_name.get(ds_code, ds_code),
+                variable_code=code_of[r[0]],
+                value=float(r[4]),
+                current=existing.get((r[0], r[1], r[2], r[3])),
+                edited=bool(r[6] and "corrected during import review" in str(r[6])),
+            ))
         return LoadResult(wb.filename, wb.profile_code, wb.value_count,
-                          len(rows), len(seen), [], warnings)
+                          len(rows), len(seen), [], warnings,
+                          rows=preview, edits_applied=len(edits))
 
     # An OFFICIAL value belongs to the division, not to whoever uploaded it.
     #
@@ -362,4 +445,4 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
         [(r[0], r[1], r[2], r[3], r[4], r[5], r[6], user_id, batch_id) for r in rows])
 
     return LoadResult(wb.filename, wb.profile_code, wb.value_count, len(rows),
-                      len(seen), [], warnings)
+                      len(seen), [], warnings, edits_applied=len(edits))

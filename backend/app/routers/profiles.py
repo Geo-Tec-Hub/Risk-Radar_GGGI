@@ -388,6 +388,36 @@ async def put_weights(
                           "Ask an administrator to widen your scope."),
             )
 
+    # ONLY AN ACTIVE VARIABLE MAY JOIN A PROFILE (schema.sql rev 5).
+    #
+    # This is checked here rather than inside save_profile_weights() on purpose.
+    # That function's body is SPLICED INTO by
+    # schema_weights_save_completeness_addendum.sql, which finds the body in
+    # pg_proc and edits it -- so every change to the function has to be applied
+    # in the right order or the splice is silently overwritten (RUN_LOCALLY.md
+    # documents this as the one failure that does not announce itself). Adding a
+    # guard there would put a live foot-gun in the way of a rule that has no
+    # other caller. It is stated once, here, at the only endpoint that adds
+    # variables to a profile.
+    codes = [i.indicatorCode for i in body.items]
+    not_active = await pool.fetch(
+        """SELECT code, status::text AS status FROM indicator_catalog
+            WHERE code = ANY($1::text[]) AND status <> 'active'""", codes)
+    if not_active:
+        raise HTTPException(
+            status_code=422,
+            detail="these variables are not active in the catalogue, so they "
+                   "cannot be weighted into a profile: "
+                   + ", ".join("%s (%s)" % (r["code"], r["status"]) for r in not_active)
+                   + ". An administrator approves a proposed variable before it "
+                     "can carry a weight.")
+    unknown = set(codes) - {r["code"] for r in await pool.fetch(
+        "SELECT code FROM indicator_catalog WHERE code = ANY($1::text[])", codes)}
+    if unknown:
+        raise HTTPException(
+            status_code=422,
+            detail="no such variable: " + ", ".join(sorted(unknown)))
+
     items = [
         {
             # The database function's own payload keys are snake_case; this is

@@ -83,3 +83,12 @@
   flex: 1;
   min-height: 0;
 }
+
+/* The account name sat beside the nav links in the same weight, so it read as
+   a button and got clicked. It is a label; say so and look like one. */
+.app-header__whoami {
+  font-size: 0.78rem;
+  color: #adb5bd;
+  font-weight: 400;
+  cursor: default;
+}

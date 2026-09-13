@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { ApiClientService } from '../../core/services/api-client.service';
 import { ApiError } from '../../core/models/api-error.model';
-import { scopeFromQueryParams } from '../../core/models/query-param.util';
+import { scopeFromQueryParams, scopeToQueryParams } from '../../core/models/query-param.util';
 import { ProfileScope, ProfileVariable, ProfileWeights, WeightConsensus, WeightDecision } from '../../core/models/profile.model';
 
 interface EditableRow {
@@ -104,6 +104,14 @@ export class WeightsEditorComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(ApiClientService);
 
+  /** The scope travels on the URL already, so carrying it onward costs nothing
+   * and saves the officer re-picking province, sector, subsector and hazard on
+   * the next screen -- which is what they were doing before this existed. */
+  readonly scopeParams = computed(() => {
+    const s = this.scope();
+    return s ? { ...scopeToQueryParams(s), from: 'weights' } : {};
+  });
+
   readonly scope = signal<ProfileScope | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -155,14 +163,35 @@ export class WeightsEditorComponent {
     }
   }
 
+  /** Variables the admin screen asked to add to this profile, as ?add=A,B.
+   * They arrive UNWEIGHTED and therefore unresolved, so the existing "still
+   * blank" rule forces the panel to weight or exclude each one before the save
+   * button unlocks -- which is the point. Adding a variable is an
+   * administrative act; deciding what it is worth is a panel decision, and this
+   * keeps the two in their own places while writing one audited version. */
+  readonly pendingAdditions = signal<string[]>([]);
+
   private load(scope: ProfileScope): void {
     this.loading.set(true);
     this.error.set(null);
+    const add = String(this.route.snapshot.queryParams['add'] ?? '')
+      .split(',')
+      .map((c) => c.trim().toUpperCase())
+      .filter(Boolean);
+
     this.api.getProfileWeights(scope).subscribe({
       next: (weights: ProfileWeights) => {
         this.profileVersion.set(weights.profileVersion);
-        this.hazardRows.set(toEditableRows(weights.hazardVariables));
-        this.exposureRows.set(toEditableRows(weights.exposureVariables));
+        const hazard = toEditableRows(weights.hazardVariables);
+        const exposure = toEditableRows(weights.exposureVariables);
+        const already = new Set(
+          hazard.concat(exposure).map((r) => r.indicatorCode),
+        );
+        const wanted = add.filter((c) => !already.has(c));
+        this.hazardRows.set(hazard);
+        this.exposureRows.set(exposure);
+        this.pendingAdditions.set(wanted);
+        if (wanted.length) this.appendAdditions(wanted);
         this.panelNote.set(weights.panelNote ?? '');
         this.loading.set(false);
       },
@@ -172,6 +201,48 @@ export class WeightsEditorComponent {
       },
     });
   }
+
+  /** Fetch the catalogue entries for ?add= codes and append them as blank rows.
+   * The catalogue is asked for the name, domain and direction rather than the
+   * URL carrying them: a link is easy to hand-edit, and a variable that entered
+   * a profile under a direction someone typed into a query string would invert
+   * a division's score with nothing in the audit trail explaining it. */
+  private appendAdditions(codes: string[]): void {
+    this.api.getCatalogItems(codes).subscribe({
+      next: (items) => {
+        const missing = codes.filter((c) => !items.some((i) => i.code === c));
+        if (missing.length) {
+          this.addNotice.set(
+            'Not added — no active variable with code ' + missing.join(', ') + '.',
+          );
+        }
+        const blank = (i: (typeof items)[number]): EditableRow => ({
+          indicatorCode: i.code,
+          indicatorName: i.name,
+          unit: i.unit,
+          direction: i.direction === 'higher_is_better' ? '-' : '+',
+          isCompositeHazardIndex: false,
+          weightPct: null,
+          consensus: null,
+          consensusNote: null,
+          decidedBy: null,
+        });
+        const hazard = items.filter((i) => i.domain === 'hazard').map(blank);
+        const exposure = items.filter((i) => i.domain !== 'hazard').map(blank);
+        if (hazard.length) this.hazardRows.set(this.hazardRows().concat(hazard));
+        if (exposure.length) this.exposureRows.set(this.exposureRows().concat(exposure));
+        if (items.length) {
+          this.addNotice.set(
+            items.map((i) => i.name).join(', ') +
+              ' added to this profile. Give each one a weight (or exclude it), then save — the new version is what carries them.',
+          );
+        }
+      },
+      error: (err: ApiError) => this.addNotice.set('Could not load the variables to add: ' + err.message),
+    });
+  }
+
+  readonly addNotice = signal<string | null>(null);
 
   /** Template-facing wrapper for hasInvalidZeroWeight() -- see its doc comment. */
   isInvalidZero(row: EditableRow): boolean {

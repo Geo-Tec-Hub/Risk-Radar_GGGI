@@ -60,6 +60,27 @@ router = APIRouter(prefix="/import", tags=["import"])
 MAX_BYTES = 20 * 1024 * 1024
 
 
+class PreviewRowOut(BaseModel):
+    period: str
+    dsCode: str
+    dsName: str
+    variableCode: str
+    value: float
+    current: Optional[float]
+    edited: bool
+
+
+class EditIn(BaseModel):
+    """One correction the reviewer made in the preview table. It replaces the
+    workbook's value for a cell the workbook already has -- an edit cannot
+    introduce a value the file did not carry, so the file stays the statement of
+    what was imported and the edit is a recorded correction to it."""
+    period: str
+    dsCode: str
+    variableCode: str
+    value: float
+
+
 class ImportReport(BaseModel):
     filename: str
     profileCode: Optional[str]
@@ -71,6 +92,10 @@ class ImportReport(BaseModel):
     batchId: Optional[int]
     errors: list[str]
     warnings: list[str]
+    # Populated on a dry run only: every value the file would write, with what
+    # is in the database today beside it.
+    rows: list[PreviewRowOut] = []
+    editsApplied: int = 0
 
 
 class BatchRow(BaseModel):
@@ -85,9 +110,26 @@ class BatchRow(BaseModel):
     uploadedBy: Optional[str]
 
 
+def _parse_edits(raw: Optional[str]) -> dict[tuple[str, str, str], float]:
+    if not raw:
+        return {}
+    try:
+        items = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(400, "corrections could not be read: %s" % exc) from exc
+    if not isinstance(items, list):
+        raise HTTPException(400, "corrections must be a list")
+    out: dict[tuple[str, str, str], float] = {}
+    for item in items:
+        e = EditIn(**item)
+        out[(e.period, e.dsCode, e.variableCode)] = e.value
+    return out
+
+
 async def _run(pool: asyncpg.Pool, file: UploadFile, user: CurrentUser,
                scope: Optional[tuple[str, str, Optional[str], str]],
-               dry_run: bool) -> ImportReport:
+               dry_run: bool,
+               edits: Optional[dict[tuple[str, str, str], float]] = None) -> ImportReport:
     if not (file.filename or "").lower().endswith(".xlsx"):
         raise HTTPException(400, "expected an .xlsx upload template")
     body = await file.read()
@@ -107,7 +149,7 @@ async def _run(pool: asyncpg.Pool, file: UploadFile, user: CurrentUser,
                     file.filename, user.id)
                 result = await load_workbook_values(
                     conn, tmp.name, batch_id=batch_id, user_id=user.id,
-                    expect_scope=scope, dry_run=dry_run)
+                    expect_scope=scope, dry_run=dry_run, edits=edits)
                 await conn.execute(
                     """UPDATE import_batch
                           SET profile_code = $2, status = $3, rows_total = $4,
@@ -134,7 +176,8 @@ async def _run(pool: asyncpg.Pool, file: UploadFile, user: CurrentUser,
             profileCode=result.profile_code,
             dryRun=dry_run, ok=True, valuesRead=result.values_read,
             valuesLoaded=result.values_loaded, divisions=result.divisions,
-            batchId=batch_id, errors=[], warnings=result.warnings)
+            batchId=batch_id, errors=[], warnings=result.warnings,
+            rows=_rows_out(result.rows), editsApplied=result.edits_applied)
     except _Done as done:
         r = done.result
         return ImportReport(
@@ -142,9 +185,17 @@ async def _run(pool: asyncpg.Pool, file: UploadFile, user: CurrentUser,
             dryRun=dry_run,
             ok=r.ok, valuesRead=r.values_read,
             valuesLoaded=0, divisions=r.divisions, batchId=None,
-            errors=r.errors, warnings=r.warnings)
+            errors=r.errors, warnings=r.warnings,
+            rows=_rows_out(r.rows), editsApplied=r.edits_applied)
     finally:
         os.unlink(tmp.name)
+
+
+def _rows_out(rows) -> list[PreviewRowOut]:
+    return [PreviewRowOut(period=r.period, dsCode=r.ds_code, dsName=r.ds_name,
+                          variableCode=r.variable_code, value=r.value,
+                          current=r.current, edited=r.edited)
+            for r in rows]
 
 
 class _Done(Exception):
@@ -177,11 +228,13 @@ async def check(
     sector: Optional[str] = Form(None),
     subsector: Optional[str] = Form(None),
     hazard: Optional[str] = Form(None),
+    edits: Optional[str] = Form(None),
     pool: asyncpg.Pool = Depends(db),
     user: CurrentUser = Depends(get_current_user),
 ) -> ImportReport:
     return await _run(pool, file, user,
-                      _scope(province, sector, subsector, hazard), dry_run=True)
+                      _scope(province, sector, subsector, hazard), dry_run=True,
+                      edits=_parse_edits(edits))
 
 
 @router.post("/load", response_model=ImportReport)
@@ -191,11 +244,13 @@ async def load(
     sector: Optional[str] = Form(None),
     subsector: Optional[str] = Form(None),
     hazard: Optional[str] = Form(None),
+    edits: Optional[str] = Form(None),
     pool: asyncpg.Pool = Depends(db),
     user: CurrentUser = Depends(get_current_user),
 ) -> ImportReport:
     return await _run(pool, file, user,
-                      _scope(province, sector, subsector, hazard), dry_run=False)
+                      _scope(province, sector, subsector, hazard), dry_run=False,
+                      edits=_parse_edits(edits))
 
 
 @router.get("/batches", response_model=list[BatchRow])

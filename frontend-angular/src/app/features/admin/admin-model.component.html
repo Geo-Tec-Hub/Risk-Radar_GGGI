@@ -1,0 +1,403 @@
+<div class="am">
+  <a routerLink="/entry" class="am__back">&larr; Back to data entry</a>
+  <h2>Model administration</h2>
+  <p class="am__lede">
+    The variables a profile carries, the hazards that exist, and who may write what. Weights are not
+    set here &mdash; adding a variable sends you to the weights editor, where the panel decides its
+    share and the save is recorded as a new profile version.
+  </p>
+
+  <!-- 1 ------------------------------------------------------------------ -->
+  <section class="am__section">
+    <h3>Variables in a profile</h3>
+
+    <div class="am__row">
+      <label class="am__field">
+        <span>Province</span>
+        <select [ngModel]="province()" name="p" (ngModelChange)="province.set($event); loadProfile()">
+          @for (p of provinces(); track p.code) { <option [ngValue]="p.code">{{ p.name }}</option> }
+        </select>
+      </label>
+      <label class="am__field">
+        <span>Sector</span>
+        <select [ngModel]="sector()" name="s" (ngModelChange)="onSectorChange($event)">
+          @for (s of sectors(); track s.code) { <option [ngValue]="s.code">{{ s.name }}</option> }
+        </select>
+      </label>
+      <label class="am__field">
+        <span>Subsector</span>
+        <select
+          [ngModel]="subsector()"
+          name="ss"
+          [disabled]="subsectorOptions().length === 0"
+          (ngModelChange)="subsector.set($event); loadProfile()"
+        >
+          @for (s of subsectorOptions(); track s.code) { <option [ngValue]="s.code">{{ s.name }}</option> }
+        </select>
+      </label>
+      <label class="am__field">
+        <span>Hazard</span>
+        <select [ngModel]="hazard()" name="h" (ngModelChange)="hazard.set($event); loadProfile()">
+          @for (h of hazardOptions(); track h.code) { <option [ngValue]="h.code">{{ h.name }}</option> }
+        </select>
+      </label>
+    </div>
+
+    @if (profileError(); as e) {
+      <p class="am__banner am__banner--error" role="alert">{{ e }}</p>
+    } @else if (loadingProfile()) {
+      <p class="am__muted">Loading…</p>
+    } @else {
+      <p class="am__muted">
+        {{ profileVariables().length }} variable(s) in this profile
+        @if (profileVersion(); as v) { · version {{ v }} }
+      </p>
+      <ul class="am__chips">
+        @for (v of profileVariables(); track v.code) {
+          <li class="am__chip" [class.am__chip--hazard]="v.domain === 'hazard'">
+            {{ v.name }} <span class="am__code">{{ v.code }}</span>
+          </li>
+        }
+      </ul>
+    }
+
+    <h4>Add a variable</h4>
+    <p class="am__muted">
+      Only approved (active) variables appear here. Tick what this profile should carry, then set the
+      weights &mdash; nothing changes until that new version is saved.
+    </p>
+    <div class="am__scroll">
+      <table class="am__table">
+        <thead>
+          <tr><th></th><th>Variable</th><th>Code</th><th>Domain</th><th>Used in</th></tr>
+        </thead>
+        <tbody>
+          @for (c of addable(); track c.id) {
+            <tr>
+              <td>
+                <input
+                  type="checkbox"
+                  [checked]="selected().includes(c.code)"
+                  (change)="toggleSelected(c.code)"
+                />
+              </td>
+              <td>{{ c.name }}</td>
+              <td class="am__mono">{{ c.code }}</td>
+              <td>{{ c.domain }}</td>
+              <td>{{ c.usedInProfiles }} profile(s)</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="am__actions">
+      <button type="button" class="am__primary" [disabled]="selected().length === 0" (click)="addToProfile()">
+        Add {{ selected().length || '' }} variable(s) and set weights &rarr;
+      </button>
+    </div>
+  </section>
+
+  <!-- 2 ------------------------------------------------------------------ -->
+  <section class="am__section">
+    <h3>Variable catalogue</h3>
+
+    @if (pending().length) {
+      <div class="am__pending">
+        <h4>{{ pending().length }} awaiting approval</h4>
+        <p class="am__muted">
+          A code is permanent: values key to it, upload templates carry a column for it, and profiles
+          cite it in their audit trail. Approve only what is genuinely a new fact.
+        </p>
+        <table class="am__table">
+          <tbody>
+            @for (c of pending(); track c.id) {
+              <tr>
+                <td>{{ c.name }}</td>
+                <td class="am__mono">{{ c.code }}</td>
+                <td>{{ c.domain }}</td>
+                <td>
+                  <button type="button" (click)="setStatus(c, 'active')">Approve</button>
+                  <button type="button" (click)="setStatus(c, 'retired')">Reject</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <div class="am__row">
+      <label class="am__field am__field--grow">
+        <span>Search</span>
+        <input
+          type="search"
+          [ngModel]="catalogQuery()"
+          name="cq"
+          placeholder="name or code"
+          (ngModelChange)="catalogQuery.set($event)"
+          (keyup.enter)="searchCatalog()"
+        />
+      </label>
+      <label class="am__field">
+        <span>Domain</span>
+        <select [ngModel]="catalogDomain()" name="cd" (ngModelChange)="catalogDomain.set($event); searchCatalog()">
+          <option value="">Any</option>
+          <option value="hazard">Hazard</option>
+          <option value="exposure">Exposure</option>
+        </select>
+      </label>
+      <button type="button" (click)="searchCatalog()">Search</button>
+    </div>
+
+    @if (catalogError(); as e) {
+      <p class="am__banner am__banner--error" role="alert">{{ e }}</p>
+    }
+    <p class="am__muted">{{ catalog().length }} variable(s){{ catalogBusy() ? ' · loading…' : '' }}</p>
+
+    <h4>Propose a new variable</h4>
+    <div class="am__row">
+      <label class="am__field">
+        <span>Code</span>
+        <input
+          [ngModel]="newVar().code"
+          name="nvc"
+          placeholder="PADDY_EXTENT"
+          (ngModelChange)="newVar.set({ ...newVar(), code: $event })"
+        />
+      </label>
+      <label class="am__field am__field--grow">
+        <span>Name</span>
+        <input
+          [ngModel]="newVar().name"
+          name="nvn"
+          placeholder="Extent of paddy land"
+          (ngModelChange)="newVar.set({ ...newVar(), name: $event })"
+        />
+      </label>
+      <label class="am__field">
+        <span>Domain</span>
+        <select [ngModel]="newVar().domain" name="nvd" (ngModelChange)="newVar.set({ ...newVar(), domain: $event })">
+          <option value="exposure">Exposure</option>
+          <option value="hazard">Hazard</option>
+        </select>
+      </label>
+      <label class="am__field">
+        <span>Unit</span>
+        <input
+          [ngModel]="newVar().unit"
+          name="nvu"
+          placeholder="ha"
+          (ngModelChange)="newVar.set({ ...newVar(), unit: $event })"
+        />
+      </label>
+      <button type="button" (click)="propose()">Propose</button>
+    </div>
+    @if (proposeError(); as e) {
+      <p class="am__banner am__banner--error" role="alert">{{ e }}</p>
+    }
+    @if (proposeMessage(); as m) {
+      <p class="am__banner am__banner--ok">{{ m }}</p>
+    }
+  </section>
+
+  <!-- 3 ------------------------------------------------------------------ -->
+  <section class="am__section">
+    <h3>Hazard types</h3>
+    <table class="am__table">
+      <thead><tr><th>Hazard</th><th>Code</th><th>Active profiles</th></tr></thead>
+      <tbody>
+        @for (h of hazards(); track h.id) {
+          <tr>
+            <td>{{ h.name }}</td>
+            <td class="am__mono">{{ h.code }}</td>
+            <td>{{ h.profiles }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="am__row">
+      <label class="am__field">
+        <span>Code</span>
+        <input
+          [ngModel]="newHazard().code"
+          name="nhc"
+          placeholder="cyclone"
+          (ngModelChange)="newHazard.set({ ...newHazard(), code: $event })"
+        />
+      </label>
+      <label class="am__field am__field--grow">
+        <span>Name</span>
+        <input
+          [ngModel]="newHazard().name"
+          name="nhn"
+          placeholder="Cyclone"
+          (ngModelChange)="newHazard.set({ ...newHazard(), name: $event })"
+        />
+      </label>
+      <button type="button" (click)="addHazard()">Add hazard</button>
+    </div>
+    @if (hazardError(); as e) {
+      <p class="am__banner am__banner--error" role="alert">{{ e }}</p>
+    }
+    @if (hazardMessage(); as m) {
+      <p class="am__banner am__banner--ok">{{ m }}</p>
+    }
+  </section>
+
+  <!-- 4 ------------------------------------------------------------------ -->
+  <section class="am__section">
+    <h3>People and what they may write</h3>
+    <div class="am__row">
+      <label class="am__field">
+        <span>Province</span>
+        <select [ngModel]="userProvince()" name="up" (ngModelChange)="userProvince.set($event); loadUsers()">
+          <option value="">All</option>
+          @for (p of provinces(); track p.code) { <option [ngValue]="p.name">{{ p.name }}</option> }
+        </select>
+      </label>
+      <label class="am__field">
+        <span>Sector</span>
+        <select [ngModel]="userSector()" name="us" (ngModelChange)="userSector.set($event); loadUsers()">
+          <option value="">All</option>
+          @for (s of sectors(); track s.code) { <option [ngValue]="s.name">{{ s.name }}</option> }
+        </select>
+      </label>
+    </div>
+
+    @if (userError(); as e) {
+      <p class="am__banner am__banner--error" role="alert">{{ e }}</p>
+    }
+
+    @if (scopeMessage(); as m) {
+      <p class="am__banner am__banner--ok">{{ m }}</p>
+    }
+
+    <div class="am__scroll">
+      <table class="am__table">
+        <thead>
+          <tr><th>Name</th><th>Province</th><th>Sectors they may write</th><th>Climate</th><th>Role</th><th></th></tr>
+        </thead>
+        <tbody>
+          @for (u of users(); track u.id) {
+            <tr [class.am__row--inactive]="u.status !== 'active'">
+              <td>
+                {{ u.fullName }}<br />
+                <span class="am__muted">{{ u.email }} &middot; {{ u.status }}</span>
+              </td>
+              <td>{{ u.province ?? '—' }}</td>
+              <td>
+                @if (u.scopes.length === 0) {
+                  <span class="am__muted">none</span>
+                } @else {
+                  {{ u.scopes.join('; ') }}
+                }
+                <br />
+                <button type="button" class="am__link" (click)="editSectors(u)">Change sectors</button>
+              </td>
+              <td>{{ u.mayWriteHazardDomain ? 'yes' : 'no' }}</td>
+              <td>
+                <select
+                  class="am__roles"
+                  [ngModel]="roleDraft()[u.id]"
+                  [name]="'role' + u.id"
+                  (ngModelChange)="onRoleDraft(u.id, $event)"
+                >
+                  <option value="">—</option>
+                  @for (r of roles(); track r.code) {
+                    <option [ngValue]="r.code">{{ r.name }}</option>
+                  }
+                </select>
+                @if (wouldDropRoles(u)) {
+                  <span class="am__warn" title="This account holds more than one role">
+                    holds {{ u.roles.join(', ') }} — saving keeps only the one chosen
+                  </span>
+                }
+              </td>
+              <td><button type="button" (click)="saveRoles(u)">Save role</button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sector grants. The payload replaces the whole set, so the panel shows
+         the whole set: what is on screen is what the account ends up with. -->
+    @if (editingUser(); as u) {
+      <div class="am__editor">
+        <h4>Sectors {{ u.fullName }} may write</h4>
+
+        @if (scopeError(); as e) {
+          <p class="am__banner am__banner--error" role="alert">{{ e }}</p>
+        }
+
+        <ul class="am__chips">
+          @for (a of draftAreas(); track areaLabel(a)) {
+            <li class="am__chip am__chip--grant">
+              {{ areaLabel(a) }}
+              <button type="button" class="am__chipx" (click)="removeArea(a)" aria-label="Remove">&times;</button>
+            </li>
+          }
+        </ul>
+        @if (draftAreas().length === 0) {
+          <p class="am__banner">
+            No sectors. Saving now revokes everything this account may write — which is a valid
+            decision, but it is a revocation, not a blank form.
+          </p>
+        }
+
+        <div class="am__row">
+          <label class="am__field">
+            <span>Sector</span>
+            <select [ngModel]="addSector()" name="as" (ngModelChange)="addSector.set($event); addSubsector.set('')">
+              <option value="">Choose…</option>
+              @for (a of areaOptions(); track a.code) {
+                <option [ngValue]="a.code">{{ a.name }}</option>
+              }
+            </select>
+          </label>
+          <label class="am__field">
+            <span>Subsector</span>
+            <select
+              [ngModel]="addSubsector()"
+              name="ass"
+              [disabled]="!addSector() || addSubsectorOptions().length === 0"
+              (ngModelChange)="addSubsector.set($event)"
+            >
+              <option value="">All subsectors</option>
+              @for (sub of addSubsectorOptions(); track sub.code) {
+                <option [ngValue]="sub.code">{{ sub.name }}</option>
+              }
+            </select>
+          </label>
+          <button type="button" [disabled]="!addSector()" (click)="addArea()">Add</button>
+          @if (alreadyWholeSector()) {
+            <span class="am__muted">Whole sector already granted — a subsector adds nothing.</span>
+          }
+        </div>
+
+        <label class="am__check">
+          <input
+            type="checkbox"
+            [ngModel]="draftHazardDomain()"
+            name="hz"
+            (ngModelChange)="draftHazardDomain.set($event)"
+          />
+          May write climate (hazard) variables — shared by every sector, held centrally
+        </label>
+
+        <div class="am__actions">
+          <button type="button" class="am__primary" [disabled]="scopeBusy()" (click)="saveSectors()">
+            {{ scopeBusy() ? 'Saving…' : 'Save sectors' }}
+          </button>
+          <button type="button" (click)="cancelSectors()">Cancel</button>
+        </div>
+      </div>
+    }
+
+    <p class="am__muted">
+      A whole-sector grant covers every subsector under it. Roles come from the database, so a role
+      added there appears here without a code change.
+    </p>
+  </section>
+</div>

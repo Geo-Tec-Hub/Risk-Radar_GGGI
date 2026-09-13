@@ -234,3 +234,19 @@
   color: #2f9e44;
   font-size: 0.875rem;
 }
+.weights__next {
+  margin-left: .75rem;
+  font-weight: 600;
+  color: #1864ab;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+.weights__added {
+  margin: .4rem 0 .8rem;
+  padding: .45rem .6rem;
+  background: #e7f5ff;
+  border-left: 3px solid #4dabf7;
+  font-size: .84rem;
+  color: #1864ab;
+}
