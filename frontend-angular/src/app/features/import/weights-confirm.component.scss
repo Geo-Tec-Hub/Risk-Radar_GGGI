@@ -1,0 +1,228 @@
+.wc { font-size: 0.875rem; }
+
+.wc__lead {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: #e7f5ff;
+  border-left: 3px solid #1c7ed6;
+  border-radius: 0 4px 4px 0;
+  color: #1864ab;
+  line-height: 1.5;
+}
+
+.wc__totals {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.wc__total {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #dee2e6;
+  border-left: 3px solid #2f9e44;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.wc__total--bad {
+  border-left-color: #e8590c;
+  background: #fff9f5;
+}
+
+.wc__total-dom {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.wc__total-num {
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.wc__total-of,
+.wc__total-cur {
+  color: #868e96;
+  font-size: 0.8125rem;
+}
+
+.wc__ok  { color: #2f9e44; font-size: 0.8125rem; }
+.wc__bad { color: #e8590c; font-size: 0.8125rem; }
+
+.wc__h {
+  margin: 0.75rem 0 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #495057;
+}
+
+.wc__scroll {
+  max-height: 22rem;
+  overflow: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.wc__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.wc__table th,
+.wc__table td {
+  padding: 0.3rem 0.6rem;
+  border-bottom: 1px solid #e9ecef;
+  text-align: left;
+}
+
+.wc__table thead th {
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+.wc__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.wc__proposed { font-weight: 600; }
+.wc__muted { color: #adb5bd; }
+
+.wc__code {
+  color: #adb5bd;
+  font-size: 0.75rem;
+  margin-left: 0.25rem;
+}
+
+.wc__codes .wc__code {
+  display: inline-block;
+  margin: 0 0.25rem 0 0;
+  color: #495057;
+}
+
+.wc__status {
+  color: #868e96;
+  font-size: 0.75rem;
+}
+
+/* The row tint says what will happen if this proposal is confirmed, in the
+   same palette the data grid uses: orange changes something, green is new,
+   nothing means nothing moves. */
+.wc__row--changed { background: #fff4e6; }
+.wc__row--new     { background: #ebfbee; }
+.wc__row--unknown { background: #fff5f5; }
+
+.wc__note {
+  margin: 0.75rem 0 0;
+  line-height: 1.5;
+}
+
+.wc__note--muted {
+  color: #868e96;
+  font-style: italic;
+}
+
+.wc__note--warn {
+  padding: 0.5rem 0.75rem;
+  background: #fff5f5;
+  border-left: 3px solid #e03131;
+  border-radius: 0 4px 4px 0;
+  color: #c92a2a;
+}
+
+.wc__cta {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.45rem 0.9rem;
+  background: #1c7ed6;
+  color: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.wc__cta:hover { background: #1864ab; }
+
+.wc__input {
+  width: 5.5rem;
+  padding: 0.2rem 0.35rem;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  font: inherit;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* An unweighted variable looks unweighted. It is undecided, not zero, and the
+   two must never render the same. */
+.wc__input--blank {
+  border-style: dashed;
+  background: #fffdf5;
+}
+
+.wc__row--blank {
+  background: #fff9db;
+}
+
+.wc__warn {
+  color: #e8590c;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.wc__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.wc__cta[disabled] {
+  background: #ced4da;
+  cursor: not-allowed;
+}
+
+.wc__mini {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: #fff;
+  color: #495057;
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.wc__mini:hover {
+  background: #f1f3f5;
+}
+
+.wc__link {
+  color: #1c7ed6;
+  font-size: 0.8125rem;
+}
+
+.wc__saved {
+  margin: 0.6rem 0 0;
+  padding: 0.5rem 0.75rem;
+  background: #ebfbee;
+  border-left: 3px solid #2f9e44;
+  border-radius: 0 4px 4px 0;
+  color: #2b8a3e;
+}

@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 
 import { IndexScope } from '../../core/models/reference-data.model';
 import { CoverageSummary } from '../../core/models/vulnerability.model';
-import { COVERAGE_LEGEND } from './coverage-style';
+import { BAND_LEGEND, COVERAGE_LEGEND } from './coverage-style';
 
 /**
  * FR-5.14 / FR-5.15 / FR-5.16: the four coverage states rendered as
@@ -27,6 +27,7 @@ export class CoverageLegendComponent {
   readonly indexScope = input.required<IndexScope>();
 
   readonly legend = COVERAGE_LEGEND;
+  readonly bands = BAND_LEGEND;
 
   pct(n: number, total: number): string {
     if (total === 0) return '0%';

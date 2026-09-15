@@ -1,0 +1,28 @@
+Drop riskradar.dump in this folder before zipping.
+
+Produce it on the machine holding the current database:
+
+    pg_dump -h localhost -U postgres -d riskradar -Fc -f riskradar.dump
+
+If that fails with "aborting because of server version mismatch", there is more
+than one PostgreSQL installed and the pg_dump on PATH is the older one. pg_dump
+must be the SAME major version as the server, or newer. On a Homebrew Mac:
+
+    ls -d /opt/homebrew/opt/postgresql@*/bin/pg_dump      # find them
+    /opt/homebrew/opt/postgresql@17/bin/pg_dump -h localhost -U postgres \
+        -d riskradar -Fc -f riskradar.dump
+
+-Fc is the custom format: compressed, and restorable with pg_restore in
+parallel. Do NOT use a plain .sql dump for this database -- it carries PostGIS
+geometry, and the custom format restores it far more reliably.
+
+The file is roughly 5-20 MB depending on how much has been imported.
+
+TAKEN FROM POSTGRESQL 17.11. pg_restore cannot load it into an older server, so
+the target host needs PostgreSQL 17.x. Confirm that with the hosting admin
+before sending, not after.
+
+IT CONTAINS REAL DATA, including the app_user table with password hashes and
+session rows. Send it the way you would send any credential: not over
+unencrypted email, and delete the copy from the hosting admin's machine once
+the restore is done.

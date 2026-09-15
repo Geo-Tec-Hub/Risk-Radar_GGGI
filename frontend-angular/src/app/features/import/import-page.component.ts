@@ -5,8 +5,16 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
+import { ProfileScope } from '../../core/models/profile.model';
 import { AuthService } from '../../core/services/auth.service';
 import { TaxonomyService } from '../../core/services/taxonomy.service';
+import { WeightsConfirmComponent } from './weights-confirm.component';
+import {
+  GridCell,
+  GridColumn,
+  GridDivision,
+  WorkbookGridComponent,
+} from './workbook-grid.component';
 
 /**
  * Import tab — pick the scope, check the file, then load it.
@@ -45,6 +53,28 @@ export interface PreviewRow {
   edited: boolean;
 }
 
+/** One row of the workbook's WEIGHTS tab, set beside what the profile holds.
+ * ADVISORY: read at import, never written by it -- `save_profile_weights()`
+ * remains the one audited path that changes a weight. */
+export interface WeightRow {
+  variableCode: string;
+  variableName: string | null;
+  domain: string | null;
+  legacyPct: number | null;
+  proposedPct: number | null;
+  currentPct: number | null;
+  inProfile: boolean;
+  /** same | changed | new | blank | unknown */
+  status: string;
+}
+
+export interface WeightDomainTotal {
+  domain: string;
+  proposedTotal: number;
+  currentTotal: number;
+  proposedCount: number;
+}
+
 export interface ImportReport {
   filename: string;
   profileCode: string | null;
@@ -59,6 +89,20 @@ export interface ImportReport {
   /** Populated on a check only. */
   rows: PreviewRow[];
   editsApplied: number;
+  /** False for a workbook generated before the WEIGHTS tab existed -- which is
+   * not the same as a tab that was present and left empty. */
+  weightsTabPresent: boolean;
+  weights: WeightRow[];
+  weightTotals: WeightDomainTotal[];
+  /** Every period tab the file carried, empty ones included -- the review
+   * grid's tab strip is built from this, not from the values, so a period that
+   * came through empty still gets a tab that says so. */
+  periods: string[];
+  /** The column contract as a person reads it, in the profile's own order. */
+  columns: GridColumn[];
+  /** Every division of the province, blank rows included. */
+  divisionsAll: GridDivision[];
+  valuesAdded: number;
 }
 
 export interface ProfileOutcome {
@@ -126,6 +170,12 @@ export interface BatchDetail {
    * grant that governs uploading. The server checks again on the way in. */
   editable: boolean;
   values: ValueRow[];
+  /** The column contract for the variables this batch wrote. */
+  columns: GridColumn[];
+  /** Every period the system collects for -- not only the ones this batch
+   * happened to write, and not only the ones that have been scored. */
+  periods: string[];
+  divisionsAll: GridDivision[];
 }
 
 export interface CorrectionReport {
@@ -140,7 +190,7 @@ export interface CorrectionReport {
   // DatePipe is used by the recent-imports table. A standalone component must
   // import every pipe its template uses; `tsc --noEmit` does not check
   // templates, so a missing one surfaces only at `ng build`.
-  imports: [FormsModule, DatePipe, RouterLink],
+  imports: [FormsModule, DatePipe, RouterLink, WorkbookGridComponent, WeightsConfirmComponent],
   templateUrl: './import-page.component.html',
   styleUrl: './import-page.component.scss',
 })
@@ -173,9 +223,6 @@ export class ImportPageComponent implements OnInit {
    * preview rows so re-running Check does not discard what has been corrected,
    * and so the payload is exactly the set of deliberate changes. */
   readonly edits = signal<Record<string, number>>({});
-  readonly showOnlyChanges = signal(false);
-  readonly rowFilter = signal('');
-
   readonly previewRows = computed(() => this.report()?.rows ?? []);
   readonly changedCount = computed(
     () => this.previewRows().filter((r) => r.current !== null && r.current !== r.value).length,
@@ -183,18 +230,17 @@ export class ImportPageComponent implements OnInit {
   readonly newCount = computed(() => this.previewRows().filter((r) => r.current === null).length);
   readonly editCount = computed(() => Object.keys(this.edits()).length);
 
-  readonly visibleRows = computed(() => {
-    const term = this.rowFilter().trim().toLowerCase();
-    return this.previewRows().filter((r) => {
-      if (this.showOnlyChanges() && r.current !== null && r.current === r.value) return false;
-      if (!term) return true;
-      return (r.dsName + ' ' + r.dsCode + ' ' + r.variableCode).toLowerCase().includes(term);
-    });
-  });
-
   // ---- recompute --------------------------------------------------------
   readonly period = signal<string | undefined>(undefined);
+  /** Periods that hold RESULTS. */
   readonly periods = computed(() => this.taxonomy()?.periods ?? []);
+  /** Periods the system COLLECTS for. What a person picks from on this screen:
+   * both the recompute picker and the grid's tab strip are about a period you
+   * are trying to GIVE results to, and a list derived from results cannot ever
+   * offer one. */
+  readonly collectionPeriods = computed<readonly string[]>(
+    () => this.taxonomy()?.collectionPeriods ?? this.taxonomy()?.periods ?? [],
+  );
   readonly staleness = signal<StalenessReport | null>(null);
   readonly recomputing = signal(false);
   readonly recomputeReport = signal<RecomputeReport | null>(null);
@@ -206,22 +252,12 @@ export class ImportPageComponent implements OnInit {
   readonly openBatchId = signal<number | null>(null);
   readonly detail = signal<BatchDetail | null>(null);
   readonly detailError = signal<string | null>(null);
-  readonly detailFilter = signal('');
   readonly editing = signal(false);
   readonly saving = signal(false);
   /** Corrections keyed by the stored value's id. */
   readonly valueEdits = signal<Record<number, number>>({});
   readonly correction = signal<CorrectionReport | null>(null);
   readonly valueEditCount = computed(() => Object.keys(this.valueEdits()).length);
-
-  readonly detailRows = computed(() => {
-    const term = this.detailFilter().trim().toLowerCase();
-    const rows = this.detail()?.values ?? [];
-    if (!term) return rows;
-    return rows.filter((r) =>
-      (r.dsName + ' ' + r.dsCode + ' ' + r.variableCode).toLowerCase().includes(term),
-    );
-  });
 
   readonly provinces = computed(() => this.taxonomy()?.provinces ?? []);
 
@@ -394,15 +430,119 @@ export class ImportPageComponent implements OnInit {
     return r.period + '|' + r.dsCode + '|' + r.variableCode;
   }
 
-  /** The number that will actually be written for a row. */
-  effectiveValue(r: PreviewRow): number {
-    const e = this.edits()[this.rowKey(r)];
-    return e === undefined ? r.value : e;
+  // ---- the workbook view ------------------------------------------------
+  //
+  // Both screens feed the same grid. The long-format tables they replaced put
+  // one value on a row, which meant a 15 x 20 x 2 workbook arrived as ~600
+  // rows -- and the faults worth catching before a load (a column nobody
+  // filled, a period that never came through, a column shifted by one) are
+  // faults in the SHAPE of the data, which a list of 600 correct-looking rows
+  // hides completely.
+
+  /** Preview cells: what the file would write, with what is stored beside it. */
+  readonly previewCells = computed<GridCell[]>(() =>
+    this.previewRows().map((r) => ({
+      period: r.period,
+      dsCode: r.dsCode,
+      dsName: r.dsName,
+      variableCode: r.variableCode,
+      value: r.value,
+      current: r.current,
+      key: this.rowKey(r),
+    })),
+  );
+
+  /** Stored cells, for a batch opened from the list. `current` is null: these
+   * ARE what is stored, so there is nothing to compare them against and the
+   * grid must not paint them as new. */
+  readonly detailCells = computed<GridCell[]>(() =>
+    (this.detail()?.values ?? []).map((v) => ({
+      period: v.period,
+      dsCode: v.dsCode,
+      dsName: v.dsName,
+      variableCode: v.variableCode,
+      value: v.value,
+      current: null,
+      key: String(v.id),
+    })),
+  );
+
+  /** The grid keys corrections by string; the detail screen keys them by the
+   * stored value's own id. Converted here rather than changing either. */
+  readonly detailEditsByKey = computed<Record<string, number>>(() => {
+    const out: Record<string, number> = {};
+    for (const [id, v] of Object.entries(this.valueEdits())) out[id] = v;
+    return out;
+  });
+
+  onPreviewGridEdit(e: {
+    cell: GridCell | null;
+    raw: string;
+    key: string;
+    dsCode: string;
+    variableCode: string;
+    period: string;
+  }): void {
+    // A cell the workbook DID carry: typing its own number back is not a
+    // correction and is dropped, as before. A cell it did NOT carry: any
+    // number at all is an addition and must be kept, because there is nothing
+    // for it to be equal to.
+    const next = { ...this.edits() };
+    const n = Number(e.raw);
+    if (e.raw.trim() === '' || Number.isNaN(n) || (e.cell !== null && n === e.cell.value)) {
+      delete next[e.key];
+    } else {
+      next[e.key] = n;
+    }
+    this.edits.set(next);
   }
 
-  isEdited(r: PreviewRow): boolean {
-    return this.edits()[this.rowKey(r)] !== undefined;
+  /** Stored mode never offers a blank cell to type into (`allowAdd` is off
+   * there), so `cell` is always present -- but the output is shared with the
+   * review grid, which does, hence the guard. Adding a value that no import
+   * wrote is an entry act, not a correction to a batch. */
+  onDetailGridEdit(e: { cell: GridCell | null; raw: string }): void {
+    if (!e.cell) return;
+    const key = e.cell.key;
+    const row = (this.detail()?.values ?? []).find((v) => String(v.id) === key);
+    if (row) this.editValue(row, e.raw);
   }
+
+  /** The scope the form is pointed at, for the WEIGHTS panel's link into the
+   * weights editor. Null until enough of it is chosen -- a climate workbook
+   * has no profile and therefore no weights to confirm. */
+  readonly importScope = computed<ProfileScope | null>(() => {
+    if (this.kind() !== 'sector') return null;
+    const province = this.province();
+    const sector = this.sector();
+    const hazard = this.hazard();
+    if (!province || !sector || !hazard) return null;
+    return { province, sector, hazard, subsector: this.subsector() } as ProfileScope;
+  });
+
+  /** Tabs the review grid must offer. From the file, so an empty 2026-2030
+   * tab is still shown and still says it is empty. */
+  readonly workbookTabs = computed<string[]>(() => this.report()?.periods ?? []);
+  readonly workbookColumns = computed<GridColumn[]>(() => this.report()?.columns ?? []);
+  readonly workbookDivisions = computed<GridDivision[]>(() => this.report()?.divisionsAll ?? []);
+
+  /** Tabs the stored-batch grid must offer: every period the system collects,
+   * so a batch that wrote only one of them still shows the other as empty
+   * rather than looking complete. */
+  readonly storedTabs = computed<readonly string[]>(
+    () => this.detail()?.periods ?? this.collectionPeriods(),
+  );
+  readonly storedColumns = computed<GridColumn[]>(() => this.detail()?.columns ?? []);
+  readonly storedDivisions = computed<GridDivision[]>(() => this.detail()?.divisionsAll ?? []);
+
+  readonly weightRows = computed<WeightRow[]>(() => this.report()?.weights ?? []);
+  readonly weightsTabPresent = computed(() => this.report()?.weightsTabPresent ?? false);
+  /** Shown on the WEIGHTS tab so the count is visible without opening it. */
+  readonly weightsBadge = computed<string | null>(() => {
+    if (!this.weightsTabPresent()) return null;
+    const n = this.weightRows().filter((w) => w.status === 'changed' || w.status === 'new').length;
+    return n ? String(n) : null;
+  });
 
   onCellEdit(r: PreviewRow, raw: string): void {
     const key = this.rowKey(r);

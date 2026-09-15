@@ -50,7 +50,14 @@ export interface Taxonomy {
   readonly provinces: readonly CodeName[];
   readonly sectors: readonly SectorOption[];
   readonly hazards: readonly CodeName[];
-  /** Only periods that actually hold results, so no selection returns an empty map. */
+  /** Only periods that actually hold RESULTS, so no selection returns an empty
+   * map. Right for reading scores, wrong for collecting or reviewing data. */
   readonly periods: readonly string[];
+  /** Every period the system COLLECTS for, scored or not. Deriving the list
+   * from results is circular the moment a person has to CHOOSE a period in
+   * order to enter data for it: 2026-2030 held no results, so it appeared
+   * nowhere, so its tab never showed in the import grid, so the data that
+   * would have given it results could not be entered. */
+  readonly collectionPeriods: readonly string[];
   readonly divisionCoverage: DivisionCoverageCounts;
 }

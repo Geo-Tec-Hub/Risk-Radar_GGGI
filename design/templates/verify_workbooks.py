@@ -110,6 +110,15 @@ for folder in sorted(os.listdir(GENERATED)):
     fdir = os.path.join(GENERATED, folder)
     if not os.path.isdir(fdir):
         continue
+    # A leading underscore marks a folder that is deliberately not a province.
+    # `_climate` holds the nine province-wide climate workbooks, which carry no
+    # sector and therefore have nothing for this script's per-profile row and
+    # code checks to match against. Without this it reported them as "folder
+    # does not match any province in the register" on every run -- a permanent
+    # failure that made a clean pass impossible and so made the whole check
+    # easy to ignore.
+    if folder.startswith("_"):
+        continue
     province = province_of(folder)
     if province is None:
         problems.append((folder, f"folder does not match any province in the register"))

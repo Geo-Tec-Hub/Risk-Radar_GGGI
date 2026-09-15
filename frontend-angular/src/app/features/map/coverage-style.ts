@@ -106,6 +106,20 @@ export function styleForState(
   });
 }
 
+/**
+ * The 5-band vulnerability ramp, for the legend.
+ *
+ * Taken straight from BANDS so the legend can never drift from the map fill.
+ * `range` is the fixed interval on the rescaled 0-1 index (FR-4.13b) -- the
+ * thresholds are configuration, not data-derived, so printing them is safe.
+ */
+export const BAND_LEGEND = BANDS.map((b) => ({
+  band: b.band,
+  label: b.label,
+  swatch: b.light,
+  range: `${b.min.toFixed(1)}\u2013${b.max.toFixed(1)}`,
+}));
+
 export const COVERAGE_LEGEND = [
   { state: 'assessed' as const, label: 'Assessed', swatch: BAND_COLORS[3], hint: 'coloured by band' },
   { state: 'pending' as const, label: 'Pending', swatch: PENDING_FILL, hint: 'dashed outline' },

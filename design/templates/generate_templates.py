@@ -12,10 +12,12 @@ from raw sheet labels. Codes are now the official catalog codes.
 
 Each workbook contains:
   Period tabs - one Data tab per year range (expert input 2026-07-18: data
-            arrive as ranges). One row per DS division (pre-filled, locked),
-            one column per profile variable (official catalog code), editable
-            value cells only. YEAR_START/YEAR_END pre-filled + locked so the
-            importer can cross-check tab name against columns.
+            arrive as ranges). One row per DS division (pre-filled), one column
+            per profile variable (official catalog code). NOTHING IS SHEET-
+            PROTECTED (14 Sep 2026) -- the pre-filled columns are a convention
+            the importer enforces, not a lock Excel enforces; see the note on
+            UNLOCKED below. YEAR_START/YEAR_END are pre-filled for reference,
+            but the TAB NAME is what decides the period.
   WEIGHTS - per-variable weight sheet. Legacy weights carried forward from the
             9-province workbooks where the variable still exists; blank where
             the variable is new. Live SUM check per domain (must reach 100).
@@ -35,7 +37,7 @@ re-running is the only step needed to change the row set.
 Usage:
     python generate_templates.py              # all 243 workbooks
     python generate_templates.py --limit 3    # first 3 only (smoke test)
-    python generate_templates.py --unlocked    # fully editable review copies
+    python generate_templates.py --unlocked    # review copies (structure open for mark-up)
 """
 import argparse
 import csv
@@ -66,8 +68,30 @@ OUTDIR = os.path.join(HERE, "generated")
 # is needed and no year can be counted twice.
 PERIODS = [(2021, 2025), (2026, 2030)]
 
-# Set by --unlocked: emit review copies with no sheet protection at all, so the
-# expert panel can restructure freely. Default False = the locked collection set.
+# NO TEMPLATE IS SHEET-PROTECTED ANY MORE (owner, 14 Sep 2026). Every tab of
+# every issue is editable, including the pre-filled DS_CODE / DS_DIVISION /
+# DISTRICT / YEAR columns and the WEIGHTS tab.
+#
+# The lock used to sit on the collection set, on the reasoning that it stops a
+# collector nudging a DS_CODE out of line. It also stopped the legitimate
+# corrections, and that cost more than it saved: the returned Central files
+# carry YEAR_START/YEAR_END of 2020/2025 on tabs the panel had renamed to
+# 2021-2025, purely because those cells were locked at the moment of the
+# rename. A guard rail that leaves wrong data in the file is not a guard rail.
+#
+# Nothing is lost, because the lock was never the check. `_META` states the
+# column contract and the importer refuses a renamed, reordered, added or
+# deleted column by name; a DS_CODE that is not a division of the province is
+# refused per row; the tab name, not the YEAR cells, decides the period; and
+# nothing loads partially. A structural mistake is now caught and explained
+# instead of prevented.
+#
+# So UNLOCKED no longer controls protection. What it still controls is the
+# REVIEW-COPY CONTRACT: it stamps `_META protection = unlocked-review`, which
+# tells the importer this file's own `_META` no longer describes its columns
+# and to validate against the profile instead (load_template.py), and it
+# rewrites the README to invite structural mark-up. That distinction is the
+# whole point of the flag and is unaffected by the lock going away.
 UNLOCKED = False
 
 PROV_CODE = {"Central": "CEN", "Eastern": "EAS", "North Central": "NCE",
@@ -316,8 +340,10 @@ def fill_data_sheet(ws, period, ctx, params, heads, dsd_rows):
         ws.column_dimensions[col].width = w
     for ci in range(6, ncols + 1):
         ws.column_dimensions[get_column_letter(ci)].width = 16
-    ws.protection.sheet = not UNLOCKED
-    ws.protection.formatCells = False
+    # NOT PROTECTED (owner, 14 Sep 2026). See the note on UNLOCKED above: the
+    # sheet lock is gone from the default issue as well, so this line no longer
+    # depends on the flag.
+    ws.protection.sheet = False
 
 
 def fill_weights_sheet(ws, ctx, params):
@@ -388,8 +414,10 @@ def fill_weights_sheet(ws, ctx, params):
 
     for col, w in zip("ABCDEFG", (50, 56, 12, 16, 14, 20, 46)):
         ws.column_dimensions[col].width = w
-    ws.protection.sheet = not UNLOCKED
-    ws.protection.formatCells = False
+    # Unprotected like the data tabs. This one had the weakest case for a lock
+    # anyway: the whole tab is a proposal for a person to confirm in the app,
+    # and nothing typed here is written by the importer.
+    ws.protection.sheet = False
 
 
 def fill_readme(ws, ctx, params, heads):
@@ -408,21 +436,28 @@ def fill_readme(ws, ctx, params, heads):
         ("2b. The two periods are contiguous and do not overlap (changed 2026-09-03 at the "
          "Central panel's request - the old 2020-2025 / 2025-2030 pair shared the year 2025 "
          "and needed a tie-break). Every year belongs to exactly one tab.", F_BODY),
-        ("3. Edit ONLY the yellow cells. Division codes, names, district and the period "
-         "columns are pre-filled and locked.", F_BODY)
+        ("3. The yellow cells are where data belongs. Division codes, names, district and "
+         "the period columns are pre-filled - change one only to correct a genuine error. "
+         "Nothing in this file is protected, so please treat that as the instruction it "
+         "is; the importer checks those columns and will refuse what it cannot match.",
+         F_BODY)
         if not UNLOCKED else
-        ("3. REVIEW COPY - nothing is locked. The yellow cells are still where data "
-         "belongs, but every cell, header and tab can be changed so the panel can mark "
-         "up structure as well as values. Return the marked-up file; the finalised "
-         "version will be re-issued locked for collection.", F_WARN),
+        ("3. REVIEW COPY - structure is open for mark-up. The yellow cells are still where "
+         "data belongs, but this issue invites changes to columns, headers and tabs as "
+         "well as values. Return the marked-up file; the finalised version is re-issued "
+         "for collection.", F_WARN),
         ("4. Enter RAW values in the variable's natural unit - do NOT normalize, index or "
          "rank. The system does that.", F_BODY),
-        ("5. Do not add, remove, rename or reorder columns or tabs. Files with changed "
-         "structure are rejected on import.", F_BODY)
+        ("5. Do not add, remove, rename or reorder columns or tabs. Excel will now let "
+         "you - the sheet is not protected - but the importer will not: the hidden _META "
+         "tab states this file's column contract and a file whose structure has changed "
+         "is refused, naming what changed. Nothing loads partially, so a rejected file "
+         "loads nothing at all.", F_BODY)
         if not UNLOCKED else
         ("5. Structural changes ARE invited in this review copy - add, rename or reorder "
-         "columns and note what you changed. This file is NOT importable; the locked "
-         "re-issue is.", F_BODY),
+         "columns and note what you changed. A review copy is validated against the "
+         "profile's current variable list rather than against its own _META, so the "
+         "changes that were asked for are not held against it.", F_BODY),
         ("6. The grey row on each tab is an example of expected formatting; the importer "
          "ignores it.", F_BODY),
         ("7. Leave a value blank if genuinely unavailable and say why in NOTES.", F_BODY),
@@ -534,10 +569,14 @@ def main():
     ap.add_argument("--resume", action="store_true",
                     help="skip jobs whose workbook already exists")
     ap.add_argument("--unlocked", action="store_true",
-                    help="emit fully editable review copies: no sheet protection "
-                         "on any tab. Use while the expert panel is still revising "
-                         "the templates; re-run without the flag to restore the "
-                         "locked collection set.")
+                    help="emit REVIEW copies: stamps _META protection="
+                         "unlocked-review, so the importer validates columns "
+                         "against the profile rather than against the file's own "
+                         "_META, and rewrites the README to invite structural "
+                         "mark-up. No longer about sheet protection -- no issue "
+                         "is sheet-protected any more. Use while the expert panel "
+                         "is revising the templates; re-run without the flag for "
+                         "the collection set.")
     args = ap.parse_args()
 
     global UNLOCKED

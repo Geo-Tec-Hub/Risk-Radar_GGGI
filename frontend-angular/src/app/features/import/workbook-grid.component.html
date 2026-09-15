@@ -1,0 +1,203 @@
+<div class="wg" [class.wg--full]="fullScreen()" [class.wg--compact]="compact()">
+  <!-- The tab strip mirrors the workbook, so an officer looking for "the
+       2026-2030 tab" finds something called that. -->
+  <div class="wg__tabs" role="tablist">
+    @for (p of periods(); track p) {
+      <button
+        type="button"
+        role="tab"
+        class="wg__tab"
+        [class.wg__tab--on]="activeTab() === p"
+        [attr.aria-selected]="activeTab() === p"
+        (click)="activeTab.set(p)"
+      >
+        {{ p }}
+      </button>
+    }
+    @if (showWeightsTab()) {
+      <button
+        type="button"
+        role="tab"
+        class="wg__tab wg__tab--weights"
+        [class.wg__tab--on]="onWeights()"
+        [attr.aria-selected]="onWeights()"
+        (click)="activeTab.set('WEIGHTS')"
+      >
+        WEIGHTS
+        @if (weightsBadge(); as b) {
+          <span class="wg__badge">{{ b }}</span>
+        }
+      </button>
+    }
+  </div>
+
+  @if (onWeights()) {
+    <div class="wg__panel"><ng-content select="[weightsPanel]" /></div>
+  } @else if (activeTab() === null) {
+    <p class="wg__empty">This workbook carried no values.</p>
+  } @else {
+    <div class="wg__bar">
+      <input
+        type="search"
+        class="wg__search"
+        placeholder="Find a division…"
+        [ngModel]="filter()"
+        name="wgFilter"
+        (ngModelChange)="filter.set($event)"
+      />
+      <label class="wg__toggle">
+        <input
+          type="checkbox"
+          [ngModel]="onlyIssues()"
+          name="wgOnlyIssues"
+          (ngModelChange)="onlyIssues.set($event)"
+        />
+        Only rows with something to look at
+      </label>
+      <span class="wg__count">
+        {{ divisions().length }} divisions × {{ variables().length }} variables ·
+        {{ filled() }} of {{ expected() }} cells filled
+        @if (totalMissing()) {
+          · <strong class="wg__count-bad">{{ totalMissing() }} empty</strong>
+        }
+        @if (addedCount()) {
+          · <strong class="wg__count-add">{{ addedCount() }} added here</strong>
+        }
+      </span>
+
+      <label class="wg__toggle">
+        <input
+          type="checkbox"
+          [ngModel]="compact()"
+          name="wgCompact"
+          (ngModelChange)="compact.set($event)"
+        />
+        Compact
+      </label>
+
+      <!-- Expands over the page rather than opening a real second window: a new
+           window would lose the unsaved corrections held in this component. -->
+      <button
+        type="button"
+        class="wg__expand"
+        (click)="fullScreen.set(!fullScreen())"
+        [title]="fullScreen() ? 'Back to the page (Esc)' : 'Fill the screen'"
+      >
+        {{ fullScreen() ? '✕ Close full screen' : '⤢ Full screen' }}
+      </button>
+    </div>
+
+    <!-- CELL COLOURS ARE NEVER THE ONLY SIGNAL. Each state also carries a
+         title and a distinct left border, so the grid survives greyscale and
+         colour-vision deficiency -- the same rule the map legend follows. -->
+    <ul class="wg__key">
+      <li><span class="wg__chip wg__chip--missing"></span> empty — no value in the file</li>
+      @if (mode() === 'preview') {
+        <li><span class="wg__chip wg__chip--new"></span> new</li>
+        <li><span class="wg__chip wg__chip--changed"></span> changes what is stored</li>
+      }
+      <li><span class="wg__chip wg__chip--edited"></span> corrected here</li>
+      @if (allowAdd()) {
+        <li><span class="wg__chip wg__chip--added"></span> added here — was blank in the file</li>
+      }
+    </ul>
+
+    @if (tabIsEmpty()) {
+      <p class="wg__notice">
+        @if (mode() === 'stored') {
+          Nothing has been imported for <strong>{{ activeTab() }}</strong> yet. Upload the
+          workbook's {{ activeTab() }} tab to fill it in.
+        } @else {
+          The <strong>{{ activeTab() }}</strong> tab is in this workbook but carried no values at
+          all.
+          @if (allowAdd() && editable()) {
+            You can type them straight into the grid below, or check the file if the data was
+            supposed to be in it.
+          } @else {
+            If that period was meant to be filled in, the data has not come through — check the
+            file before importing.
+          }
+        }
+      </p>
+    }
+
+    <div class="wg__scroll">
+      <table class="wg__table">
+        <thead>
+          <tr>
+            <th class="wg__corner">Division</th>
+            @for (c of columnIssues(); track c.column.code) {
+              <th
+                class="wg__colhead"
+                [class.wg__colhead--bad]="c.missing === c.total && c.total > 0"
+                [class.wg__colhead--hazard]="c.column.domain === 'hazard'"
+                [title]="fullTitle(c.column)"
+              >
+                @if (c.column.domain) {
+                  <span class="wg__coldomain">{{ c.column.domain }}</span>
+                }
+                <span class="wg__colname">{{ c.column.name }}</span>
+                @if (c.column.unit) {
+                  <span class="wg__colunit">({{ c.column.unit }})</span>
+                }
+                @if (c.column.hint) {
+                  <span class="wg__colhint">&raquo; {{ c.column.hint }}</span>
+                }
+                @if (c.column.name !== c.column.code) {
+                  <span class="wg__colcode">{{ label(c.column.code) }}</span>
+                }
+                @if (c.missing) {
+                  <span
+                    class="wg__colissue"
+                    [title]="c.missing + ' of ' + c.total + ' divisions have no value'"
+                  >
+                    ⚠ {{ c.missing }} empty
+                  </span>
+                } @else if (c.changed) {
+                  <span class="wg__colissue wg__colissue--chg">{{ c.changed }} changed</span>
+                } @else {
+                  <span class="wg__colissue wg__colissue--ok">complete</span>
+                }
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of visibleDivisions(); track d.code; let i = $index) {
+            <tr>
+              <th class="wg__rowhead" scope="row">
+                {{ d.name }} <span class="wg__code">{{ d.code }}</span>
+              </th>
+              @for (rc of grid()[i]; track $index) {
+                <td class="wg__cell" [class]="'wg__cell--' + rc.state" [title]="rc.title">
+                  @if (editable() && (rc.cell !== null || allowAdd())) {
+                    <!-- A blank cell gets an input too, so a gap can be filled
+                         where it is seen. The placeholder keeps blank looking
+                         blank: an empty box, never a 0. -->
+                    <input
+                      type="number"
+                      step="any"
+                      class="wg__input"
+                      [class.wg__input--empty]="rc.shown === null"
+                      [value]="rc.shown"
+                      placeholder="—"
+                      (change)="onEdit(rc, $any($event.target).value)"
+                    />
+                  } @else if (rc.cell === null) {
+                    <span class="wg__blank" aria-label="no value">—</span>
+                  } @else {
+                    {{ rc.shown }}
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (visibleDivisions().length === 0) {
+      <p class="wg__empty">No division matches that filter.</p>
+    }
+  }
+</div>

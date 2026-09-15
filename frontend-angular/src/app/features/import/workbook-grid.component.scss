@@ -1,0 +1,390 @@
+.wg {
+  font-size: 0.875rem;
+}
+
+/* FULL SCREEN. A workbook is 20-odd variables wide and the import page is not;
+   inside the page there simply is no width to give the grid. This lifts it out
+   over everything so the whole period tab can be read at once. Esc closes it. */
+.wg--full {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #fff;
+  padding: 1rem 1.25rem;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The scroll box is the only thing that should grow, so the toolbar and the
+   key stay put and the grid takes every remaining pixel of height. */
+.wg--full .wg__scroll {
+  flex: 1 1 auto;
+  max-height: none;
+}
+
+/* ---- tabs ------------------------------------------------------------- */
+.wg__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  border-bottom: 2px solid #dee2e6;
+  margin-bottom: 0.75rem;
+}
+
+.wg__tab {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid #dee2e6;
+  border-bottom: none;
+  border-radius: 5px 5px 0 0;
+  background: #f1f3f5;
+  color: #495057;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: -2px;
+}
+
+.wg__tab:hover { background: #e9ecef; }
+
+.wg__tab--on {
+  background: #fff;
+  color: #1c7ed6;
+  border-bottom: 2px solid #fff;
+}
+
+.wg__tab--weights { margin-left: 0.5rem; }
+
+.wg__badge {
+  display: inline-block;
+  margin-left: 0.375rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: #e7f5ff;
+  color: #1864ab;
+  font-size: 0.75rem;
+}
+
+/* ---- controls --------------------------------------------------------- */
+.wg__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.wg__search {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  min-width: 14rem;
+  font: inherit;
+}
+
+.wg__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #495057;
+}
+
+.wg__count {
+  margin-left: auto;
+  color: #868e96;
+  font-size: 0.8125rem;
+}
+
+.wg__count-bad { color: #c92a2a; }
+
+.wg__key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  color: #868e96;
+  font-size: 0.75rem;
+}
+
+.wg__key li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.wg__chip {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid #adb5bd;
+  display: inline-block;
+}
+
+.wg__chip--missing { background: #f1f3f5; border-style: dashed; }
+.wg__chip--new     { background: #ebfbee; border-color: #40c057; }
+.wg__chip--changed { background: #fff4e6; border-color: #f76707; }
+.wg__chip--edited  { background: #e7f5ff; border-color: #1c7ed6; }
+
+/* ---- the grid --------------------------------------------------------- */
+/* Both axes scroll inside this box and both headers stay put, so the division
+   you are reading and the variable you are reading are always on screen
+   together. Losing either one is what makes a wide table unusable. */
+.wg__scroll {
+  max-height: 32rem;
+  overflow: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.wg__table {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8125rem;
+}
+
+.wg__table th,
+.wg__table td {
+  border-right: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+  padding: 0.3rem 0.5rem;
+  white-space: nowrap;
+}
+
+.wg__corner {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  background: #f8f9fa;
+  text-align: left;
+  min-width: 13rem;
+  border-right: 2px solid #ced4da;
+}
+
+.wg__colhead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f8f9fa;
+  text-align: left;
+  vertical-align: bottom;
+  /* Narrow, because the header no longer has to fit on one line. */
+  min-width: 7rem;
+  max-width: 9.5rem;
+  /* The one place in the table where wrapping is wanted: the full variable code
+     wraps over as many lines as it needs rather than being cut off. Codes
+     differ at the END, so a truncated header was actively misleading -- two
+     different variables rendered identically. */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  padding-top: 0.4rem;
+}
+
+.wg__colhead--bad { background: #fff5f5; }
+
+/* The header now carries what the template's sub-header row carries: domain,
+   human name, unit, entry rule -- then the catalogue code last, because the
+   code is what a person needs least. Everything is small and wraps; nothing is
+   truncated. The full text is also in the cell's title. */
+.wg__coldomain {
+  display: block;
+  font-size: 0.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #1c7ed6;
+}
+
+.wg__colhead--hazard .wg__coldomain {
+  color: #e8590c;
+}
+
+.wg__colname {
+  display: block;
+  font-weight: 600;
+  font-size: 0.625rem;
+  line-height: 1.3;
+  color: #212529;
+}
+
+.wg__colunit {
+  display: block;
+  font-size: 0.5625rem;
+  color: #868e96;
+}
+
+.wg__colhint {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.5rem;
+  line-height: 1.25;
+  font-style: italic;
+  color: #5c940d;
+}
+
+.wg__colcode {
+  display: block;
+  margin-top: 0.15rem;
+  font-weight: 400;
+  font-size: 0.5rem;
+  line-height: 1.2;
+  color: #adb5bd;
+  letter-spacing: 0.01em;
+}
+
+.wg__colissue {
+  display: block;
+  font-weight: 400;
+  font-size: 0.5625rem;
+  margin-top: 0.15rem;
+  color: #c92a2a;
+}
+
+.wg__colissue--chg { color: #e8590c; }
+.wg__colissue--ok  { color: #2f9e44; }
+
+.wg__rowhead {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fff;
+  text-align: left;
+  font-weight: 500;
+  border-right: 2px solid #ced4da;
+}
+
+.wg__code {
+  color: #adb5bd;
+  font-size: 0.75rem;
+}
+
+.wg__cell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* State is carried by a left border as well as a fill, so it reads in
+   greyscale and under colour-vision deficiency. */
+.wg__cell--missing { background: #f1f3f5; border-left: 3px dashed #ced4da; }
+.wg__cell--new     { background: #ebfbee; border-left: 3px solid #40c057; }
+.wg__cell--changed { background: #fff4e6; border-left: 3px solid #f76707; }
+.wg__cell--edited  { background: #e7f5ff; border-left: 3px solid #1c7ed6; }
+.wg__cell--invalid { background: #ffe3e3; border-left: 3px solid #e03131; }
+.wg__cell--same    { border-left: 3px solid transparent; }
+
+.wg__blank { color: #ced4da; }
+
+.wg__input {
+  width: 6rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  font: inherit;
+  text-align: right;
+}
+
+.wg__empty {
+  color: #868e96;
+  font-style: italic;
+  margin: 0.5rem 0;
+}
+
+.wg__panel { padding-top: 0.25rem; }
+
+/* ---- toolbar affordances --------------------------------------------- */
+.wg__expand {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: #fff;
+  color: #1c7ed6;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wg__expand:hover {
+  background: #e7f5ff;
+  border-color: #1c7ed6;
+}
+
+.wg__notice {
+  margin: 0 0 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #fff9db;
+  border-left: 3px solid #f59f00;
+  border-radius: 0 4px 4px 0;
+  color: #7c5a00;
+  line-height: 1.45;
+}
+
+/* ---- compact density --------------------------------------------------
+   Squeezes columns so more variables reach the screen at once. Paired with
+   full screen this is what gets a 20-variable profile into one view. */
+.wg--compact .wg__table th,
+.wg--compact .wg__table td {
+  padding: 0.15rem 0.3rem;
+}
+
+.wg--compact .wg__colhead {
+  min-width: 5rem;
+  max-width: 6.5rem;
+}
+
+/* Compact keeps the NAME and the warning count and drops the rest -- the
+   things you scan a wide grid for are which variable it is and whether it has
+   a problem. */
+.wg--compact .wg__colunit,
+.wg--compact .wg__colhint,
+.wg--compact .wg__colcode,
+.wg--compact .wg__coldomain {
+  display: none;
+}
+
+.wg--compact .wg__corner,
+.wg--compact .wg__rowhead {
+  min-width: 9.5rem;
+  font-size: 0.75rem;
+}
+
+.wg--compact .wg__cell {
+  font-size: 0.75rem;
+}
+
+.wg--compact .wg__input {
+  width: 4rem;
+  font-size: 0.75rem;
+}
+
+.wg--compact .wg__code {
+  display: none;
+}
+
+.wg__cell--added {
+  background: #f3f0ff;
+  border-left: 3px solid #7048e8;
+}
+
+.wg__chip--added {
+  background: #f3f0ff;
+  border-color: #7048e8;
+}
+
+.wg__count-add {
+  color: #5f3dc4;
+}
+
+/* An empty cell that can be typed into looks empty, never zero. */
+.wg__input--empty {
+  background: #fcfcfd;
+  border-style: dashed;
+  color: #868e96;
+}
+
+.wg__input::placeholder {
+  color: #ced4da;
+}

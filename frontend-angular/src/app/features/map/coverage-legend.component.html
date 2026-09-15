@@ -3,6 +3,26 @@
     Coverage — {{ indexScope() === 'provincial' ? 'provincial index' : 'national index' }}
   </h3>
 
+  <p class="legend__subtitle">Vulnerability level of assessed DS divisions</p>
+
+  <ul class="legend__ramp">
+    @for (b of bands; track b.band) {
+      <li class="legend__ramp-step">
+        <span class="legend__ramp-swatch" [style.background]="b.swatch"></span>
+        <span class="legend__ramp-label">{{ b.label }}</span>
+        <span class="legend__ramp-range">{{ b.range }}</span>
+      </li>
+    }
+  </ul>
+  <p class="legend__ramp-note">
+    Darker red = more vulnerable. Lighter red = less vulnerable. Scores are the
+    rescaled 0&ndash;1 index within the
+    {{ indexScope() === 'provincial' ? 'province' : 'country' }}; band
+    thresholds are fixed and do not change as new data arrives.
+  </p>
+
+  <p class="legend__subtitle">Data coverage</p>
+
   <ul class="legend__states">
     @for (item of legend; track item.state) {
       <li class="legend__state">

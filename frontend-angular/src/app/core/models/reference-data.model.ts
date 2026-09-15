@@ -139,5 +139,18 @@ export const INDEX_SCOPES: readonly IndexScope[] = ['provincial', 'national'];
 
 export type AdminLevel = 'province' | 'district' | 'ds_division';
 
-/** The two collection periods carried by every template workbook (SRS §2.5). */
-export const PERIODS: readonly string[] = ['2020-2025', '2025-2030'];
+/**
+ * The two collection periods carried by every template workbook (SRS §2.5).
+ *
+ * CORRECTED 14 Sep 2026. These read `2020-2025` / `2025-2030` -- the pair the
+ * Central panel retired on 3 Sep 2026 because it shared the year 2025 and
+ * needed a "later period wins" tie-break. Every template, every _META block and
+ * the whole backend moved to the contiguous `2021-2025` / `2026-2030` at the
+ * time; this constant did not, and the Coverage page reads it, so that page has
+ * been offering two periods that no longer exist anywhere in the data.
+ *
+ * Prefer `taxonomy.collectionPeriods` from the API wherever a taxonomy is in
+ * hand -- one source, and it moves when the data does. This stays as the
+ * offline fallback for the screens that have no taxonomy loaded.
+ */
+export const PERIODS: readonly string[] = ['2021-2025', '2026-2030'];

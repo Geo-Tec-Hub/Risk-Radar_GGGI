@@ -1,0 +1,147 @@
+<div class="wc">
+  @if (context() === 'stored') {
+    <p class="wc__note wc__note--muted">
+      Weights are not stored with an import. They belong to the profile and are versioned there
+      every time they change, so this batch carries values only.
+    </p>
+    @if (editorLink(); as qp) {
+      <a class="wc__cta" routerLink="/weights" [queryParams]="qp">Open the weights editor →</a>
+    }
+  } @else if (!tabPresent() && rows().length === 0) {
+    <p class="wc__note wc__note--muted">
+      This workbook has no WEIGHTS tab, so it proposed no weights.
+    </p>
+  } @else if (rows().length === 0) {
+    <p class="wc__note wc__note--muted">
+      The WEIGHTS tab was read but none of its rows match a variable of this profile.
+    </p>
+  } @else {
+    <p class="wc__lead">
+      Type the weights here and save — this writes through the same audited path as the weights
+      editor, creating a new profile version. The workbook's proposals are filled in for you;
+      {{ wouldChange() }} of them differ from what is saved today.
+    </p>
+
+    <ul class="wc__totals">
+      @for (d of domains(); track d) {
+        <li class="wc__total" [class.wc__total--bad]="!whole(d)">
+          <span class="wc__total-dom">{{ d }}</span>
+          <span class="wc__total-num">{{ total(d) }}</span>
+          @if (whole(d)) {
+            <span class="wc__ok">✓ totals 100</span>
+          } @else if (unweighted(d)) {
+            <span class="wc__bad">⚠ {{ unweighted(d) }} variable(s) still unweighted</span>
+          } @else {
+            <span class="wc__bad">⚠ must total 100, not {{ total(d) }}</span>
+          }
+          @if (unweighted(d)) {
+            <button type="button" class="wc__mini" (click)="fillEvenly(d)">
+              Spread the remainder evenly
+            </button>
+          }
+        </li>
+      }
+    </ul>
+
+    @for (d of domains(); track d) {
+      <h4 class="wc__h">{{ d === 'hazard' ? 'Hazard' : 'Exposure' }}</h4>
+      <div class="wc__scroll">
+        <table class="wc__table">
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th class="wc__num">Legacy</th>
+              <th class="wc__num">Saved now</th>
+              <th class="wc__num">From the file</th>
+              <th class="wc__num">Weight %</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (w of rowsFor(d); track w.variableCode) {
+              <tr [class]="'wc__row--' + w.status" [class.wc__row--blank]="value(w) === null">
+                <td>
+                  {{ w.variableName ?? w.variableCode }}
+                  <span class="wc__code">{{ w.variableCode }}</span>
+                </td>
+                <td class="wc__num wc__muted">{{ w.legacyPct ?? '—' }}</td>
+                <td class="wc__num">{{ w.currentPct ?? '—' }}</td>
+                <td class="wc__num wc__muted">{{ w.proposedPct ?? '—' }}</td>
+                <td class="wc__num">
+                  <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    max="100"
+                    class="wc__input"
+                    [class.wc__input--blank]="value(w) === null"
+                    [value]="value(w)"
+                    placeholder="—"
+                    (change)="onWeight(w, $any($event.target).value)"
+                  />
+                </td>
+                <td class="wc__status">
+                  @if (value(w) === null) {
+                    <span class="wc__warn">⚠ unweighted</span>
+                  } @else {
+                    {{ label(w.status) }}
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (unknown().length) {
+      <p class="wc__note wc__note--warn">
+        ⚠ {{ unknown().length }} row(s) in the WEIGHTS tab name a variable this profile does not
+        carry, so they cannot be weighted here:
+        <span class="wc__codes">
+          @for (w of unknown(); track w.variableCode) {
+            <span class="wc__code">{{ w.variableCode }}</span>
+          }
+        </span>
+        Add the variable to the profile first, then set its weight.
+      </p>
+    }
+
+    <div class="wc__actions">
+      <button
+        type="button"
+        class="wc__cta"
+        [disabled]="!canSave() || saving()"
+        (click)="save()"
+        [title]="canSave() ? 'Writes a new profile version' : 'Every domain must total 100 with no variable left unweighted'"
+      >
+        {{ saving() ? 'Saving…' : 'Save these weights' }}
+      </button>
+      @if (dirty()) {
+        <button type="button" class="wc__mini" (click)="reset()">Discard my changes</button>
+      }
+      @if (!scope()) {
+        <span class="wc__warn">Pick a province, sector and hazard above to save.</span>
+      } @else if (!canSave()) {
+        <span class="wc__warn">
+          ⚠ Not saveable yet — each domain must total 100 with every variable weighted.
+        </span>
+      }
+      @if (editorLink(); as qp) {
+        <a class="wc__link" routerLink="/weights" [queryParams]="qp">
+          Full editor (exclusions, notes, history) →
+        </a>
+      }
+    </div>
+
+    @if (saveError(); as m) {
+      <p class="wc__note wc__note--warn">{{ m }}</p>
+    }
+    @if (savedVersion(); as v) {
+      <p class="wc__saved">
+        ✓ Saved as profile version {{ v }}. The map keeps its current scores until the province is
+        recomputed.
+      </p>
+    }
+  }
+</div>

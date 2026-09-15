@@ -1,0 +1,45 @@
+# Risk Radar — the FastAPI service behind nginx.
+#   sudo cp riskradar-api.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now riskradar-api
+
+[Unit]
+Description=Risk Radar API (FastAPI/uvicorn)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=riskradar
+Group=riskradar
+WorkingDirectory=/opt/riskradar/backend
+
+# Connection settings. NO PASSWORD HERE, deliberately -- see env.example. The
+# password belongs in ~riskradar/.pgpass (chmod 600), which both psql and
+# asyncpg read on their own, so it never enters a unit file, the environment,
+# or a process listing.
+Environment="PGHOST=localhost"
+Environment="PGPORT=5432"
+Environment="PGDATABASE=riskradar"
+Environment="PGUSER=riskradar_app"
+Environment="CORS_ORIGIN=https://riskradar.geoinfobox.com"
+Environment="SESSION_COOKIE_NAME=rr_session"
+Environment="SESSION_LIFETIME_HOURS=24"
+Environment="SESSION_COOKIE_SECURE=true"
+
+# Bound to loopback on purpose: nginx is the only thing that should reach it.
+# Binding 0.0.0.0 would expose the API on port 8000 without TLS, beside the
+# site that has it.
+ExecStart=/opt/riskradar/venv/bin/uvicorn app.main:app \
+    --host 127.0.0.1 --port 8000 --workers 2 --proxy-headers \
+    --forwarded-allow-ips=127.0.0.1
+
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

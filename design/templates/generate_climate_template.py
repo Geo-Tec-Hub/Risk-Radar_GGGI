@@ -125,7 +125,11 @@ def build(province):
                         ">> enter a TYPICAL YEAR (not a period total)")
                 sub = "%s: %s\n%s" % (grp, name, note)
             elif c in FIXED:
-                sub = "do not edit"
+                # No longer enforced by a sheet lock, so it has to say WHY, and
+                # say what happens if it is edited anyway. "do not edit" on an
+                # editable cell is an instruction people reasonably ignore.
+                sub = ("pre-filled - change only to correct an error; "
+                       "the importer checks it")
             else:
                 sub = "origin of the numbers" if c == "DATA_SOURCE" else "optional"
             s = ws.cell(row=3, column=j, value=sub)
@@ -150,12 +154,30 @@ def build(province):
                 if cols[j-1] not in TAIL:
                     c.fill = ENTRY_FILL
 
-        # Locked by default; only the value cells above were unlocked. Excel's
-        # sheet protection is a guard rail, not security -- it stops a collector
-        # nudging a DS_CODE out of line, which is the mistake that actually
-        # happens.
-        ws.protection.sheet = True
-        ws.protection.enableFormatCells = False
+        # NOT PROTECTED (owner, 14 Sep 2026). The sheet lock used to be on here,
+        # with only the value cells unlocked, on the reasoning that it stops a
+        # collector nudging a DS_CODE out of line. In practice it stopped the
+        # legitimate edits too, and the cost of that turned out to be higher
+        # than the mistake it prevented: the returned Central files carry
+        # YEAR_START/YEAR_END of 2020/2025 on tabs the panel had renamed to
+        # 2021-2025, purely because those cells were locked when the rename
+        # happened and nobody could correct them. A guard rail that produces
+        # wrong data in the file is not a guard rail.
+        #
+        # Nothing is lost by removing it, because the lock was never the check.
+        # The real check is at import and it is stricter: `_META` states the
+        # column contract and a renamed, reordered or inserted column is a
+        # structural error naming the file; a DS_CODE that is not a division of
+        # this province is refused per row; and the tab name -- not these cells
+        # -- is what decides the period. So a structural mistake is now CAUGHT
+        # and explained rather than prevented, and a correction that ought to
+        # be possible is possible.
+        #
+        # `_META protection` stays "locked-issue": it describes the ISSUE (a
+        # collection file whose contract governs), not whether Excel has a
+        # password on it. "unlocked-review" means something different and would
+        # put the importer into review-copy mode.
+        ws.protection.sheet = False
         ws.freeze_panes = "F5"
         ws.column_dimensions["A"].width = 9
         ws.column_dimensions["B"].width = 24
@@ -188,6 +210,20 @@ def build(province):
      ("6. The three Hazard Index columns are composites. Fill them ONLY if your panel scores the", False),
      ("   hazard as a single index instead of from its parts. If you fill the parts, leave these blank.", False),
      ("7. The grey row is a formatting example; the importer ignores it.", False),
+     ("", False),
+     ("THIS FILE IS NOT PROTECTED", True),
+     ("Every cell is editable, including DS_CODE, DS_DIVISION, DISTRICT and the YEAR columns.", False),
+     ("That is deliberate - an earlier locked issue left wrong YEAR values in returned files", False),
+     ("because nobody could correct them. Please still treat the first five columns as", False),
+     ("pre-filled and change them only to fix a genuine error.", False),
+     ("", False),
+     ("The checks that matter run at import, not in Excel:", False),
+     ("  - the column set and its order are checked against this file's hidden _META;", False),
+     ("    a renamed, reordered, added or deleted column is refused and named.", False),
+     ("  - every DS_CODE must be a division of this province, or that row is refused.", False),
+     ("  - the PERIOD comes from the TAB NAME, not from the YEAR_START/YEAR_END cells.", False),
+     ("    If the two disagree the tab wins and the importer reports the disagreement.", False),
+     ("  - nothing loads partially: any error means the file loaded nothing.", False),
      ("", False),
      ("WHO CAN IMPORT THIS", True),
      ("Importing this file needs the hazard-data grant (app_user.may_write_hazard_domain).", False),
