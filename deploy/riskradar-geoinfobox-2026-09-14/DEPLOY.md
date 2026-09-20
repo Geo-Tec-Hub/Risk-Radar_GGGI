@@ -12,17 +12,17 @@ Angular frontend (pre-built) · FastAPI backend · PostgreSQL + PostGIS.
 ```
 frontend/   the built Angular app — static files, serve as-is, do not rebuild
 backend/    FastAPI source + requirements.txt + .env (ready to use) + env.example
-database/   schema scripts in apply order, plus the data dump (.dump and .sql)
+database/   the full database as SQL, plus schema scripts in apply order
 server/     nginx site config and the systemd unit
 ```
 
 ## Requirements on the server
 
 - **Python 3.12 or newer** (developed on 3.14)
-- **PostgreSQL 17 with PostGIS** — PostGIS is required, not optional.
-  The version matters: the dump was taken from **PostgreSQL 17.11**, and
-  `pg_restore` will not load it into an older server. If the host runs 15 or 16,
-  say so before they start and a plain-SQL export can be produced instead.
+- **PostgreSQL 15 or newer, with PostGIS** — PostGIS is required, not optional.
+  The database was exported from PostgreSQL 17.11, but as **plain SQL**, which
+  is far more forgiving about version than a binary dump. 17.x is the safest
+  match; 15 and 16 should load it without trouble.
 - **nginx**, and a TLS certificate for `riskradar.geoinfobox.com`
 - pgvector is **not** required (the one feature needing it is not in this release)
 
@@ -49,40 +49,37 @@ sudo -u postgres createdb -O riskradar_app riskradar
 sudo -u postgres psql -d riskradar -c "CREATE EXTENSION IF NOT EXISTS postgis;"
 ```
 
-**If `database/dump/riskradar.dump` is present** — the normal case — restore it.
-It contains the schema *and* the data:
+Load the database from the supplied SQL file:
 
 ```bash
-pg_restore -h localhost -U postgres -d riskradar --no-owner --role=riskradar_app \
-           -j 4 database/dump/riskradar.dump
+psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d riskradar \
+     -f database/dump/riskradar_full.sql
 ```
 
-If `pg_restore` reports a **server version mismatch**, the server is older than
-the 17.11 the dump came from. Restoring is not possible in that direction — ask
-for a plain-SQL export rather than trying to force it.
+This is a **plain SQL** dump, so it goes in with `psql` — not `pg_restore`,
+which only reads the binary formats and will reject this file.
 
-**A plain-SQL copy of the same database** is also included as
-`database/dump/riskradar_full.sql.gz`, for restoring with `psql` rather than
-`pg_restore` — useful if the server's client tools are a different major
-version:
+It is about 75 MB and takes a few minutes. `ON_ERROR_STOP=1` matters: without
+it psql keeps going after a failure and you end up with a half-loaded database
+that looks like it worked.
+
+The file was exported with `--no-owner --no-privileges`, so everything lands
+owned by whoever runs the restore. Grant the application role afterwards:
 
 ```bash
-gunzip -c database/dump/riskradar_full.sql.gz | psql -h localhost -U postgres -d riskradar
+psql -h localhost -U postgres -d riskradar -c \
+  "GRANT ALL ON ALL TABLES IN SCHEMA public TO riskradar_app;
+   GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO riskradar_app;
+   GRANT USAGE ON SCHEMA public TO riskradar_app;"
 ```
 
-Use ONE of the two, not both. The custom-format `.dump` is preferred where the
-versions allow it: it restores in parallel and handles PostGIS more reliably.
-
-**If neither dump is present**, build an empty schema instead:
-
-```bash
-cd database && ./apply_all.sh riskradar
-```
-
-Do **not** do both — the restore recreates everything the scripts create.
-
-An empty schema means an empty site: no provinces, sectors, hazards or DS
-divisions, so nothing can be imported until reference data is loaded.
+`database/sql/` holds the same schema as 15 numbered scripts, with
+`apply_all.sh` to run them in order. **You do not need them** — the SQL file
+above already contains the whole schema, and running both would only produce
+"already exists" errors. They are there as reference, and as the way to build
+an empty database if one is ever wanted. An empty one means an empty site: no
+provinces, sectors, hazards or DS divisions, and nothing importable until
+reference data is loaded.
 
 ## 2. Backend
 

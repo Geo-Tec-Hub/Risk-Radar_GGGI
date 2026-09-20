@@ -260,12 +260,30 @@
   @if (batches().length === 0) {
     <p class="import__muted">Nothing imported yet, or you are not signed in.</p>
   } @else {
+    <div class="import__batchfilter">
+      <label for="batch-filter">Find</label>
+      <input
+        id="batch-filter"
+        type="search"
+        placeholder="profile or file name, e.g. HUMAN_SETTLEMENTS or paddy"
+        [ngModel]="batchFilter()"
+        (ngModelChange)="batchFilter.set($event)"
+      />
+      <span class="import__muted">
+        {{ visibleBatches().length }} of {{ batches().length }} in this province
+      </span>
+    </div>
+  }
+  @if (visibleBatches().length === 0 && batches().length > 0) {
+    <p class="import__muted">No import matches that text.</p>
+  }
+  @if (visibleBatches().length > 0) {
     <table class="import__batches">
       <thead>
         <tr><th>File</th><th>Profile</th><th>Status</th><th>Read</th><th>Loaded</th><th>Errors</th><th>When</th></tr>
       </thead>
       <tbody>
-        @for (b of batches(); track b.id) {
+        @for (b of visibleBatches(); track b.id) {
           <tr
             class="import__batchrow"
             [class.import__row--bad]="b.status === 'rejected'"

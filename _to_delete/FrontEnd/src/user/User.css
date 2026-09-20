@@ -1,0 +1,1415 @@
+/* -----------------------  Login  ----------------------- */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Set the container height to 100% of the viewport height */
+}
+
+h2 {
+  text-align: center;
+}
+
+form {
+  max-width: 300px; /* Set a maximum width for the form */
+  width: 100%; /* Make the form fill the available width */
+}
+
+label {
+  margin-bottom: 8px;
+}
+
+input {
+  padding: 10px;
+  margin-bottom: 15px; /* Adjusted spacing between input fields */
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  font-size: 16px;
+  width: 100%; /* Make the input fill the available width */
+}
+
+.submit-button button {
+  background-color: #09b89d;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 20px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.submit-button button:hover {
+  background-color: #06927d;
+}
+
+/* Link to the signup page */
+div > a {
+  text-align: center;
+  display: block; /* Make the link a block-level element for centering */
+}
+
+.company-logo {
+  width: 300px; /* Set the desired width of the logo */
+  height: auto; /* Maintain the aspect ratio */
+  margin-bottom: 50px; /* Adjusted spacing between the logo and the login form */
+}
+
+/* -------------------- data viewer map -------------------- */
+/* -------------------- map control buttons -------------------- */
+.ol-attribution,
+.ol-attribution,
+.ol-rotate {
+  visibility: hidden;
+}
+
+.ol-zoom {
+  position: absolute;
+  top: 20px;
+}
+
+/* Style for the zoom-in and zoom-out buttons */
+.ol-zoom-in,
+.ol-zoom-out {
+  background-color: #e2e2e2;
+  width: 50px;
+  margin: 5px;
+  padding: 5px;
+  font-size: 25px;
+  font-weight: bolder;
+  border-radius: 7px;
+  border-color: rgb(194, 194, 194);
+  transition: background-color 0.3s; /* Adding a smooth transition effect */
+}
+
+.ol-zoom-in,
+.ol-zoom-out {
+  width: 40px;
+  background-color: #8d8d8d; /* Green background color */
+  color: white; /* White text color */
+  border: none; /* No border */
+  padding: 10px 15px; /* Padding for better visual appearance */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Cursor style on hover */
+  font-size: 14px; /* Adjust font size */
+  transition: background-color 0.3s;
+}
+
+.ol-zoom-in:hover,
+.ol-zoom-out:hover {
+  background-color: #000000; /* Darker green on hover */
+}
+
+.navbar-2-reload-button {
+  position: absolute;
+  top: 180px;
+  left: 5px;
+  width: 90px;
+  background-color: #747474; /* Green background color */
+  color: rgb(255, 255, 255); /* White text color */
+  border: none; /* No border */
+  padding: 10px 15px; /* Padding for better visual appearance */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Cursor style on hover */
+  font-size: 14px; /* Adjust font size */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+  z-index: 1;
+}
+
+.navbar-2-reload-button:hover {
+  background-color: #181818; /* Darker green on hover */
+}
+
+.data-analyse-button {
+  position: absolute;
+  top: 320px;
+  left: 5px;
+  width: 90px;
+  background-color: #ff4800; /* Green background color */
+  color: rgb(255, 255, 255); /* White text color */
+  border: none; /* No border */
+  padding: 10px 15px; /* Padding for better visual appearance */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Cursor style on hover */
+  font-size: 14px; /* Adjust font size */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+  z-index: 1;
+}
+
+.data-analyse-button:hover {
+  background-color: #ff6d33; /* Darker green on hover */
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.8);
+}
+
+/* ---------------------- DataViewer_map ----------------------- */
+.side-panel {
+  position: fixed;
+  top: 100px;
+  right: 0;
+  width: 400px;
+  height: 80vh;
+  background-color: #ffffff;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: right 0.3s ease;
+  margin: 10px;
+  border-radius: 10px;
+  /* backdrop-filter: blur(50px); Adjust the blur strength as needed */
+}
+
+/* old panel */
+.side-panel-2 {
+  position: fixed;
+  top: 100px;
+  right: 420px;
+  width: 350px;
+  height: 70vh;
+  background-color: #ffffff;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: right 0.3s ease;
+  margin: 10px;
+  border-radius: 10px;
+  /* backdrop-filter: blur(50px); Adjust the blur strength as needed */
+}
+
+.data-input-panel {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  width: 350px;
+  height: 70vh;
+  background-color: #ffffff;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: right 0.3s ease;
+  margin: 10px;
+  border-radius: 10px;
+}
+
+.side-panel h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.side-panel p {
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.side-panel button.close-button,
+.side-panel-2 button.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: null;
+  border: none;
+  font-size: 10px;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.side-panel button.close-button:hover,
+.side-panel-2 button.close-button:hover {
+  color: #e74c3c; /* Change color on hover */
+}
+
+.side-panel button.close-button span,
+.side-panel-2 button.close-button span {
+  display: block;
+  width: 35px;
+  height: 35px;
+  line-height: 30px;
+  text-align: center;
+  font-size: 40px;
+  border-radius: 5px;
+  background-color: #0000001a;
+}
+
+.osm-toggle-button {
+  position: absolute;
+  top: 420px;
+  left: 5px;
+  width: 90px;
+  height: 40px;
+  background-color: #008040;
+  color: #fff;
+  border: none; /* No border */
+  padding: 10px 15px; /* Padding for better visual appearance */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Cursor style on hover */
+  font-size: 14px; /* Adjust font size */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+.satellite-toggle-button {
+  position: absolute;
+  top: 470px;
+  left: 5px;
+  width: 90px;
+  height: 60px;
+  background-color: #008040;
+  color: #ffffff;
+  border: none; /* No border */
+  padding: 10px 15px; /* Padding for better visual appearance */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Cursor style on hover */
+  font-size: 14px; /* Adjust font size */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+.osm-toggle-button:hover,
+.satellite-toggle-button:hover {
+  background-color: #009c4e; /* Darker green on hover */
+
+  font-weight: bolder;
+  /* box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.8); */
+}
+
+.data-input-panel.close-button {
+  background-color: #000;
+}
+
+@media (max-width: 1200px) {
+  .side-panel {
+    width: 310px;
+    padding: 8px;
+    top: 100px;
+  }
+
+  .side-panel-2 {
+    width: 300px;
+    right: 320px;
+  }
+
+  .side-panel h5 {
+    font-size: 14px;
+    padding-bottom: 0;
+  }
+
+  .side-panel p {
+    font-size: 12px;
+  }
+
+  .close-button {
+    /* background-color: transparent; */
+    background-color: black;
+  }
+}
+
+/* ---------------------- DataViewer_SidePanel ----------------------- */
+.gnd-data-form label {
+  font-weight: bolder;
+}
+
+.gnd-data-form select {
+  margin-left: 10px;
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: bold;
+  text-anchor: start;
+  font-style: italic;
+  color: #525252;
+  fill: #525252;
+}
+
+.add-data-button {
+  font-size: 30px;
+  /* font-weight: bold; */
+  position: fixed;
+  bottom: 20px;
+  left: 5px;
+  padding: 12px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.add-data-button:hover {
+  background-color: #0056b3;
+}
+
+.add-data-icon {
+  margin-right: 10px;
+  width: 50px;
+  height: 40px;
+}
+
+.no-data-message {
+  display: flex;
+  flex-direction: column; /* Change to column layout */
+  align-items: center;
+  height: 150px; /* Adjust the height as needed */
+  color: #888; /* Adjust the text color */
+  font-size: 28px; /* Adjust the font size */
+}
+
+.no-data-image {
+  margin-bottom: 10px; /* Adjust the margin as needed */
+  width: 200px; /* Adjust the width of the image */
+  height: 200px; /* Adjust the height of the image */
+}
+
+.legend-container {
+  display: flex;
+  flex-wrap: wrap; /* Allow items to wrap to the next line */
+  font-size: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px; /* Adjust the margin between legend items */
+  width: 50%; /* Each legend item takes 50% of the container width */
+}
+
+.legend-color {
+  width: 15px; /* Adjust the width of the color box as needed */
+  height: 15px; /* Adjust the height of the color box as needed */
+  margin-right: 5px; /* Adjust the margin between color and name as needed */
+}
+
+.refresh-button {
+  background-color: #d4d4d4;
+  padding: 8px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 10px; /* Adjust the margin as needed */
+}
+
+.refresh-button:hover {
+  background-color: #c4c4c4;
+}
+
+.close-button {
+  background-color: transparent;
+}
+
+@media (max-width: 1200px) {
+  .gnd-data-form label {
+    font-size: 12px;
+  }
+
+  .gnd-data-form select {
+    margin-left: 0;
+    font-size: 11px;
+  }
+
+  .refresh-button {
+    padding: 4px;
+    margin: 5px;
+  }
+
+  .pie-chart-container {
+    width: 250px;
+  }
+
+  .pie-chart-container text {
+    font-size: 12px;
+  }
+
+  .legend-container {
+    font-size: 8px;
+    margin-left: 10px;
+    width: 250px;
+  }
+
+  .legend-color {
+    width: 10px;
+    height: 10px;
+    margin-right: 2px;
+  }
+
+  .legend-item {
+    margin-bottom: 5px; /* Adjust the margin between legend items */
+    width: 50%; /* Each legend item takes 50% of the container width */
+  }
+}
+
+/* ---------------------- DataInput_SidePanel ----------------------- */
+.data-input-form-container {
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.data-input-form-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.data-input-form-container label {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.data-input-form-container input,
+.data-input-form-container select {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.data-input-form-container h4 {
+  margin-top: 10px;
+}
+
+.data-input-form-container button {
+  padding: 12px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.data-input-form-container button:hover {
+  background-color: #0056b3;
+}
+
+#value_list {
+  margin-bottom: 20px;
+}
+
+.edit-dropdown-button {
+  background-color: #000;
+}
+
+.values-dropdown {
+  width: 240px;
+  margin-right: 10px;
+}
+
+.data-input-form-container .edit-dropdown-button {
+  background-color: #ececec;
+  color: #000;
+  /* height: 50px; */
+  padding: 8px;
+}
+
+.data-input-form-container .edit-dropdown-button:hover {
+  background-color: #4e4e4e;
+  color: white;
+}
+
+@media (max-width: 1200px) {
+  .data-input-form-container h3 {
+    font-size: 16px;
+  }
+
+  .data-input-form-container form label {
+    font-size: 12px;
+    margin-top: 0;
+  }
+
+  .data-input-form-container form input {
+    font-size: 10px;
+  }
+
+  .data-input-form-container form select {
+    font-size: 10px;
+  }
+
+  #value_list {
+    width: 150px;
+  }
+}
+
+/* ---------------------- DataInput_SidePanel - new version ----------------------- */
+.data-input-form-container {
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.data-input-form-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.data-input-form-container label {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.data-input-form-container input,
+.data-input-form-container select {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.data-input-form-container h4 {
+  margin-top: 10px;
+}
+
+.data-input-form-container button {
+  padding: 12px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.data-input-form-container button:hover {
+  background-color: #0056b3;
+}
+
+#value_list {
+  margin-bottom: 20px;
+}
+
+.edit-dropdown-button {
+  background-color: #000;
+}
+
+.values-dropdown {
+  width: 240px;
+  margin-right: 10px;
+}
+
+.data-input-form-container .edit-dropdown-button {
+  background-color: #ececec;
+  color: #000;
+  /* height: 50px; */
+  padding: 8px;
+}
+
+.data-input-form-container .edit-dropdown-button:hover {
+  background-color: #4e4e4e;
+  color: white;
+}
+
+.data-input-close-button {
+  /* position: relative; */
+  left: 280px;
+  background-color: #ccc; /* Background color */
+  color: #333; /* Text color */
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bolder;
+}
+
+.data-input-close-button:hover {
+  color: red;
+}
+
+@media (max-width: 1200px) {
+  .data-input-form-container h3 {
+    font-size: 16px;
+  }
+
+  .data-input-form-container form label {
+    font-size: 12px;
+    margin-top: 0;
+  }
+
+  .data-input-form-container form input {
+    font-size: 10px;
+  }
+
+  .data-input-form-container form select {
+    font-size: 10px;
+  }
+
+  #value_list {
+    width: 150px;
+  }
+}
+
+/* ---------------------- DataInput_History ----------------------- */
+.data-input-history-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.data-input-history-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.data-input-history-popup {
+  position: relative;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  overflow: hidden;
+  width: 80%;
+  max-height: 95%;
+  animation: fadeInUp 0.3s ease;
+}
+
+.popup-window-top {
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ccc;
+}
+
+.data-input-history-popup h4 {
+  text-align: center;
+  color: #000;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  margin-bottom: 20px;
+}
+
+.popup-close-button {
+  position: fixed;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 0px;
+  right: 20px;
+  font-size: 30px;
+  color: #555;
+}
+
+.download-button {
+  position: fixed;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+  border-radius: 4px;
+  top: 30px;
+  left: 10px;
+}
+
+.filter-container {
+  position: fixed;
+  top: 30px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.filter-container img {
+  width: 35px;
+  height: 25px;
+}
+
+.filter-container input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  margin-left: 10px;
+  width: 250px;
+  font-size: 12px;
+}
+
+.table-container {
+  height: 500px;
+  min-height: 200px;
+  overflow: auto;
+  max-height: calc(90% - 80px);
+}
+
+.table-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  color: white;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  position: sticky;
+  top: 0px;
+  background-color: #000;
+  font-size: 14px;
+}
+
+td {
+  font-size: 12px;
+  color: #000;
+  background-color: #ffffff;
+}
+
+.td-1 {
+  background-color: #ececec;
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ------------------ DataView_byName ------------------- */
+.findByName-button {
+  position: absolute;
+  top: 230px;
+  left: 5px;
+  width: 90px;
+  height: 80px;
+  background-color: #007bff;
+  color: #fff;
+  border: none; /* No border */
+  padding: 10px 15px; /* Padding for better visual appearance */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Cursor style on hover */
+  font-size: 14px; /* Adjust font size */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+  z-index: 1;
+}
+
+.findByName-button:hover {
+  background-color: hsl(212, 100%, 65%); /* Darker green on hover */
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.8);
+}
+
+.add-data-icon {
+  height: 30px;
+  width: 40px;
+}
+
+.findByName-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s ease;
+}
+
+.findByName-popup.active {
+  /* Active state for the popup */
+  opacity: 1;
+  visibility: visible;
+}
+
+.findByName-popup-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+  width: 25%;
+  min-width: 300px;
+  max-height: 80vh; /* Set maximum height to 80% of the viewport height */
+  overflow-y: auto; /* Add scrollbar when content exceeds the height */
+}
+
+.findByName-close {
+  /* position: relative; */
+  left: 300px;
+  background-color: #ccc; /* Background color */
+  color: #333; /* Text color */
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bolder;
+}
+
+.findByName-close:hover {
+  color: red;
+}
+
+.findByName-dropdown {
+  margin-bottom: 15px;
+}
+
+.findByName-label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.findByName-select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.select-admin-ok-button {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  background-color: #007bff;
+  font-size: 20px;
+  font-weight: bolder;
+  color: white;
+  border: #009c4e;
+}
+
+.information-text {
+  background-color: lightblue;
+  color: rgb(34, 67, 117);
+  padding: 4px;
+  padding-left: 10px;
+  border-radius: 5px;
+  border: 1px solid rgb(67, 170, 255);
+}
+
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
+
+@media (max-width: 1200px) {
+  .findByName-popup-content {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    width: 30%;
+    height: auto;
+    font-size: 12px;
+  }
+}
+
+/* --------------------------find by GND name -- old----------------------- */
+.findByName-pd-dropdown,
+.findByName-disd-dropdown,
+.findByName-dsd-dropdown,
+.findByName-gnd-dropdown {
+  margin-bottom: 15px;
+}
+
+/* ---------------------- FindByName -------------------- */
+.checkbox-container {
+  width: 300px; /* Adjust width as needed */
+  margin: auto;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-item {
+  margin-bottom: 2px;
+  display: flex; /* Add this */
+}
+
+/* Additional styles to reset default checkbox styles */
+.checkbox-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 3px solid #999;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"]:checked::after {
+  content: "";
+  display: block;
+  width: 14px;
+  height: 14px;
+  background-color: #696969; /* Color of the inner box */
+  position: relative;
+  top: 50%; /* Position the inner box vertically at the center */
+  left: 50%; /* Position the inner box horizontally at the center */
+  transform: translate(
+    -50%,
+    -50%
+  ); /* Center the inner box within the checkbox */
+  border-radius: 2px; /* Optional: Adjust the border radius to make the inner box look like a square */
+}
+
+.checkbox-item label {
+  font-size: 16px;
+  margin-left: 10px;
+  cursor: pointer;
+  padding: 2px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.checkbox-item label:hover {
+  background-color: #e4e4e4;
+  border-radius: 4px;
+  padding: 2px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.findbyname-add-data-button {
+  background-color: #007bff; /* Button background color */
+  color: #fff; /* Button text color */
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 30px;
+  z-index: 2000;
+}
+
+.findbyname-add-data-button:hover {
+  background-color: #0056b3;
+}
+
+.findbyname-add-data-button:disabled {
+  background-color: #ccc; /* Grey color when disabled */
+  cursor: not-allowed; /* Change cursor to not-allowed */
+}
+findByName-close
+/* ------------------ data analyse page ------------------- */
+.data-analyse {
+  /* background-color: #f0f0f0; */
+}
+
+.data-analyse-controls-container {
+  display: flex;
+  /* justify-content: space-between; */
+  gap: 20px;
+  padding: 10px;
+  background-color: #ffffff;
+}
+
+.data-analyse-controls-container select {
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.data-analyse-controls-container label {
+  margin-right: 10px;
+}
+
+.data-analyse-visualize {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.data-analyse-map-container {
+  flex: 0.5;
+  margin-right: 20px;
+  margin-left: 10px;
+  overflow: hidden;
+  flex: 2;
+}
+
+.data-analyse-chart-container {
+  flex: 1;
+}
+
+.data-analyse-tabel {
+  margin-top: 20px;
+}
+
+.sector-label,
+.hazard-label {
+  font-size: 24px;
+}
+
+.hazard-select-list,
+.sector-select-list {
+  height: 40px;
+  margin-right: 20px;
+}
+
+.adminlevel-radio-buttons {
+  margin-left: 15px;
+}
+
+.adminlevel-radio-buttons label.al-button {
+  position: relative;
+  padding-right: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 24px;
+  color: #333;
+}
+
+.al-button input[type="radio"] {
+  /* Increase size */
+  transform: scale(1.5); /* Adjust as needed */
+  background-color: blue;
+}
+
+.data-analyse-back-button {
+  padding: 1px 1px;
+  background-color: #a0a0a0;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 80px;
+}
+
+.data-analyse-back-button:hover {
+  background-color: #919191;
+  color: white;
+}
+
+.back-button-icon {
+  width: 30px;
+  height: 20px;
+  padding: 0;
+  opacity: 0.7;
+}
+
+@media screen and (max-width: 1300px) {
+  .data-analyse-controls-container {
+    padding: 5px; /* Adjust the padding as needed */
+    min-width: 1200px;
+  }
+
+  .data-analyse-controls-container select,
+  .data-analyse-controls-container label {
+    font-size: 14px; /* Adjust the font size as needed */
+    padding: 6px; /* Adjust the padding as needed */
+    margin-right: 8px; /* Adjust the margin as needed */
+  }
+
+  .data-analyse-visualize {
+    min-width: 1200px;
+  }
+}
+
+/* ------------------ DataAnalyse Tabel ------------------ */
+.analyse-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px auto; /* Center the table horizontally */
+}
+
+.print-button-container button {
+  padding: 5px 10px;
+  background-color: #008040;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.print-button-container button:hover {
+  background-color: #006f33;
+}
+
+/* --------------- dataAnalyse_map --------------- */
+#map {
+  width: 100%;
+}
+
+#info {
+  height: 10px;
+}
+
+/* Add this CSS to your existing CSS file or style block */
+.info.legend {
+  position: relative;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px;
+  width: 80px;
+}
+
+.info.legend-item {
+  display: flex;
+  align-items: center;
+}
+
+.info.legend-item i {
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+}
+
+.info.legend-item span {
+  margin-right: 10px; /* Add margin between color and its value */
+}
+/* ------------------------- */
+.leaflet-bar button {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 6px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.leaflet-bar button:hover {
+  background-color: #f0f0f0;
+}
+
+.print-button {
+  background-color: #ffffff;
+  position: absolute;
+  z-index: 1000;
+  top: 80px;
+  left: 10px;
+  color: #000000;
+  padding: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.print-button:hover {
+  background-color: #c7c7c7;
+}
+
+/* -------------- popup - message --------------- */
+
+.message-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.message {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.message h2 {
+  margin-top: 0;
+}
+
+.message ul {
+  padding: 0;
+}
+
+.message li {
+  list-style-type: none;
+}
+
+.message button {
+  margin-top: 10px;
+}
+
+.select-btn {
+  padding: 10px 15px;
+  margin-left: 5px;
+  outline: none;
+  border: none;
+  color: #e4e4e4;
+  background-color: #525252;
+  font-weight: 600;
+  border-radius: 0.2rem;
+}
+
+.deselected-btn {
+  padding: 10px 15px;
+  margin-left: 5px;
+  outline: none;
+  border: none;
+  background-color: #525252;
+  color: #e4e4e4;
+  font-weight: 600;
+  border-radius: 0.2rem;
+}
+
+.selected-btn {
+  padding: 10px 15px;
+  margin-left: 5px;
+  outline: none;
+  border: none;
+  background-color: #0056b3;
+  color: #e4e4e4;
+  font-weight: 600;
+  border-radius: 0.2rem;
+}
+
+/* hazard and sec selector */
+.sec-haz-selector {
+  display: inline-flex;
+  width: fit-content;
+  margin-left: 10px;
+}
+
+/* loading spinner */
+
+.loading-container {
+  width: 100vw;
+  height: 70vh;
+  display: flex;
+  justify-content: center;
+  place-items: center;
+  flex-wrap: wrap;
+}
+
+.loading {
+  font-size: x-large;
+  display: flex;
+  justify-content: center;
+  place-items: center;
+  flex-wrap: wrap;
+}
+
+.loading-txt {
+  width: 100%;
+  color: #ff4800;
+  text-transform: lowercase;
+  font-weight: 700;
+}
+
+.lds-ripple,
+.lds-ripple div {
+  box-sizing: border-box;
+}
+.lds-ripple {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ripple div {
+  position: absolute;
+  border: 4px solid currentColor;
+  opacity: 1;
+  border-radius: 50%;
+  animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+.lds-ripple div:nth-child(2) {
+  animation-delay: -0.5s;
+}
+@keyframes lds-ripple {
+  0% {
+    top: 36px;
+    left: 36px;
+    width: 8px;
+    height: 8px;
+    opacity: 0;
+  }
+  4.9% {
+    top: 36px;
+    left: 36px;
+    width: 8px;
+    height: 8px;
+    opacity: 0;
+  }
+  5% {
+    top: 36px;
+    left: 36px;
+    width: 8px;
+    height: 8px;
+    opacity: 1;
+  }
+  100% {
+    top: 0;
+    left: 0;
+    width: 80px;
+    height: 80px;
+    opacity: 0;
+  }
+}
+
+.layer-label {
+  width: fit-content;
+  height: fit-content;
+  background-color: white;
+  border: 1px solid black;
+  font-size: 12px;
+  text-align: center;
+  border-radius: 0.2rem;
+}
+
+.printing-page {
+  display: flex;
+  width: 100vw;
+  height: auto;
+}
+
+.printing-map {
+  flex: 2;
+}
+
+.filter-content {
+  width: 100%;
+  justify-content: center;
+}
+
+.printing-filter {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.filter-txt {
+  width: 100%;
+}

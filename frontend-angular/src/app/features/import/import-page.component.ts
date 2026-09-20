@@ -248,6 +248,23 @@ export class ImportPageComponent implements OnInit {
   readonly failure = signal<string | null>(null);
   readonly batches = signal<BatchRow[]>([]);
 
+  /** Free text over filename and profile code. A province can hold two dozen
+   * imports and the one you want is named after its profile, so typing part of
+   * that name beats scrolling. Matching is deliberately dumb -- substring, case
+   * insensitive -- because a profile code and its subsector code do not always
+   * agree (PIG_AND_SHEEP_DROUGHT_CEN_V1 vs subsector PIG_AND_SHEEP_FARMING),
+   * and a cleverer match would quietly hide rows. */
+  readonly batchFilter = signal('');
+  readonly visibleBatches = computed(() => {
+    const q = this.batchFilter().trim().toLowerCase();
+    if (!q) return this.batches();
+    return this.batches().filter(
+      (b) =>
+        b.filename.toLowerCase().includes(q) ||
+        (b.profileCode ?? '').toLowerCase().includes(q),
+    );
+  });
+
   // ---- the opened dataset ----------------------------------------------
   readonly openBatchId = signal<number | null>(null);
   readonly detail = signal<BatchDetail | null>(null);
@@ -776,7 +793,11 @@ export class ImportPageComponent implements OnInit {
    */
   private loadBatches(): void {
     const province = this.nameOf().province;
-    const q = province ? `?limit=15&province=${encodeURIComponent(province)}` : '?limit=15';
+    // 200, not 15: Central alone has 24 batches, and the oldest -- Human
+    // Settlements, Coconut, the livestock pairs -- fell off a 15-row window, so
+    // the screen said "nothing imported" about data that was loaded and scored.
+    // The list is filtered in the browser instead (`batchFilter`).
+    const q = province ? `?limit=200&province=${encodeURIComponent(province)}` : '?limit=200';
     this.closeBatch();
     this.http
       .get<BatchRow[]>(`${this.base}/import/batches${q}`, { withCredentials: true })

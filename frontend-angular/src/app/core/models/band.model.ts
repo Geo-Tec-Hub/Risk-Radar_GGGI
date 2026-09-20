@@ -1,39 +1,43 @@
 /**
  * Vulnerability bands and their colours.
  *
- * SRS v2.3 §2.7, FR-4.13 and FR-4.13b. **Owner decision, 14 August 2026 —
- * [O-10] and [O-11] closed, [P-4] and [P-14] confirmed.**
+ * SRS v2.3 §2.7, FR-4.13 and FR-4.13b. **Reopened by owner, 18 September
+ * 2026 — supersedes the 14 August 2026 five-band closure.** The index and
+ * its province-then-province rescale to [0, 1] are unchanged; only the
+ * classification of that [0, 1] scale changed, from five even fifths to
+ * four even quarters.
  *
  * The published index is the raw product `H × E` min-max rescaled to [0, 1]
- * within its province, and these five bands are the even fifths of that scale.
- * The thresholds are FIXED. They are deliberately **not** derived from the
- * observed distribution, and quantile / natural-breaks classification are
- * rejected.
+ * within its province, and these four bands are the even quarters of that
+ * scale (0.25 / 0.5 / 0.75). The thresholds are FIXED. They are deliberately
+ * **not** derived from the observed distribution, and quantile /
+ * natural-breaks classification are rejected — that part of the 14 August
+ * reasoning still holds, only the number of cuts changed.
  *
- * Why, because it will look wrong the first time you see a real map: the index
- * is a product of two numbers in [0, 1], so it is right-skewed, and rescaling
- * moves a distribution's endpoints without changing its shape. The bottom band
- * will hold roughly 45-50% of divisions rather than 20%. **That is accepted and
- * is not a bug to fix.** A data-derived classification would re-cut its bands
- * every time a province completed — and data arrives in instalments over months
- * — so the same colour would mean different numbers at different times, and a
- * map exported today would silently disagree with the same map next quarter.
- * A fixed legend is what makes a published map still true six months later.
+ * Why a fixed legend at all: the index is a product of two numbers in
+ * [0, 1], so it is right-skewed, and rescaling moves a distribution's
+ * endpoints without changing its shape — the bottom band will hold more
+ * divisions than the upper ones. **That is accepted and is not a bug to
+ * fix.** A data-derived classification would re-cut its bands every time a
+ * province completed — and data arrives in instalments over months — so the
+ * same colour would mean different numbers at different times, and a map
+ * exported today would silently disagree with the same map next quarter. A
+ * fixed legend is what makes a published map still true six months later.
  *
  * Do not "improve" this by computing quantiles. If it ever genuinely must
- * change, it is a settings edit (the values are configuration) and an owner
- * decision — not a frontend refactor.
+ * change again, it is a settings edit (the values are configuration) and an
+ * owner decision — not a frontend refactor.
  */
 
-/** The five bands, in ascending severity. Order is meaningful. */
-export type Band = 'very_low' | 'low' | 'moderate' | 'high' | 'very_high';
+/** The four bands, in ascending severity. Order is meaningful. */
+export type Band = 'very_low' | 'low' | 'moderate' | 'high';
 
 export interface BandSpec {
   readonly band: Band;
   /** Inclusive lower bound on the rescaled 0-1 index. */
   readonly min: number;
   /**
-   * Exclusive upper bound — except for `very_high`, whose interval is closed
+   * Exclusive upper bound — except for `high`, whose interval is closed
    * at 1 so that the single division scoring exactly 1.000 in each province
    * lands in a band at all.
    */
@@ -61,13 +65,20 @@ export interface BandSpec {
  * one that matters most here — it is what stops *Very low* receding into the
  * background and being read as *no data*, which is the "absent rendered as
  * present" defect this project has already found once in the retired client.
+ *
+ * Four steps, not five (18 Sep 2026): reuses four of the original five
+ * validated colours verbatim — `very_low`, `low` and `moderate` unchanged,
+ * and `high` takes the old `very_high` swatch — rather than inventing new
+ * ones. Monotone lightness and single-hue both still hold trivially (it's a
+ * subset of an already-monotone, already-single-hue sequence), and the gap
+ * between `moderate` and `high` is now *larger* than the validated 0.06
+ * minimum, not smaller, so no re-validation was needed.
  */
 export const BANDS: readonly BandSpec[] = [
-  { band: 'very_low',  min: 0.0, max: 0.2, label: 'Very low',  light: '#eb827b', dark: '#971a20' },
-  { band: 'low',       min: 0.2, max: 0.4, label: 'Low',       light: '#d36963', dark: '#b03e3b' },
-  { band: 'moderate',  min: 0.4, max: 0.6, label: 'Moderate',  light: '#bc504c', dark: '#c95d57' },
-  { band: 'high',      min: 0.6, max: 0.8, label: 'High',      light: '#a43735', dark: '#e27a73' },
-  { band: 'very_high', min: 0.8, max: 1.0, label: 'Very high', light: '#8d1a1e', dark: '#fb9890' },
+  { band: 'very_low', min: 0.0,  max: 0.25, label: 'Very low', light: '#eb827b', dark: '#971a20' },
+  { band: 'low',      min: 0.25, max: 0.5,  label: 'Low',      light: '#d36963', dark: '#b03e3b' },
+  { band: 'moderate', min: 0.5,  max: 0.75, label: 'Moderate', light: '#bc504c', dark: '#c95d57' },
+  { band: 'high',     min: 0.75, max: 1.0,  label: 'High',     light: '#8d1a1e', dark: '#fb9890' },
 ];
 
 /**

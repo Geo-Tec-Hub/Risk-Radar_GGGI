@@ -1,4 +1,5 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 
 import { ApiClientService } from '../../core/services/api-client.service';
 import { ApiError } from '../../core/models/api-error.model';
@@ -9,13 +10,13 @@ import { VulnerabilityComposition, VulnerabilityQuery } from '../../core/models/
  * FR-5.9/5.10/5.26: full score composition for the selected division.
  * Identity (name, district, province) comes straight off the clicked
  * boundary feature and always renders. The composition itself depends on
- * `GET /vulnerability/{unit}` (§9), which has no backend behind it yet, so
- * that part shows the FR-5.20 error state rather than pretending to have
- * data.
+ * `GET /vulnerability/{unit}` (§9, `backend/app/routers/vulnerability.py`
+ * `composition()`), built 2026-09-18 -- previously stubbed, always 404.
  */
 @Component({
   selector: 'app-division-panel',
   standalone: true,
+  imports: [DecimalPipe],
   templateUrl: './division-panel.component.html',
   styleUrl: './division-panel.component.scss',
 })

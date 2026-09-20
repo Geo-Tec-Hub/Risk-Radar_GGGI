@@ -37,20 +37,31 @@ available only when every division in the register holds a value). Neither
 overwrites the other and nothing is ever recomputed; `index_scope` is part of
 `vulnerability_result`'s unique key. Never mix them in one legend, export column
 or ranking.
-**The measurement model is CLOSED (owner, 14 Aug 2026). O-10 and O-11 both
-answered; P-4 and P-14 confirmed.** The index **is** `H × E` min–max rescaled to
-**[0, 1]** within its province — the second rescale stays — and the five bands
-are the **even fifths of that scale, fixed**: 0.2 / 0.4 / 0.6 / 0.8. **Do not
-re-derive thresholds from the data**; quantile and natural-breaks are rejected.
-The bottom band will hold ~45–50% of divisions rather than 20%, because a
-product is right-skewed and rescaling does not change a distribution's shape —
-**that is accepted, not a bug to fix.** The reason is publication rather than
-statistics: a fixed legend means a map exported today is still true in six
-months, whereas a data-derived one re-cuts its bands every time a province
-completes. Band colours are a single-hue ramp (severity carried by lightness,
-not hue) in `core/models/band.model.ts`, SRS §2.7 and FR-4.13b. FR-4.15's
+**The measurement model is CLOSED (owner, 14 Aug 2026; band count revised by
+the owner 18 Sep 2026). O-10 and O-11 both answered; P-4 and P-14 confirmed.**
+The index **is** `H × E` min–max rescaled to **[0, 1]** within its province —
+the second rescale stays — and the bands are a **fixed, even split of that
+scale**: **four bands since 18 Sep 2026** — 0.25 / 0.5 / 0.75 (Very low / Low /
+Moderate / High, ranks 1–4) — replacing the original five even fifths
+(0.2/0.4/0.6/0.8). **Do not re-derive thresholds from the data**; quantile and
+natural-breaks are still rejected — that part of the 14 Aug decision was not
+reopened, only the number of cuts was. The bottom band holds more divisions
+than the upper ones, because a product is right-skewed and rescaling does not
+change a distribution's shape — **that is accepted, not a bug to fix.** The
+reason for a fixed legend at all is publication rather than statistics: a map
+exported today is still true in six months, whereas a data-derived one re-cuts
+its bands every time a province completes. Band colours are a single-hue ramp
+(severity carried by lightness, not hue) in `core/models/band.model.ts` — the
+four colours reuse four of the original five validated swatches verbatim
+(dropped one step, relabelled the old `very_high` swatch as `high`), not
+freshly picked — SRS §2.7 and FR-4.13b. The vulnerability layer's **fill
+renders at 65% opacity** (stroke stays solid) so basemap labels/roads show
+through the colour wash — also an owner requirement, 18 Sep 2026. FR-4.15's
 distribution report is **monitoring only** now, not a threshold input. Stage 4
 therefore has **no decision gate left** — build §2.1–§2.8 straight through.
+Backend mirrors the same fixed edges in `backend/app/routers/vulnerability.py`
+(`BAND_EDGES`) — the frontend and backend duplicate the *constant*, never
+redefine the *decision*, so keep both in sync if this is ever revised again.
 
 ## Stack (locked)
 

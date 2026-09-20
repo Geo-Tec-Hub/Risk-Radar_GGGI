@@ -15,10 +15,15 @@
        loaded as boundary_pending with a perfectly good polygon sitting unused in
        staging. No error, no map. The official code is stable across renames.
 
-       Source: DS_Boundary.shp (Survey Department, 2025-10-09), 340 divisions, in
-       Kandawala / Sri Lanka Grid. -s_srs is stated EXPLICITLY below because that
-       .prj carries no EPSG authority code, and a misread source CRS puts every
-       polygon in the wrong place without raising an error.
+       Source: DS_Boundary.shp (SHP_Admin_4326, supplied 2026-09-17), 340
+       divisions, merged from 9 per-province shapefiles, natively in WGS 84
+       (EPSG:4326) -- its .prj carries a proper EPSG authority code, unlike the
+       2025-10-09 Kandawala file it replaces, so -t_srs EPSG:4326 below is now
+       an explicit no-op transform rather than a real reprojection. The source
+       had no new_ds_cod field; it was derived here by joining its numeric
+       DS_Code field 1:1 onto dsd_register.csv's ds_code_official_num (zero
+       orphans either direction, 340/340) before merging -- see the
+       2026-09-17 tracker row.
     2. Province and district outlines loaded as spatial_layer features, so the map
        has admin boundaries and the D8 toolbox has something real to run against.
 
@@ -95,8 +100,8 @@ function Load-Shapefile([string]$Shapefile, [string]$Table, [string]$SourceSrs =
     Remove-Item $dump -ErrorAction SilentlyContinue
 }
 
-Write-Host '    loading DS_Boundary polygons into staging (EPSG:5234 -> 4326)...'
-Load-Shapefile (Join-Path $Shp 'DS_Boundary.shp') 'stg_dsd' 'EPSG:5234'
+Write-Host '    loading DS_Boundary polygons into staging (EPSG:4326)...'
+Load-Shapefile (Join-Path $Shp 'DS_Boundary.shp') 'stg_dsd' 'EPSG:4326'
 
 Write-Host '    loading the DS-division register...'
 Sql @"

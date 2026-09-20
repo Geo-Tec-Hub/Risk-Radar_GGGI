@@ -47,16 +47,20 @@ Read §1 to §5 once, in order. §6 to §9 are reference material to work agains
 >    cannot silently reinstate the composite index. See §2.4.
 >
 > 5. **The measurement model is now closed. Owner decision, 14 August 2026.**
->    The vulnerability index **is** the raw product min-max rescaled to
+>    ~~The vulnerability index **is** the raw product min-max rescaled to
 >    **[0, 1]** within its province, and the five band colours are assigned to
->    that 0–1 scale at the even fifths — `0.2 / 0.4 / 0.6 / 0.8` — permanently.
->    **[O-10] and [O-11] are both closed; [P-4] and [P-14] are confirmed.**
->    Thresholds are **not** to be re-derived from the observed distribution when
->    data arrives, and quantile and natural-breaks classification are rejected.
->    The resulting bottom-heavy distribution is accepted as an honest reading.
->    Band colour codes are specified in §2.7 and required by **FR-4.13b**. See
->    §2.1 and §2.7 for the reasoning — it turns on the legend being fixed, which
->    is what lets a map published today still be true in six months.
+>    that 0–1 scale at the even fifths — `0.2 / 0.4 / 0.6 / 0.8` — permanently.~~
+>    **The band count is superseded — see item 7.** The rescale to [0, 1]
+>    within-province is unchanged and still closed; only the classification of
+>    that scale changed, from five bands to four. **[O-10] and [O-11] are both
+>    closed; [P-4] and [P-14] are confirmed** on the rescale itself. Thresholds
+>    are **not** to be re-derived from the observed distribution when data
+>    arrives, and quantile and natural-breaks classification are rejected —
+>    that principle outlives the band-count change. The resulting bottom-heavy
+>    distribution is accepted as an honest reading. Band colour codes are
+>    specified in §2.7 and required by **FR-4.13b**. See §2.1 and §2.7 for the
+>    reasoning — it turns on the legend being fixed, which is what lets a map
+>    published today still be true in six months.
 >
 > The first has a consequence that must be read before building anything on top
 > of it: **a national vulnerability index requires the complete national
@@ -73,11 +77,21 @@ Read §1 to §5 once, in order. §6 to §9 are reference material to work agains
 >    additions are **splits of existing divisions**, so each starts with no
 >    values and three parent codes are retired. See §5.1.
 >
-> With item 5 there are **no open questions left in the measurement model** —
-> §2.1 through §2.8 can be built end to end, and §10 stage 4 no longer carries a
-> decision gate. With item 6, **no blocking item remains anywhere**: [O-1]
-> (weights) and [O-6] (translation) close by work, [O-4] and [O-7] belong to
-> phase 2. What is left is collection, not decisions.
+> 7. **Band count changed from five to four. Owner decision, 18 September
+>    2026 — supersedes the band-count portion of item 5.** The five even
+>    fifths (`0.2 / 0.4 / 0.6 / 0.8`) are replaced by **four even quarters**
+>    (`0.25 / 0.5 / 0.75`), with ranks 1–4 labelled *Very low, Low, Moderate,
+>    High*. Everything else about item 5 stands: the index is still the raw
+>    product rescaled to [0, 1] within-province, thresholds are still fixed
+>    configuration and still not data-derived, and a single-hue lightness ramp
+>    still carries severity. Only the number of cuts on that fixed scale
+>    changed. See §2.7 and **FR-4.13**.
+>
+> With items 5 and 7 there are **no open questions left in the measurement
+> model** — §2.1 through §2.8 can be built end to end, and §10 stage 4 no
+> longer carries a decision gate. With item 6, **no blocking item remains
+> anywhere**: [O-1] (weights) and [O-6] (translation) close by work, [O-4] and
+> [O-7] belong to phase 2. What is left is collection, not decisions.
 
 ---
 
@@ -284,13 +298,15 @@ arithmetic and are not matters of opinion:
 The interface must therefore name the quantity honestly (FR-5.13, FR-5.24) and
 must not offer a single national legend implying one scale.
 
-> **Note on band thresholds — SETTLED 14 August 2026.** Rescaling stretches the
-> endpoints of a distribution; it does not change its shape, so a share of
-> divisions will still fall in the lower bands after step 2. **The owner has
-> decided that the bands are nevertheless the even fifths of the rescaled 0–1
-> scale, permanently.** They are no longer a placeholder and are not to be
-> re-derived from the data. See §2.7 for the decision and the reasoning,
-> **[P-4]** (now confirmed) and FR-4.13.
+> **Note on band thresholds — SETTLED 14 August 2026, band count revised 18
+> September 2026.** Rescaling stretches the endpoints of a distribution; it
+> does not change its shape, so a share of divisions will still fall in the
+> lower bands after step 2. **The owner has decided that the bands are
+> nevertheless a fixed, even split of the rescaled 0–1 scale, permanently** —
+> originally five even fifths, now **four even quarters** (§2.7, item 7 above).
+> They are not a placeholder and are not to be re-derived from the data. See
+> §2.7 for the current definition and the reasoning, **[P-4]** (confirmed) and
+> FR-4.13.
 
 ### Two normalisation steps, two different scopes
 
@@ -312,8 +328,9 @@ across the province, and again when the index is rescaled across it.
 
 > **Resolved 14 August 2026 by the owner — [O-11] is closed and [P-14] is
 > confirmed.** Step 2 stays. The published vulnerability index **is** the raw
-> product min-max rescaled to **[0, 1]** within its province, and the five band
-> colours are assigned to that 0–1 scale directly (§2.7).
+> product min-max rescaled to **[0, 1]** within its province, and band colours
+> are assigned to that 0–1 scale directly (§2.7 — **four** bands since 18
+> September 2026, previously five; see item 7 above).
 >
 > The question step 2 was being held open for was whether it still earned its
 > place now that variable normalisation is provincial too. It does, for a reason
@@ -585,22 +602,24 @@ carry a low-confidence marker where 10 ≤ n < 30.
 
 ## 2.7 Bands
 
-Scores are classified into five bands with configurable thresholds. The same
+Scores are classified into four bands with configurable thresholds. The same
 banding applies to vulnerability and, when built, to risk, so the two share a
 legend.
 
 ```
-Very low  [0, 0.2)    Low  [0.2, 0.4)    Moderate  [0.4, 0.6)
-High  [0.6, 0.8)      Very high  [0.8, 1]
+Very low  [0, 0.25)    Low  [0.25, 0.5)    Moderate  [0.5, 0.75)    High  [0.75, 1]
 ```
 
 Intervals are half-open so every value falls in exactly one band **[P-4]**.
 
-> **CONFIRMED 14 August 2026 by the owner. [O-10] is closed and [P-4] is no
-> longer provisional.** The thresholds are the even fifths of the rescaled 0–1
-> index and they are **fixed**. They are not a placeholder, they are not to be
-> re-derived from the observed distribution, and quantile and natural-breaks
-> classification are both **rejected**.
+> **CONFIRMED 14 August 2026 by the owner, band count revised 18 September
+> 2026. [O-10] is closed and [P-4] is no longer provisional.** The thresholds
+> are a fixed, even split of the rescaled 0–1 index — originally five even
+> fifths, now **four even quarters** — and they are **fixed**. They are not a
+> placeholder, they are not to be re-derived from the observed distribution,
+> and quantile and natural-breaks classification are both **rejected**. Only
+> the number of cuts changed on 18 September; the rejection of data-derived
+> classification did not.
 
 **Why fixed thresholds, given the distribution is skewed.** The index is
 min-max rescaled to [0, 1] within its province (§2.1 step 2), so the scale is
@@ -614,19 +633,18 @@ directly buys three things that a data-derived classification cannot:
    occurred. A fixed legend makes a printed map, a PDF export and a screenshot
    from six months ago all still true.
 2. **The band is explainable.** "This division scores 0.83 out of 1, which is
-   the top fifth" is a sentence a provincial officer or a GGGI reviewer can
-   check. "This division is in the top quintile of the current dataset" is not
+   the top quarter" is a sentence a provincial officer or a GGGI reviewer can
+   check. "This division is in the top quartile of the current dataset" is not
    checkable and changes meaning as the dataset grows.
-3. **Colour and number agree.** With even fifths the legend is a ruler: the
+3. **Colour and number agree.** With even quarters the legend is a ruler: the
    colour is a lossy reading of the score, never an independent claim.
 
 **The accepted cost, stated plainly.** Because a product of two [0, 1] numbers
 is right-skewed and rescaling does not change a distribution's shape, the lower
-bands will hold more divisions than the upper ones — simulated against the real
-province sizes, the bottom band takes roughly 45–50% rather than 20%. **This is
-accepted.** A map where most divisions are genuinely low-vulnerability *should*
-look like that; forcing 20% into the top band by quantile would manufacture
-severity that the measurement does not support. FR-4.15's distribution report is
+bands will hold more divisions than the upper ones. **This is accepted.** A map
+where most divisions are genuinely low-vulnerability *should* look like that;
+forcing an even share into the top band by quantile would manufacture severity
+that the measurement does not support. FR-4.15's distribution report is
 retained as **monitoring, not as a gate** — it tells the team what the map looks
 like, and it no longer feeds a threshold decision.
 
@@ -638,14 +656,18 @@ deficiency and in greyscale print without relying on hue discrimination.
 
 | Band | Range | Light surface | Dark surface |
 |---|---|---|---|
-| Very low | `[0, 0.2)` | `#eb827b` | `#971a20` |
-| Low | `[0.2, 0.4)` | `#d36963` | `#b03e3b` |
-| Moderate | `[0.4, 0.6)` | `#bc504c` | `#c95d57` |
-| High | `[0.6, 0.8)` | `#a43735` | `#e27a73` |
-| Very high | `[0.8, 1]` | `#8d1a1e` | `#fb9890` |
+| Very low | `[0, 0.25)` | `#eb827b` | `#971a20` |
+| Low | `[0.25, 0.5)` | `#d36963` | `#b03e3b` |
+| Moderate | `[0.5, 0.75)` | `#bc504c` | `#c95d57` |
+| High | `[0.75, 1]` | `#8d1a1e` | `#fb9890` |
+
+Reused verbatim (18 September 2026) from three of the original five validated
+steps plus the old *Very high* swatch, now relabelled *High* as the top of a
+four-step ramp — not re-picked from scratch, so the validation below still
+holds without re-running it.
 
 **The dark-surface column is not an inversion, it is a re-step.** In both modes
-*Very high* is the most visually prominent step and *Very low* the least: on a
+*High* is the most visually prominent step and *Very low* the least: on a
 light surface prominence is darkness, on a dark surface it is lightness. The
 direction of salience is what is preserved, not the direction of lightness.
 
@@ -656,9 +678,15 @@ important one here** — it is what stops *Very low* receding into the backgroun
 and being read as *no data*, which is the §5.6 "absent rendered as present"
 defect this project has already found once.
 
-Because the ramp is one hue, none of these five colours may be used for the
+Because the ramp is one hue, none of these four colours may be used for the
 three coverage states of §5.6 (FR-5.14): *pending* carries a texture and
 *unassessed* a neutral fill, neither of which appears in the ramp.
+
+The vulnerability layer's fill is rendered at **65% opacity** (stroke at full
+opacity) so basemap labels and roads remain legible underneath the colour wash
+— an owner requirement (18 September 2026) that the layer not fully obscure
+the basemap. Legend swatches stay fully opaque; only the map fill is
+translucent.
 
 Thresholds and colours both remain **configuration** (FR-4.13, FR-4.14), so a
 future change is a settings edit, not a release. That is a property of the
@@ -1226,7 +1254,7 @@ design).
 | FR-2.11 | The system shall report import progress and per-cell errors against a batch identifier while the batch is being processed. |
 | FR-2.12 | On completing an import the system shall present a **province import summary** covering three things: what was loaded, what was computed as a result, and what remains outstanding for that province. It shall be shown on screen and be retrievable later against the batch. |
 | FR-2.13 | The "what was loaded" part shall state the profile, period and track imported, the number of DS divisions matched against the province's register, the number of values loaded, the number of variables covered, weights read from the WEIGHTS tab, and any values carried forward from an earlier period. |
-| FR-2.14 | The "what was computed" part shall state which profiles became computable as a result of this import, the hazard and exposure indices and the raw and renormalised vulnerability index produced, the provincial minimum and maximum used in renormalisation, and the resulting distribution across the five bands. |
+| FR-2.14 | The "what was computed" part shall state which profiles became computable as a result of this import, the hazard and exposure indices and the raw and renormalised vulnerability index produced, the provincial minimum and maximum used in renormalisation, and the resulting distribution across the four bands. |
 | FR-2.15 | The "what remains" part shall state, for the province as a whole: how many of its profiles have been imported and how many are outstanding, naming them; how many variables still lack a weight and in which profiles; and how many DS divisions in the province are assessed, pending and unassessed. |
 | FR-2.16 | The province import summary shall be exportable as PDF and CSV, so a provincial officer can circulate it without access to the system. |
 | FR-2.17 | The system shall maintain a **standing outstanding-data register**, available at any time without running an import, stating what has still to be supplied before each profile, each province and the national dataset can compute. It shall resolve to the level at which data is actually supplied — profile × period × variable × DS division — and shall distinguish *not yet supplied* from *supplied and rejected* from *not applicable to this province*. |
@@ -1279,9 +1307,9 @@ design).
 | FR-4.10 | Each stored result shall reference the exact profile version used and the period it describes. |
 | FR-4.11 | Where a value is missing for a period the most recent prior value shall be carried forward. The carried value shall retain its original track, contributor and source, shall record the period it came from, and shall be marked as carried at the point of storage — not inferred later. |
 | FR-4.12 | A carried-forward value shall be visible as such: annotated in the detail panel, counted separately in the coverage statement, and excluded from any claim that a division was assessed for the period displayed. |
-| FR-4.13 | The system shall classify scores into five bands with half-open thresholds at **0.2 / 0.4 / 0.6 / 0.8** on the rescaled 0–1 index. These thresholds are **fixed** (§2.7, [P-4] confirmed 14 August 2026) and shall not be derived from, or adjusted to, the observed distribution. They shall be held as configuration, changeable without a code change or a migration, so that a future decision to change them is an edit rather than a release. |
+| FR-4.13 | The system shall classify scores into four bands with half-open thresholds at **0.25 / 0.5 / 0.75** on the rescaled 0–1 index (revised from five bands at 0.2/0.4/0.6/0.8, owner decision 18 September 2026). These thresholds are **fixed** (§2.7, [P-4] confirmed 14 August 2026, band count revised 18 September 2026) and shall not be derived from, or adjusted to, the observed distribution. They shall be held as configuration, changeable without a code change or a migration, so that a future decision to change them is an edit rather than a release. |
 | FR-4.15 | The system shall provide a report of the observed distribution of the published index — counts and proportions per band, per province and per profile. This is **monitoring, not a threshold-setting input** ([O-10] closed 14 August 2026): it tells the team how the map reads and flags a province whose distribution is degenerate, and it shall not be presented as a proposal to re-cut the bands. |
-| FR-4.13b | The five bands shall be rendered with the single-hue sequential ramp specified in §2.7, in a light-surface and a dark-surface variant, held as configuration alongside the thresholds. Severity shall be carried by lightness, not by hue, so that the map remains readable under colour-vision deficiency and in greyscale. No band colour shall be reused for any of the three coverage states (FR-5.14), and the band nearest the surface shall retain at least 2:1 contrast against it so that the lowest band cannot be read as absent data. |
+| FR-4.13b | The four bands shall be rendered with the single-hue sequential ramp specified in §2.7, in a light-surface and a dark-surface variant, held as configuration alongside the thresholds. Severity shall be carried by lightness, not by hue, so that the map remains readable under colour-vision deficiency and in greyscale. No band colour shall be reused for any of the three coverage states (FR-5.14), and the band nearest the surface shall retain at least 2:1 contrast against it so that the lowest band cannot be read as absent data. The vulnerability layer's fill shall be rendered at reduced opacity (65%) so the basemap remains legible beneath it; stroke and legend swatches remain fully opaque. |
 | FR-4.14 | Recomputation against the same data and profile version shall produce an identical result. |
 
 ## 6.5 Map and visualisation
@@ -1342,7 +1370,7 @@ province filter, and the ranking and value table beside the map.
 | FR-5.20 | The interface shall show an explicit error state when an API call fails. It shall never present a stale or empty view as if it were data. |
 | FR-5.21 | Session state in the interface shall reflect the server's view of authentication. The interface shall not appear signed in while the API rejects its requests. |
 | FR-5.22 | Every asynchronous view shall have a defined loading state and a defined timeout. |
-| FR-5.23 | The map shall carry a summary panel for the current selection: highest- and lowest-scoring divisions, distribution across the five bands, and coverage. *(Should)* |
+| FR-5.23 | The map shall carry a summary panel for the current selection: highest- and lowest-scoring divisions, distribution across the four bands, and coverage. *(Should)* |
 
 ## 6.6 Spatial analysis toolbox
 
@@ -1426,7 +1454,7 @@ not yet exist, and the two-layer toolbox operation of FR-6.5.
 | FR-9.4 | Each stored risk result shall record its three input scores, the profile version behind the vulnerability term, and the asset layers used. |
 | FR-9.5 | The system shall report asset exposure in native units alongside the index — people, kilometres of road, counts of schools and hospitals. |
 | FR-9.6 | Asset layers shall carry the attributes native-unit reporting depends on, validated against the layer's attribute contract. |
-| FR-9.7 | Risk shall use the same five bands as vulnerability. |
+| FR-9.7 | Risk shall use the same four bands as vulnerability. |
 | FR-9.8 | Risk shall not be computed where the underlying vulnerability profile is not computable. An incomplete input shall not silently produce a risk figure. |
 
 ## 6.10 AI assistant
@@ -1896,7 +1924,7 @@ parameters; a division outside a layer's extent is unassessed.
 | O-6 | Tamil names are not held for any reference data, and **eleven divisions now have no Sinhala name either** | Blocks NFR-12. A translation exercise across all 340 divisions, 8 sectors, 3 hazards and 174 indicators. **Now unblocked to start** — [O-12] closed on 14 August 2026, so the register will not move underneath the work. The eleven divisions created by the 2025 revision (§5.1) carry an English name only; the other 329 inherit the Sinhala name held against their pre-revision row |
 | O-7 | Asset layers for the phase-2 risk term are not loaded, and `POPULATION` and `FACILITY` are not registered at all | Blocks §6.9 only. Vulnerability is unaffected |
 | ~~O-8~~ | ~~Fixed bounds for the 134 count and extent variables~~ — **CLOSED 9 August 2026.** Provincial bounds with a provincial hold (§2.2) mean no ceiling need be stated | — |
-| ~~O-10~~ | ~~Band thresholds are a placeholder until real values are loaded~~ — **CLOSED 14 August 2026 by the owner.** The thresholds are the even fifths of the rescaled 0–1 index and are **fixed**; quantile and natural-breaks classification are rejected. The bottom-heavy distribution this item was raised about is **accepted** as an honest reading rather than corrected by re-cutting the bands (§2.7). Band colours specified in the same section; FR-4.15 is retained as monitoring | — |
+| ~~O-10~~ | ~~Band thresholds are a placeholder until real values are loaded~~ — **CLOSED 14 August 2026 by the owner; band count revised 18 September 2026.** The thresholds are a fixed, even split of the rescaled 0–1 index — four even quarters as of 18 September 2026, previously five even fifths — and are **fixed**; quantile and natural-breaks classification are rejected. The bottom-heavy distribution this item was raised about is **accepted** as an honest reading rather than corrected by re-cutting the bands (§2.7). Band colours specified in the same section; FR-4.15 is retained as monitoring | — |
 | ~~O-9~~ | ~~Whether component hazard values exist for the provinces that historically supplied only a composite index~~ — **CLOSED 9 August 2026.** They will be supplied through gradual workbook updates; **[P-5]** confirmed (§2.8). §10 stage 4 is no longer gated | — |
 | ~~O-11~~ | ~~Whether the provincial index rescale (§2.1 step 2) still earns its place now that variable normalisation is also provincial~~ — **CLOSED 14 August 2026 by the owner.** Step 2 stays: the index is min-max rescaled to [0, 1] within its province and the band colours are assigned to that scale directly. Decided on publication grounds rather than statistical ones — a bounded 0–1 scale is what makes the legend fixed (§2.1, §2.7). **[P-14]** confirmed | — |
 | ~~O-12~~ | ~~The official DS-division count has moved again — 340 official against a register of 331, nine divisions unregistered~~ — **CLOSED 14 August 2026.** The owner supplied `DS_Boundary.shp` (Survey Department, 2025-10-09): 340 divisions, with official codes, valid geometry, 25 districts and 9 provinces all resolving, 0 duplicate names or codes, and the polygons tiling the country to within 0.004%. The register, the map assets, the loader and the 243 workbooks were regenerated from it. The nine additions are **splits of existing divisions, not new land** (§5.1), so each starts with no values and three parent codes are retired | **The national index is no longer blocked by the register.** Its precondition is now a *value* for every one of the 340 divisions — which is collection, not reconciliation. Note the register being complete moves every affected province *further* from publishing, not closer, because eleven divisions now hold no values by design; that is the correct outcome, the same one the Kalmunai split produced |
@@ -1987,7 +2015,7 @@ panel decides otherwise, the change is confined to what this table names.
 | **P-1** | `V_raw = Hazard × Exposure`, the raw product with no transform | §2.1, FR-4.8 | A monotonic transform such as `√(H × E)` would change the spacing of scores but not their order, so bands would need re-deriving either way |
 | ~~**P-2**~~ | ~~Normalisation bounds computed across all 330 divisions nationally~~ — **REVERSED 9 August 2026 by the owner.** Bounds are provincial, applied once a province is complete (§2.2, FR-4.3). The consequences the "if reversed" column anticipated are now in force: no national colour scale, no national ranking, and no cross-province comparison of any quantity until §2.2 phase 2 | §2.2, FR-4.3 | Reinstating national bounds means nothing publishes until all 330 divisions report, for every one of the 134 unbounded variables |
 | ~~**P-3**~~ | ~~Fixed bounds preferred over holding computation~~ — **SUPERSEDED 9 August 2026.** The preference existed because holding meant waiting for *national* collection. Under the provincial hold of §2.2 the wait is one province long, so holding is now the default and fixed bounds are retained only for the 40 variables whose bounds are genuinely known | §2.2, FR-4.5 | — |
-| **P-4** | Five bands, half-open, at 0.2 / 0.4 / 0.6 / 0.8 on the rescaled 0–1 index — **CONFIRMED 14 August 2026 by the owner; O-10 closed.** No longer provisional, and explicitly not to be re-derived from the data | §2.7, FR-4.13, FR-4.13b | Thresholds are configuration, so a change is a settings edit. Four bands would need the legend and the risk banding changed with it. Reverting to a data-derived classification would make the legend move as each province completes, which is the specific outcome this decision rejects |
+| **P-4** | Four bands, half-open, at 0.25 / 0.5 / 0.75 on the rescaled 0–1 index — **CONFIRMED 14 August 2026 by the owner as five bands at 0.2/0.4/0.6/0.8; revised to four bands by the owner 18 September 2026; O-10 closed.** No longer provisional, and explicitly not to be re-derived from the data | §2.7, FR-4.13, FR-4.13b | Thresholds are configuration, so a change is a settings edit — which is exactly how the 18 September band-count change was carried out, legend and risk banding changed together. Reverting to a data-derived classification would make the legend move as each province completes, which is the specific outcome this decision rejects |
 | **P-5** | Hazard expressed as components, not as a composite index — **CONFIRMED 9 August 2026; O-9 discharged.** No longer provisional | §2.8 | The composite index becomes the hazard domain in every profile. Scores stop being decomposable, which conflicts with §1.6 and FR-5.9 |
 | ~~**P-6**~~ | ~~Equal weight applied to the exposure domain as an interim~~ — **SUPERSEDED 9 August 2026 by the owner.** An unweighted membership is resolved by explicit exclusion, with the remainder required to total 100 (§2.4). Equal weight would have altered every other weight in the domain; exclusion does not | §2.4, §5.4 | — |
 | **P-7** | Periods are non-overlapping: to 2025, then 2026–2030 | §2.5 | Periods overlap at 2025 and a resolution rule is required, with the determinism fix in §8.4 becoming load-bearing |

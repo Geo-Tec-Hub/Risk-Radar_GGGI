@@ -4,7 +4,7 @@ import { BANDS, COVERAGE_STATE_FILLS } from '../../core/models/band.model';
 import { CoverageState } from '../../core/models/reference-data.model';
 
 /**
- * Styling for the four coverage states (FR-5.14) plus the 5-band score
+ * Styling for the four coverage states (FR-5.14) plus the 4-band score
  * ramp for assessed divisions. FR-5.16: absence must never be colour alone,
  * so `unassessed` gets a hatch pattern and `pending` gets a dotted outline
  * on top of a distinct fill -- state is still legible in greyscale or to a
@@ -24,21 +24,36 @@ import { CoverageState } from '../../core/models/reference-data.model';
  * definitions of the same ramp meant the legend and the map could disagree,
  * and only one of them had been checked.
  */
-const BAND_COLORS: Record<1 | 2 | 3 | 4 | 5, string> = {
+const BAND_COLORS: Record<1 | 2 | 3 | 4, string> = {
   1: BANDS[0].light,
   2: BANDS[1].light,
   3: BANDS[2].light,
   4: BANDS[3].light,
-  5: BANDS[4].light,
 };
+
+/**
+ * Fill alpha for every polygon state (18 Sep 2026, Milinda): the vulnerability
+ * layer sits on top of the OSM basemap, and place names/roads under it were
+ * fully hidden by an opaque fill. Applied to FILL only, never to Stroke --
+ * boundaries stay crisp at full opacity so province/division edges remain
+ * legible; only the colour wash is see-through.
+ */
+const FILL_ALPHA = 0.65;
+
+function withAlpha(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 // Disjoint from the ramp by construction (FR-5.14): a coverage state must
 // never be mistakable for a score.
-const PENDING_FILL = COVERAGE_STATE_FILLS.pending.light;
+const PENDING_FILL = withAlpha(COVERAGE_STATE_FILLS.pending.light, FILL_ALPHA);
 const PENDING_STROKE = '#868e96';
 const SELECTED_STROKE = '#1c7ed6';
 
-const NOT_APPLICABLE_FILL = '#f2f1ee';
+const NOT_APPLICABLE_FILL = withAlpha('#f2f1ee', FILL_ALPHA);
 const NOT_APPLICABLE_STROKE = '#c9c8c2';
 
 let hatchPattern: CanvasPattern | null = null;
@@ -52,7 +67,7 @@ function getHatchPattern(): CanvasPattern {
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = COVERAGE_STATE_FILLS.unassessed.light;
+  ctx.fillStyle = withAlpha(COVERAGE_STATE_FILLS.unassessed.light, FILL_ALPHA);
   ctx.fillRect(0, 0, size, size);
   ctx.strokeStyle = '#ced4da';
   ctx.lineWidth = 1;
@@ -67,12 +82,12 @@ function getHatchPattern(): CanvasPattern {
 
 export function styleForState(
   state: CoverageState,
-  band: 1 | 2 | 3 | 4 | 5 | null,
+  band: 1 | 2 | 3 | 4 | null,
   selected: boolean,
 ): Style {
   if (state === 'assessed' && band !== null) {
     return new Style({
-      fill: new Fill({ color: BAND_COLORS[band] }),
+      fill: new Fill({ color: withAlpha(BAND_COLORS[band], FILL_ALPHA) }),
       stroke: new Stroke({ color: selected ? SELECTED_STROKE : '#495057', width: selected ? 3 : 1 }),
     });
   }
@@ -107,7 +122,7 @@ export function styleForState(
 }
 
 /**
- * The 5-band vulnerability ramp, for the legend.
+ * The 4-band vulnerability ramp, for the legend.
  *
  * Taken straight from BANDS so the legend can never drift from the map fill.
  * `range` is the fixed interval on the rescaled 0-1 index (FR-4.13b) -- the
@@ -117,7 +132,7 @@ export const BAND_LEGEND = BANDS.map((b) => ({
   band: b.band,
   label: b.label,
   swatch: b.light,
-  range: `${b.min.toFixed(1)}\u2013${b.max.toFixed(1)}`,
+  range: `${b.min.toFixed(2)}\u2013${b.max.toFixed(2)}`,
 }));
 
 export const COVERAGE_LEGEND = [

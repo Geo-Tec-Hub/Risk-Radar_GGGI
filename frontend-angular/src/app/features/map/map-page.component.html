@@ -29,7 +29,18 @@
       />
     </div>
 
-    <aside class="map-page__sidebar">
+    <div
+      class="map-page__resize-handle"
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Resize division panel"
+      (pointerdown)="onSidebarResizeStart($event)"
+      (pointermove)="onSidebarResizeMove($event)"
+      (pointerup)="onSidebarResizeEnd($event)"
+      (pointercancel)="onSidebarResizeEnd($event)"
+    ></div>
+
+    <aside class="map-page__sidebar" [style.width.px]="sidebarWidth()">
       <app-division-panel [division]="selectedDivision()" [query]="query()" />
     </aside>
   </div>

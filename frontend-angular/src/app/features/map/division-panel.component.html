@@ -20,13 +20,13 @@
 
       <dl class="panel__composition">
         <dt>Hazard index</dt>
-        <dd>{{ c.hazardIndex ?? 'unassessed' }}</dd>
+        <dd>{{ (c.hazardIndex | number: '1.0-4') ?? 'unassessed' }}</dd>
         <dt>Exposure index</dt>
-        <dd>{{ c.exposureIndex ?? 'unassessed' }}</dd>
+        <dd>{{ (c.exposureIndex | number: '1.0-4') ?? 'unassessed' }}</dd>
         <dt>Raw index (H × E)</dt>
-        <dd>{{ c.rawIndex ?? 'unassessed' }}</dd>
+        <dd>{{ (c.rawIndex | number: '1.0-4') ?? 'unassessed' }}</dd>
         <dt>Bounds used</dt>
-        <dd>{{ c.boundMin ?? '—' }} to {{ c.boundMax ?? '—' }}</dd>
+        <dd>{{ (c.boundMin | number: '1.0-4') ?? '—' }} to {{ (c.boundMax | number: '1.0-4') ?? '—' }}</dd>
         <dt>Profile version</dt>
         <dd>{{ c.profileVersion ?? '—' }}</dd>
       </dl>
@@ -48,7 +48,7 @@
                 <td>{{ v.indicatorName }} ({{ v.direction }})</td>
                 <td>{{ v.weightPct }}</td>
                 <td>{{ v.rawValue ?? '—' }} {{ v.unit }}</td>
-                <td>{{ v.normalisedValue ?? '—' }}</td>
+                <td>{{ (v.normalisedValue | number: '1.0-4') ?? '—' }}</td>
               </tr>
             }
           </tbody>
@@ -72,7 +72,7 @@
                 <td>{{ v.indicatorName }} ({{ v.direction }})</td>
                 <td>{{ v.weightPct }}</td>
                 <td>{{ v.rawValue ?? '—' }} {{ v.unit }}</td>
-                <td>{{ v.normalisedValue ?? '—' }}</td>
+                <td>{{ (v.normalisedValue | number: '1.0-4') ?? '—' }}</td>
               </tr>
             }
           </tbody>

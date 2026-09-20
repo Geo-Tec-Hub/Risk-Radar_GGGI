@@ -34,6 +34,19 @@ export class MapPageComponent {
   readonly unitsByCode = signal<ReadonlyMap<string, VulnerabilityUnit>>(new Map());
   readonly selectedDivision = signal<DsDivisionProperties | null>(null);
 
+  /**
+   * Sidebar width, drag-resizable via the handle between map and panel
+   * (2026-09-18, Milinda). Persisted per-browser in localStorage -- a
+   * remembered layout preference, not app state, so it is read/written
+   * defensively (private browsing, blocked storage) rather than trusted.
+   */
+  private static readonly SIDEBAR_MIN = 260;
+  private static readonly SIDEBAR_DEFAULT = 320;
+  private static readonly SIDEBAR_STORAGE_KEY = 'rr-sidebar-width';
+  private resizingSidebar = false;
+
+  readonly sidebarWidth = signal<number>(this.loadSidebarWidth());
+
   readonly resultsLoading = signal(false);
   readonly resultsError = signal<string | null>(null);
 
@@ -80,6 +93,51 @@ export class MapPageComponent {
 
   onBoundariesFailed(message: string): void {
     this.boundaryError.set(message);
+  }
+
+  /** Leaves at least this much width for the map itself, however wide the window. */
+  private sidebarMax(): number {
+    return Math.max(MapPageComponent.SIDEBAR_MIN, window.innerWidth - 360);
+  }
+
+  private loadSidebarWidth(): number {
+    try {
+      const stored = Number(localStorage.getItem(MapPageComponent.SIDEBAR_STORAGE_KEY));
+      if (Number.isFinite(stored) && stored >= MapPageComponent.SIDEBAR_MIN) {
+        return Math.min(stored, this.sidebarMax());
+      }
+    } catch {
+      // Private window, blocked storage, etc. -- fall through to the default.
+    }
+    return MapPageComponent.SIDEBAR_DEFAULT;
+  }
+
+  onSidebarResizeStart(event: PointerEvent): void {
+    event.preventDefault();
+    this.resizingSidebar = true;
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+  }
+
+  onSidebarResizeMove(event: PointerEvent): void {
+    if (!this.resizingSidebar) return;
+    // The sidebar sits on the right edge, so its width is the distance from
+    // the pointer to the right edge of the viewport.
+    const width = Math.min(
+      this.sidebarMax(),
+      Math.max(MapPageComponent.SIDEBAR_MIN, window.innerWidth - event.clientX),
+    );
+    this.sidebarWidth.set(width);
+  }
+
+  onSidebarResizeEnd(event: PointerEvent): void {
+    if (!this.resizingSidebar) return;
+    this.resizingSidebar = false;
+    (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
+    try {
+      localStorage.setItem(MapPageComponent.SIDEBAR_STORAGE_KEY, String(this.sidebarWidth()));
+    } catch {
+      // Not persisted this session -- the drag itself still worked.
+    }
   }
 
   private refresh(query: VulnerabilityQuery): void {

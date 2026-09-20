@@ -14,10 +14,11 @@
 #      them boundary-pending with a perfectly good polygon sitting unused.
 #      A register row with no matching polygon still loads (geom/area_km2
 #      NULL, reading as boundary_pending), it is not silently dropped.
-#      Geometry stored in EPSG:4326 (source is EPSG:5234, Kandawala / Sri
-#      Lanka Grid -- stated explicitly, since DS_Boundary.shp's .prj carries
-#      no EPSG authority code). area_km2 computed in EPSG:5235 (SLD99) so it
-#      comes out in km2, not degrees.
+#      Geometry stored in EPSG:4326; source is already EPSG:4326 (SHP_Admin_4326,
+#      supplied 2026-09-17, merged from 9 per-province shapefiles -- see the
+#      2026-09-17 tracker row), so -t_srs EPSG:4326 below is a no-op transform,
+#      not a real reprojection like the 2025-10-09 Kandawala file it replaces.
+#      area_km2 computed in EPSG:5235 (SLD99) so it comes out in km2, not degrees.
 #   2. spatial_layer features for the province and district layers, so the map
 #      has admin outlines to draw and the toolbox has something to test against.
 #
@@ -42,10 +43,10 @@ for f in DS_Boundary.shp SL_PD.shp SL_DSD.shp; do
   fi
 done
 
-echo "  loading DS_Boundary polygons into staging (EPSG:5234 -> 4326)..."
+echo "  loading DS_Boundary polygons into staging (EPSG:4326)..."
 ogr2ogr -f PostgreSQL "$PG" "$SHP/DS_Boundary.shp" \
         -nln stg_dsd -overwrite -lco GEOMETRY_NAME=geom \
-        -s_srs EPSG:5234 -t_srs EPSG:4326 -nlt MULTIPOLYGON
+        -s_srs EPSG:4326 -t_srs EPSG:4326 -nlt MULTIPOLYGON
 
 echo "  loading the DS-division register (340 rows, district + province)..."
 $PSQL <<'SQL'

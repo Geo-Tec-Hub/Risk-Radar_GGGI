@@ -100,3 +100,21 @@
 .import__detailscroll { max-height: 26rem; overflow: auto; }
 .import__detailscroll input[type='number'] { width: 8rem; padding: .2rem .35rem; }
 .import__error { margin: .4rem 0; font-size: .8rem; color: #a4243b; }
+
+.import__batchfilter {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.6rem;
+  flex-wrap: wrap;
+
+  label {
+    font-weight: 600;
+  }
+
+  input {
+    flex: 1 1 22rem;
+    max-width: 32rem;
+    padding: 0.35rem 0.5rem;
+  }
+}
