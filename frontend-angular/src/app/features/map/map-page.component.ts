@@ -1,7 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 import { ApiClientService } from '../../core/services/api-client.service';
 import { TaxonomyService } from '../../core/services/taxonomy.service';
+import { withViewTimeout } from '../../core/services/view-request';
 import { ApiError } from '../../core/models/api-error.model';
 import { DsDivisionProperties } from '../../core/models/ds-division.model';
 import { CoverageSummary, VulnerabilityQuery, VulnerabilityUnit } from '../../core/models/vulnerability.model';
@@ -9,15 +11,16 @@ import { CoverageLegendComponent } from './coverage-legend.component';
 import { DivisionPanelComponent } from './division-panel.component';
 import { FilterBarComponent } from './filter-bar.component';
 import { OpenlayersMapComponent } from './openlayers-map.component';
+import { LAYER_LABEL, MAP_LAYERS, MapLayer, unitForLayer } from '../../core/models/map-layer.model';
 
 /**
  * Composes the public map screen (SRS §6.5 / Stage 5): filter bar, map,
  * legend and the division detail panel. This is the route target for `/`.
  *
- * `GET /vulnerability` (§9) has no backend behind it yet -- every request
- * here fails today. That failure is surfaced (FR-5.20), not hidden, and the
- * map still renders every division as `unassessed`, which is the honest
- * state of a system with no computation engine (Stage 4 not started).
+ * `GET /vulnerability` (§9) is served by `backend/app/routers/vulnerability.py`;
+ * when it is unreachable the failure is surfaced (FR-5.20), not hidden, and the
+ * map still renders every division as `unassessed`, which is the honest state
+ * of a system with no reachable scores.
  */
 @Component({
   selector: 'app-map-page',
@@ -32,6 +35,87 @@ export class MapPageComponent {
 
   readonly query = signal<VulnerabilityQuery>({});
   readonly unitsByCode = signal<ReadonlyMap<string, VulnerabilityUnit>>(new Map());
+
+  /** Which index colours the map (27 Sep 2026): vulnerability, or the same
+   * profile's hazard or exposure index. The map, the legend and the coverage
+   * counts all read `displayUnits`, so they always describe the same layer. */
+  readonly layer = signal<MapLayer>('vulnerability');
+  readonly layers = MAP_LAYERS;
+  readonly layerLabel = LAYER_LABEL;
+  readonly displayUnits = computed<ReadonlyMap<string, VulnerabilityUnit>>(() => {
+    const layer = this.layer();
+    const out = new Map<string, VulnerabilityUnit>();
+    for (const [k, u] of this.unitsByCode()) out.set(k, unitForLayer(u, layer));
+    return out;
+  });
+
+  // ---- PDF export ------------------------------------------------------
+  readonly exportBusy = signal<'one' | 'all' | null>(null);
+  readonly exportError = signal<string | null>(null);
+  readonly exportPanelOpen = signal(false);
+  readonly exportLayers = signal<Record<MapLayer, boolean>>({
+    vulnerability: true, hazard: true, exposure: true,
+  });
+
+  onLayerChange(layer: MapLayer): void {
+    this.layer.set(layer);
+    this.recomputeCoverage();
+  }
+
+  toggleExportLayer(layer: MapLayer, on: boolean): void {
+    this.exportLayers.update((m) => ({ ...m, [layer]: on }));
+  }
+
+  /** The map on screen: this profile, this layer, as a one-page PDF. */
+  exportThisMap(): void {
+    const q = this.query();
+    this.download('one', {
+      province: q.province, period: q.period, track: q.track,
+      sector: q.sector, subsector: q.subsector, hazard: q.hazard,
+      layers: this.layer(),
+    });
+  }
+
+  /** Every profile of the province with scores for the period, chosen layers. */
+  exportAllMaps(): void {
+    const q = this.query();
+    const layers = MAP_LAYERS.filter((l) => this.exportLayers()[l]);
+    if (!layers.length) {
+      this.exportError.set('Choose at least one layer to export.');
+      return;
+    }
+    this.download('all', { province: q.province, period: q.period, track: q.track, layers: layers.join(',') });
+  }
+
+  private download(kind: 'one' | 'all', params: Record<string, string | undefined>): void {
+    if (!params['province'] || !params['period']) return;
+    this.exportBusy.set(kind);
+    this.exportError.set(null);
+    this.api.downloadMapsPdf(params).subscribe({
+      next: (res) => {
+        const cd = res.headers.get('Content-Disposition') ?? '';
+        const name = /filename="?([^";]+)"?/.exec(cd)?.[1] ?? 'RiskRadar_maps.pdf';
+        const url = URL.createObjectURL(res.body as Blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        this.exportBusy.set(null);
+        if (kind === 'all') this.exportPanelOpen.set(false);
+      },
+      error: async (err) => {
+        // The error body of a blob request is itself a Blob.
+        let msg = err?.message ?? 'The PDF could not be produced.';
+        try {
+          const text = await (err?.error as Blob)?.text?.();
+          if (text) msg = JSON.parse(text).detail ?? msg;
+        } catch { /* keep the generic message */ }
+        this.exportError.set(msg);
+        this.exportBusy.set(null);
+      },
+    });
+  }
   readonly selectedDivision = signal<DsDivisionProperties | null>(null);
 
   /**
@@ -51,6 +135,13 @@ export class MapPageComponent {
   readonly resultsError = signal<string | null>(null);
 
   /**
+   * The in-flight results request, cancelled when a newer one starts. Without
+   * this a slow response to an OLD filter selection could land last and paint
+   * the wrong profile's scores under the new labels (QA 26 Sep 2026).
+   */
+  private resultsRequest?: Subscription;
+
+  /**
    * Count of boundaries actually drawn, from the stopgap GeoJSON asset --
    * NOT the authoritative division count, and never to be presented as one.
    * It is the *drawable* count (SRS §5.1) and it runs low against the register
@@ -67,6 +158,15 @@ export class MapPageComponent {
   readonly coverage = signal<CoverageSummary | null>(null);
 
   /**
+   * Divisions that hold a value for every weighted variable of the active
+   * profile version but have no score for it yet -- the `pending` state the
+   * API emits after a weights save (new version, results not yet recomputed).
+   * Surfaced as a notice, not an error: the data is present, the scores are
+   * simply not computed for the new version.
+   */
+  readonly pendingCount = computed(() => this.coverage()?.pending ?? 0);
+
+  /**
    * The province NAME the boundary asset carries, resolved from the province
    * CODE the filter emits. The two are not interchangeable: the API keys on
    * codes (CEN) and ds_divisions.simplified.geojson carries names (Central).
@@ -81,6 +181,11 @@ export class MapPageComponent {
     this.query.set(query);
     this.selectedDivision.set(null);
     this.refresh(query);
+  }
+
+  /** An expert/community score was just saved: re-read the map, keep the selection. */
+  onAssessmentSaved(): void {
+    this.refresh(this.query());
   }
 
   onDivisionSelected(division: DsDivisionProperties): void {
@@ -141,10 +246,11 @@ export class MapPageComponent {
   }
 
   private refresh(query: VulnerabilityQuery): void {
+    this.resultsRequest?.unsubscribe();
     this.resultsLoading.set(true);
     this.resultsError.set(null);
 
-    this.api.getVulnerability(query).subscribe({
+    this.resultsRequest = this.api.getVulnerability(query).pipe(withViewTimeout()).subscribe({
       next: (units) => {
         this.unitsByCode.set(new Map(units.map((u) => [u.dsCode, u])));
         this.resultsLoading.set(false);
@@ -172,7 +278,7 @@ export class MapPageComponent {
    * denominator the statement needs.
    */
   private recomputeCoverage(): void {
-    const units = Array.from(this.unitsByCode().values());
+    const units = Array.from(this.displayUnits().values());
     if (units.length === 0) {
       this.coverage.set(null);
       return;

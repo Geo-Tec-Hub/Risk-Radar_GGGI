@@ -4,6 +4,18 @@
   >
   <h2 class="import__title">Import raw data</h2>
 
+  @if (!mayImport()) {
+    <p class="import__banner" role="status">
+      Workbook import loads the official data and is for data officers.
+      @if (contributorTrack(); as t) {
+        As an {{ t === 'expert' ? 'external expert' : 'community member' }}, add your own figures on the
+        <a routerLink="/map" [queryParams]="{ track: t }">map</a>: select a DS division, choose the sector and
+        hazard, set Track to <strong>{{ t }}</strong>, and enter your hazard and exposure values — the
+        vulnerability is calculated when you save.
+      }
+    </p>
+  } @else {
+
   @if (taxonomyError()) {
     <p class="import__banner import__banner--error" role="status">
       Filter options could not be loaded, so no scope can be chosen yet. {{ taxonomyError() }}
@@ -74,6 +86,22 @@
         owns them, so that no sector import can overwrite them. Importing this file needs the
         hazard-data grant.
       </p>
+    }
+
+    @if (kind() === 'sector' && activeProfile(); as ap) {
+      <p class="import__note import__profile">
+        Imports into <strong>{{ ap.profileCode }}</strong> (version {{ ap.version }}, {{ ap.variables }} variables).
+        A workbook issued for an earlier version still loads into this one.
+        <button type="button" class="import__linkbtn" [disabled]="templateBusy()" (click)="downloadTemplate()">
+          {{ templateBusy() ? 'Preparing…' : 'Download the current template' }}
+        </button>
+        @if (weightsParams(); as wp) {
+          · <a routerLink="/weights" [queryParams]="wp">Edit this profile's weights</a>
+        }
+      </p>
+      @if (templateError(); as m) {
+        <p class="import__banner import__banner--error" role="alert">{{ m }}</p>
+      }
     }
 
     <label class="import__field import__field--file">
@@ -256,6 +284,8 @@
     }
   </section>
 
+  }
+
   <h3 class="import__subtitle">Recent imports</h3>
   @if (batches().length === 0) {
     <p class="import__muted">Nothing imported yet, or you are not signed in.</p>
@@ -280,7 +310,9 @@
   @if (visibleBatches().length > 0) {
     <table class="import__batches">
       <thead>
-        <tr><th>File</th><th>Profile</th><th>Status</th><th>Read</th><th>Loaded</th><th>Errors</th><th>When</th></tr>
+        <tr><th>File</th><th>Profile</th><th>Status</th><th>Read</th>
+          <th title="Can be more than Read: values typed into blank cells on the review screen are loaded too">Loaded</th>
+          <th>Errors</th><th>When</th></tr>
       </thead>
       <tbody>
         @for (b of visibleBatches(); track b.id) {
@@ -294,7 +326,12 @@
             <td>{{ b.profileCode ?? '—' }}</td>
             <td>{{ b.status }}</td>
             <td>{{ b.rowsTotal ?? '—' }}</td>
-            <td>{{ b.rowsLoaded ?? '—' }}</td>
+            <td>
+              {{ b.rowsLoaded ?? '—' }}
+              @if (b.rowsLoaded !== null && b.rowsTotal !== null && b.rowsLoaded > b.rowsTotal) {
+                <span class="import__muted" title="values added on the review screen">(+{{ b.rowsLoaded - b.rowsTotal }} added)</span>
+              }
+            </td>
             <td>{{ b.errorCount }}</td>
             <td>{{ b.uploadedAt | date: 'short' }}</td>
           </tr>
@@ -313,6 +350,9 @@
                       <strong>{{ d.values.length }}</strong> values
                       @if (d.province) { in {{ d.province }} }
                       @if (d.uploadedBy) { · uploaded by {{ d.uploadedBy }} }
+                      @if (d.currentProfileCode && d.currentProfileCode !== d.profileCode) {
+                        · now feeds {{ d.currentProfileCode }}
+                      }
                     </span>
                     @if (d.editable) {
                       <button type="button" (click)="toggleEditing()">
@@ -334,8 +374,16 @@
                     </p>
                   }
 
+                  @if (d.fromThisImport !== undefined && d.fromThisImport < d.values.length) {
+                    <p class="import__muted">
+                      Showing every column of this workbook with the value in Risk Radar now.
+                      {{ d.values.length - d.fromThisImport }} of {{ d.values.length }} were last written by a later
+                      import that carries the same variable (the climate columns are in most sector
+                      workbooks), so they may differ from this file.
+                    </p>
+                  }
                   @if (d.values.length === 0) {
-                    <p class="import__muted">This import wrote no values.</p>
+                    <p class="import__muted">No values are held for this workbook's columns.</p>
                   } @else {
                     <!-- The same grid the review screen uses, in `stored` mode:
                          these values ARE what is in the database, so there is

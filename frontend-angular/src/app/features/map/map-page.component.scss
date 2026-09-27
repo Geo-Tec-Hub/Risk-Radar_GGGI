@@ -17,6 +17,13 @@
   font-size: 0.8125rem;
 }
 
+/* "Awaiting recomputation" is not an error: data is present, scores are not. */
+.map-page__banner--notice {
+  background: #fff9db;
+  color: #946200;
+  border-bottom: 1px solid #ffe8a1;
+}
+
 .map-page__body {
   flex: 1;
   display: flex;
@@ -97,3 +104,18 @@
     display: none;
   }
 }
+
+// PDF export toolbar (27 Sep 2026)
+.map-page__toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+  padding: 0.35rem 1rem; border-bottom: 1px solid #dee2e6; font-size: 0.8125rem;
+}
+.map-page__btn {
+  padding: 0.3rem 0.7rem; border: 1px solid #1c3a5b; border-radius: 4px; background: #1c3a5b;
+  color: #fff; font: inherit; cursor: pointer;
+  &:disabled { opacity: 0.55; cursor: default; }
+}
+.map-page__btn--ghost { background: #fff; color: #1c3a5b; }
+.map-page__export-panel { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; color: #495057; }
+.map-page__check { display: inline-flex; align-items: center; gap: 0.2rem; }
+.map-page__export-error { color: #c92a2a; }

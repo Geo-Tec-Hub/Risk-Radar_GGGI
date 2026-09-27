@@ -1,5 +1,9 @@
 import { Component, OnInit, computed, effect, inject, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+
+import { AuthService } from '../../core/services/auth.service';
+import { LAYER_LABEL, MAP_LAYERS, MapLayer } from '../../core/models/map-layer.model';
 
 import { ReferenceDataService } from '../../core/services/reference-data.service';
 import { TaxonomyService } from '../../core/services/taxonomy.service';
@@ -35,6 +39,8 @@ import { VulnerabilityQuery } from '../../core/models/vulnerability.model';
 export class FilterBarComponent implements OnInit {
   private readonly referenceData = inject(ReferenceDataService);
   private readonly taxonomyService = inject(TaxonomyService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly auth = inject(AuthService);
 
   /**
    * Options come from the API, not from constants. The SRS §5.3 literals had
@@ -47,29 +53,61 @@ export class FilterBarComponent implements OnInit {
   readonly taxonomyError = this.taxonomyService.error;
 
   readonly queryChange = output<VulnerabilityQuery>();
+  /** Which index colours the map. Kept OUT of the query: it changes which
+   * column of the same results is drawn, so switching it re-colours the map
+   * without asking the server again. */
+  readonly layerChange = output<MapLayer>();
+  readonly layers = MAP_LAYERS;
+  readonly layerLabel = LAYER_LABEL;
+  readonly layer = signal<MapLayer>('vulnerability');
 
-  readonly sectors = computed(() => this.taxonomy()?.sectors ?? []);
+  onLayerChange(layer: MapLayer): void {
+    this.layer.set(layer);
+    this.layerChange.emit(layer);
+  }
 
   /**
-   * Only the hazards a profile exists for, narrowed by the current sector and
-   * subsector. Offering all three unconditionally left 15 of 48 combinations
-   * 404ing from these very controls (4 Sep QA). The names still come from the
+   * Sectors narrowed to those with a profile in the SELECTED PROVINCE. A score
+   * is provincial and a profile is province-scoped, so a sector that exists
+   * only in Central (Inland Fishery) must not be offered in Eastern -- it would
+   * 404, and the map would call a permanent absence a transient outage (QA
+   * 26 Sep 2026).
+   */
+  readonly sectors = computed(() => {
+    const province = this.province();
+    const all = this.taxonomy()?.sectors ?? [];
+    if (!province) return all;
+    return all.filter((s) =>
+      this.availableIn(s.hazards, province) ||
+      s.subsectors.some((sub) => this.availableIn(sub.hazards, province)));
+  });
+
+  /**
+   * Only the hazards a profile exists for, narrowed by the current province,
+   * sector and subsector. Offering hazards unconditionally left 15 of 48
+   * combinations 404ing (4 Sep QA); the province axis was the same defect one
+   * level up and was left open until 26 Sep. The names still come from the
    * flat list; only the SET is narrowed.
    */
   readonly hazards = computed(() => {
     const all = this.taxonomy()?.hazards ?? [];
+    const province = this.province();
+    if (!province) return all;
     const sector = this.sectors().find((s) => s.code === this.sector());
     if (!sector) return all;
     const sub = sector.subsectors.find((x) => x.code === this.subsector());
-    const allowed = sub ? sub.hazards : sector.hazards;
+    const node = sub ?? sector;
+    const allowed = node.hazards
+      .filter((ha) => this.availableIn([ha], province))
+      .map((ha) => ha.hazard);
     // FAIL OPEN, NOT SHUT. An API that has not been restarted still serves the
-    // old taxonomy, which carries no per-subsector hazard list. Narrowing
+    // old taxonomy, which carries no per-province hazard list. Narrowing
     // against a missing list yielded an EMPTY dropdown -- no hazard could be
     // chosen, so no query was ever sent and the map stayed blank with nothing
-    // saying why. Offering all three is the previous behaviour: at worst a
+    // saying why. Offering everything is the previous behaviour: at worst a
     // combination 404s and says so, which is a far better failure than a
     // control that cannot be used.
-    if (!allowed || allowed.length === 0) return all;
+    if (allowed.length === 0) return all;
     const set = new Set(allowed);
     return all.filter((h) => set.has(h.code));
   });
@@ -91,29 +129,34 @@ export class FilterBarComponent implements OnInit {
 
   /**
    * National completeness is unreachable until every registered division holds
-   * a value AND the register itself matches the official count (SRS §11.3
-   * O-12). Never hardcode either number here -- see the class comment.
+   * a value (SRS §2.2) and the register matches the official count. The reason
+   * used to read a division count from `ReferenceDataService` that nothing ever
+   * populated, so it always fell back to the generic sentence below while
+   * pretending to compute a number (QA 26 Sep). State the honest reason and say
+   * less rather than a number we are not tracking.
    */
-  readonly nationalScopeDisabledReason = computed(() => {
-    const c = this.referenceData.getDivisionCoverage()();
-    if (!c) {
-      return 'National index unavailable: it requires a value for every DS division in the official register.';
-    }
-    const parts = [
-      `${c.withValues} of ${c.registered} registered divisions hold a value`,
-    ];
-    if (c.official !== null && c.official > c.registered) {
-      parts.push(
-        `and ${c.official - c.registered} division(s) in the official count of ${c.official} are not yet registered`,
-      );
-    }
-    return `National index unavailable: ${parts.join(', ')}.`;
-  });
+  readonly nationalScopeDisabledReason = signal(
+    'National index unavailable: it requires a value for every registered DS division, and collection is still under way.',
+  );
 
   readonly subsectorOptions = computed(() => {
+    const province = this.province();
     const selected = this.sectors().find((s) => s.code === this.sector());
-    return selected?.subsectors ?? [];
+    const subs = selected?.subsectors ?? [];
+    if (!province) return subs;
+    return subs.filter((sub) => this.availableIn(sub.hazards, province));
   });
+
+  /** A node offers a profile in `province` if any of its hazards does. */
+  private availableIn(
+    hazards: readonly { provinces?: readonly string[] }[],
+    province: string,
+  ): boolean {
+    // A hazard entry that carries no province list is from an API that predates
+    // the province axis -- treat it as available everywhere (fail open).
+    return hazards.some((ha) => !ha.provinces || ha.provinces.length === 0 ||
+                              ha.provinces.includes(province));
+  }
 
   /** True once the taxonomy has answered and a full selection can be made. */
   readonly ready = computed(() => this.taxonomy() !== null);
@@ -125,9 +168,23 @@ export class FilterBarComponent implements OnInit {
     effect(() => {
       const t = this.taxonomy();
       if (!t || this.sector() !== undefined) return;
-      this.province.set(this.province() ?? t.provinces[0]?.code);
-      this.sector.set(t.sectors[0]?.code);
-      this.subsector.set(t.sectors[0]?.subsectors[0]?.code);
+      // ?track=expert|community (the sign-in landing for those roles) opens the
+      // map on the person's own track, and on their own province, so selecting
+      // a division leads straight to the entry form.
+      const qp = this.route.snapshot.queryParamMap;
+      const askedLayer = qp.get('layer') as MapLayer | null;
+      if (askedLayer && MAP_LAYERS.includes(askedLayer)) this.onLayerChange(askedLayer);
+      const askedTrack = qp.get('track');
+      if (askedTrack && (this.tracks as readonly string[]).includes(askedTrack)) this.track.set(askedTrack);
+      const mine = this.auth.currentUser()?.province;
+      const norm = (x: string) => x.replace(/\s+/g, '').toLowerCase();
+      const own = mine ? t.provinces.find((p) => norm(p.name) === norm(mine))?.code : undefined;
+      const askedProvince = qp.get('province') ?? undefined;
+      this.province.set(this.province() ?? askedProvince ?? own ?? t.provinces[0]?.code);
+      // Seed from the PROVINCE-SCOPED lists, so the initial selection is a
+      // combination that actually has a profile in the chosen province.
+      this.sector.set(this.sectors()[0]?.code);
+      this.subsector.set(this.subsectorOptions()[0]?.code);
       this.hazard.set(this.hazards()[0]?.code);
       this.period.set(t.periods[0]);
       this.emit();
@@ -161,6 +218,30 @@ export class FilterBarComponent implements OnInit {
     if (!options.some((h) => h.code === this.hazard())) {
       this.hazard.set(options[0]?.code);
     }
+  }
+
+  /** The province is part of what defines an available profile, so changing it
+   * can make the current sector/subsector/hazard impossible (Central has Inland
+   * Fishery, Eastern does not). Re-validate the whole selection, then emit. */
+  /** Plain label for the track codes the API uses (FR-5.13). */
+  trackLabel(t: string): string {
+    return t === 'data' ? 'Official' : t === 'expert' ? 'Expert' : 'Community';
+  }
+
+  onProvinceChange(code: string): void {
+    this.province.set(code || undefined);
+    this.keepSelectionValid();
+    this.emit();
+  }
+
+  private keepSelectionValid(): void {
+    if (!this.sectors().some((s) => s.code === this.sector())) {
+      this.sector.set(this.sectors()[0]?.code);
+    }
+    if (!this.subsectorOptions().some((s) => s.code === this.subsector())) {
+      this.subsector.set(this.subsectorOptions()[0]?.code);
+    }
+    this.keepHazardValid();
   }
 
   onFieldChange(): void {

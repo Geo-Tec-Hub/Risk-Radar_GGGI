@@ -45,6 +45,8 @@ export interface ProfileCoverage {
   divisionsPartial: number;
   divisionsEmpty: number;
   scored: number;
+  /** Computed, but the sector is absent there, so the map shows no score. */
+  notPresent?: number;
   status: string;
   note: string;
   gaps: Gap[];

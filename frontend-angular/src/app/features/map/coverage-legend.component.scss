@@ -46,6 +46,12 @@
   border-style: dashed;
 }
 
+.legend__swatch--dots {
+  background-color: #f2f1ee;
+  background-image: radial-gradient(circle, #adb5bd 1px, transparent 1.4px);
+  background-size: 6px 6px;
+}
+
 .legend__hint {
   color: #868e96;
   font-size: 0.75rem;

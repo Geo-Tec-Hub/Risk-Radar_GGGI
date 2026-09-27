@@ -59,17 +59,19 @@ values is not. Every row records who imported it.
 from __future__ import annotations
 
 import json
+import re
 import logging
 import os
 import tempfile
 from typing import Optional
 
 import asyncpg
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
 from pydantic import BaseModel
 
 from app.deps import CurrentUser, db, get_current_user
 from app.importer.load_template import AGG_HINT, load_workbook_values
+from app.importer.template_writer import build_profile_workbook
 from app.routers.reference import COLLECTION_PERIODS
 
 log = logging.getLogger(__name__)
@@ -77,6 +79,23 @@ log = logging.getLogger(__name__)
 router = APIRouter(prefix="/import", tags=["import"])
 
 MAX_BYTES = 20 * 1024 * 1024
+
+IMPORT_ROLES = ("admin", "data_officer")
+
+
+def require_import_role(user: CurrentUser) -> None:
+    """The import tab writes the OFFICIAL data track. QA 26 Sep 2026: an
+    external expert account was loading sector workbooks here, straight into
+    the published figures, because `may_write_profile` answers "which sector
+    and province" and never "which role". Experts and community members give
+    their own figures on the map instead (routers/assessments.py), which writes
+    their own track and never the official one."""
+    if not any(user.has_role(r) for r in IMPORT_ROLES):
+        raise HTTPException(
+            403, "workbook import loads the official data and is for data "
+                 "officers. As an expert or community member, add your own "
+                 "assessment on the map: select a DS division, choose the "
+                 "sector, hazard and your track, and enter the values there.")
 
 
 class PreviewRowOut(BaseModel):
@@ -198,6 +217,10 @@ class ValueRow(BaseModel):
     domain: str
     value: float
     period: str
+    # False when a later import carrying the same variable has since written
+    # this cell -- the value shown is still the one in the database.
+    fromThisImport: bool = True
+    lastImportedBy: Optional[str] = None
 
 
 class BatchDetail(BaseModel):
@@ -226,6 +249,10 @@ class BatchDetail(BaseModel):
     # wrote nothing for renders as a header and no rows at all, which looks
     # like a broken screen rather than an empty period.
     divisionsAll: list[DivisionOut] = []
+    # The active profile this batch's values feed (its own code may be a V1
+    # issue stamp), and how many of the cells shown this batch itself wrote.
+    currentProfileCode: Optional[str] = None
+    fromThisImport: int = 0
 
 
 class CorrectionIn(BaseModel):
@@ -263,6 +290,7 @@ async def _run(pool: asyncpg.Pool, file: UploadFile, user: CurrentUser,
                scope: Optional[tuple[str, str, Optional[str], str]],
                dry_run: bool,
                edits: Optional[dict[tuple[str, str, str], float]] = None) -> ImportReport:
+    require_import_role(user)
     if not (file.filename or "").lower().endswith(".xlsx"):
         raise HTTPException(400, "expected an .xlsx upload template")
     body = await file.read()
@@ -319,6 +347,7 @@ async def _run(pool: asyncpg.Pool, file: UploadFile, user: CurrentUser,
                     # keeps anything at all -- including its own batch row, so a
                     # rejected upload cannot be mistaken for a partial one.
                     raise _Done(result, batch_id if not dry_run else None)
+        await _note_previous(pool, result, batch_id)
         return ImportReport(
             # The reader names the file it was handed, which is a temp path.
             # Report the name the person actually uploaded.
@@ -336,6 +365,8 @@ async def _run(pool: asyncpg.Pool, file: UploadFile, user: CurrentUser,
             divisionsAll=_divisions_out(result.divisions_all))
     except _Done as done:
         r = done.result
+        if r.ok:
+            await _note_previous(pool, r, None)
         return ImportReport(
             filename=file.filename or r.filename, profileCode=r.profile_code,
             dryRun=dry_run,
@@ -351,6 +382,87 @@ async def _run(pool: asyncpg.Pool, file: UploadFile, user: CurrentUser,
             divisionsAll=_divisions_out(r.divisions_all))
     finally:
         os.unlink(tmp.name)
+
+
+async def _note_previous(pool: asyncpg.Pool, result, batch_id: Optional[int]) -> None:
+    """Say so when this profile has been imported before (QA 26 Sep 2026: the
+    same Paddy / Drought workbook was loaded eight times in one afternoon with
+    nothing on screen to show it had already gone in). Not a refusal -- the
+    latest import is meant to supersede -- but it should never be a surprise."""
+    if not result.profile_code:
+        return
+    prev = await pool.fetchrow(
+        """SELECT b.uploaded_at, u.full_name, count(*) OVER () AS n
+             FROM import_batch b LEFT JOIN app_user u ON u.id = b.uploaded_by
+            WHERE b.profile_code = $1 AND b.status = 'loaded'
+              AND ($2::bigint IS NULL OR b.id <> $2)
+            ORDER BY b.uploaded_at DESC LIMIT 1""", result.profile_code, batch_id)
+    if prev is None:
+        return
+    result.warnings.insert(0,
+        "%s has been imported %d time(s) before, most recently on %s by %s. "
+        "Importing again replaces the official values this file carries."
+        % (result.profile_code, prev["n"], prev["uploaded_at"].strftime("%d %b %Y %H:%M"),
+           prev["full_name"] or "unknown"))
+
+
+class ProfileInfo(BaseModel):
+    profileCode: str
+    version: int
+    variables: int
+
+
+async def _active_profile(conn, province: str, sector: str,
+                          subsector: Optional[str], hazard: str):
+    row = await conn.fetchrow(
+        """
+        SELECT vp.id, vp.code, vp.version,
+               (SELECT count(*) FROM profile_indicator pi WHERE pi.profile_id = vp.id) AS n
+          FROM vulnerability_profile vp
+          JOIN province p ON p.id = vp.province_id
+          JOIN sector s ON s.id = vp.sector_id
+          LEFT JOIN subsector ss ON ss.id = vp.subsector_id
+          JOIN hazard_type h ON h.id = vp.hazard_type_id
+         WHERE vp.is_active AND p.name = $1 AND s.name = $2
+           AND COALESCE(ss.name, '') = COALESCE($3, '') AND h.name = $4
+        """, province, sector, subsector or None, hazard)
+    if row is None:
+        raise HTTPException(404, "no active profile for %s / %s / %s / %s"
+                            % (province, sector, subsector or "-", hazard))
+    return row
+
+
+@router.get("/profile", response_model=ProfileInfo)
+async def active_profile(
+    province: str, sector: str, hazard: str, subsector: Optional[str] = None,
+    pool: asyncpg.Pool = Depends(db),
+    user: CurrentUser = Depends(get_current_user),
+) -> ProfileInfo:
+    """Which profile version an import with these pickers lands in."""
+    async with pool.acquire() as conn:
+        row = await _active_profile(conn, province, sector, subsector, hazard)
+    return ProfileInfo(profileCode=row["code"], version=row["version"], variables=row["n"])
+
+
+@router.get("/template")
+async def template(
+    province: str, sector: str, hazard: str, subsector: Optional[str] = None,
+    pool: asyncpg.Pool = Depends(db),
+    user: CurrentUser = Depends(get_current_user),
+) -> Response:
+    """The upload workbook for the ACTIVE profile, current values pre-filled.
+    See app/importer/template_writer.py for why this exists."""
+    require_import_role(user)
+    async with pool.acquire() as conn:
+        row = await _active_profile(conn, province, sector, subsector, hazard)
+        pid = await conn.fetchval("SELECT id FROM province WHERE name = $1", province)
+        may_hazard = bool(await conn.fetchval("SELECT may_write_hazard($1, $2)", user.id, pid))
+        name, body = await build_profile_workbook(conn, row["id"], list(COLLECTION_PERIODS),
+                                                  include_hazard=may_hazard)
+    return Response(
+        content=body,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": 'attachment; filename="%s"' % name})
 
 
 def _rows_out(rows) -> list[PreviewRowOut]:
@@ -511,29 +623,91 @@ async def batches(
         uploadedBy=r["full_name"], province=r["province"]) for r in rows]
 
 
-async def _batch_scope(conn, batch_id: int) -> asyncpg.Record:
+def _issue_stamp(sector: str, subsector: Optional[str], hazard: str, prov_code: str) -> str:
+    """The code design/templates/generate_templates.py printed into `_META` for
+    this scope, minus the version -- e.g. Livestock / Poultry Farming / Flood /
+    CEN -> POULTRY_FLOOD_CEN. Kept identical to its `profile_code()`."""
+    base = (subsector or sector).upper().replace(" SECTOR", "").replace(" FARMING", "")
+    base = re.sub(r"[^A-Z0-9]+", "_", base).strip("_")
+    return "%s_%s_%s" % (base, hazard.upper(), prov_code)
+
+
+async def _resolve_profile(conn, profile_code: Optional[str]) -> Optional[asyncpg.Record]:
+    """The ACTIVE profile a batch belongs to, from whatever code it recorded.
+
+    Three spellings exist in import_batch.profile_code: the active code (imports
+    since 26 Sep), a code the weights editor has since retired (V2 after a save
+    made V3), and the generator's `_V1` issue stamp, which uses different names
+    (POULTRY_FLOOD_CEN_V1 for POULTRY_FARMING_FLOOD_CEN_V2). The old join on
+    `vp.code = b.profile_code` matched only the first, so every other sector
+    batch was treated as a CLIMATE batch -- no sector, hazard grant required to
+    correct it -- and its view could not list the profile's columns."""
+    if not profile_code:
+        return None
+    q = """
+        SELECT a.id, a.code, a.province_id, a.sector_id, a.subsector_id
+          FROM vulnerability_profile a
+         WHERE a.is_active AND (a.province_id, a.sector_id,
+                                COALESCE(a.subsector_id, 0), a.hazard_type_id) = (
+               SELECT o.province_id, o.sector_id, COALESCE(o.subsector_id, 0),
+                      o.hazard_type_id
+                 FROM vulnerability_profile o WHERE o.code = $1 LIMIT 1)
+    """
+    row = await conn.fetchrow(q, profile_code)
+    if row is not None:
+        return row
+    stem = re.sub(r"_V\d+$", "", profile_code.upper())
+    for r in await conn.fetch(
+            """
+            SELECT vp.id, vp.code, vp.province_id, vp.sector_id, vp.subsector_id,
+                   s.name AS sector, ss.name AS subsector, h.name AS hazard,
+                   p.code AS prov_code
+              FROM vulnerability_profile vp
+              JOIN sector s ON s.id = vp.sector_id
+              LEFT JOIN subsector ss ON ss.id = vp.subsector_id
+              JOIN hazard_type h ON h.id = vp.hazard_type_id
+              JOIN province p ON p.id = vp.province_id
+             WHERE vp.is_active AND p.code = split_part($1, '_', -1)
+            """, stem):
+        if _issue_stamp(r["sector"], r["subsector"], r["hazard"], r["prov_code"]) == stem:
+            return r
+    return None
+
+
+async def _batch_scope(conn, batch_id: int) -> dict:
     """The batch, the province it wrote into, and the profile scope that governs
-    who may change it. A climate batch has no sector -- `sector_id` is NULL and
+    who may change it. A climate batch has no profile -- `sector_id` is None and
     the hazard grant is the only authority that applies."""
     row = await conn.fetchrow(
         """
         SELECT b.id, b.filename, b.profile_code, b.status,
                b.uploaded_at, u.full_name,
-               COALESCE(b.province_id, pv.province_id) AS province_id,
-               p.name AS province,
-               vp.sector_id, vp.subsector_id
+               COALESCE(b.province_id, pv.province_id) AS province_id
           FROM import_batch b
           LEFT JOIN app_user u ON u.id = b.uploaded_by
         """ + _BATCH_PROVINCE + """
-          LEFT JOIN vulnerability_profile vp ON vp.code = b.profile_code
          WHERE b.id = $1
         """, batch_id)
     if row is None:
         raise HTTPException(404, "no such import")
-    return row
+    out = dict(row)
+    prof = await _resolve_profile(conn, row["profile_code"])
+    out["profile_id"] = prof["id"] if prof else None
+    out["active_code"] = prof["code"] if prof else None
+    out["sector_id"] = prof["sector_id"] if prof else None
+    out["subsector_id"] = prof["subsector_id"] if prof else None
+    if out["province_id"] is None and prof is not None:
+        # Seed batches were never stamped with a province, and once a later
+        # import has taken over their values there is nothing left to derive
+        # it from -- the profile still knows.
+        out["province_id"] = prof["province_id"]
+    out["province"] = await conn.fetchval(
+        "SELECT name FROM province WHERE id = $1", out["province_id"]) \
+        if out["province_id"] else None
+    return out
 
 
-def _readable(user: CurrentUser, row: asyncpg.Record) -> None:
+def _readable(user: CurrentUser, row) -> None:
     if user.has_role("admin"):
         return
     if user.province_id is not None and row["province_id"] == user.province_id:
@@ -552,17 +726,49 @@ async def batch_detail(
     async with pool.acquire() as conn:
         b = await _batch_scope(conn, batch_id)
         _readable(user, b)
-        rows = await conn.fetch(
-            """
-            SELECT v.id, d.code AS ds_code, d.name AS ds_name,
-                   ic.code AS variable_code, ic.domain, v.raw_value,
-                   v.year_start, v.year_end
-              FROM indicator_value v
-              JOIN ds_division d       ON d.id = v.ds_division_id
-              JOIN indicator_catalog ic ON ic.id = v.indicator_id
-             WHERE v.import_batch_id = $1
-             ORDER BY v.year_start, d.code, ic.code
-            """, batch_id)
+        # WHAT IS IN THE DATABASE NOW FOR THIS WORKBOOK'S COLUMNS, not only the
+        # rows whose import_batch_id is still this batch (QA 26 Sep 2026).
+        #
+        # An official value belongs to the division, so the latest import that
+        # carries a variable takes the row over (load_template, "the latest
+        # import supersedes"). The twelve climate variables sit in most sector
+        # workbooks and the poultry exposure variables sit in both poultry
+        # workbooks, so Central's POULTRY_DROUGHT batch ended up owning ZERO
+        # rows -- "This import wrote no values" -- and others showed a few
+        # columns out of the whole workbook. The values were all there and the
+        # map was right; the view was not. So a sector batch now shows its
+        # profile's full column set with the current value of every cell, and
+        # says which cells a later import last wrote.
+        if b["profile_id"] is not None:
+            rows = await conn.fetch(
+                """
+                SELECT v.id, d.code AS ds_code, d.name AS ds_name,
+                       ic.code AS variable_code, ic.domain, v.raw_value,
+                       v.year_start, v.year_end, v.import_batch_id,
+                       ob.profile_code AS owner_code
+                  FROM indicator_value v
+                  JOIN ds_division d        ON d.id = v.ds_division_id
+                  JOIN indicator_catalog ic ON ic.id = v.indicator_id
+                  JOIN profile_indicator pi ON pi.indicator_id = v.indicator_id
+                                           AND pi.profile_id = $1
+                  LEFT JOIN import_batch ob ON ob.id = v.import_batch_id
+                 WHERE d.province_id = $2 AND v.source = 'data'
+                   AND v.scenario_id IS NULL
+                 ORDER BY v.year_start, d.code, ic.code
+                """, b["profile_id"], b["province_id"])
+        else:
+            rows = await conn.fetch(
+                """
+                SELECT v.id, d.code AS ds_code, d.name AS ds_name,
+                       ic.code AS variable_code, ic.domain, v.raw_value,
+                       v.year_start, v.year_end, v.import_batch_id,
+                       NULL::text AS owner_code
+                  FROM indicator_value v
+                  JOIN ds_division d       ON d.id = v.ds_division_id
+                  JOIN indicator_catalog ic ON ic.id = v.indicator_id
+                 WHERE v.import_batch_id = $1
+                 ORDER BY v.year_start, d.code, ic.code
+                """, batch_id)
         editable = await _may_edit(conn, user, b)
         # The column contract for exactly the variables this batch wrote, in
         # the same shape the review grid gets -- hazard first, then code, which
@@ -572,7 +778,15 @@ async def batch_detail(
             SELECT code, name FROM ds_division
              WHERE province_id = $1 ORDER BY name
             """, b["province_id"]) if b["province_id"] else []
-        codes = sorted({r["variable_code"] for r in rows})
+        if b["profile_id"] is not None:
+            # Every column of the profile, including one with no value anywhere
+            # -- that empty column is exactly what someone needs to see.
+            codes = [r["code"] for r in await conn.fetch(
+                """SELECT ic.code FROM profile_indicator pi
+                     JOIN indicator_catalog ic ON ic.id = pi.indicator_id
+                    WHERE pi.profile_id = $1""", b["profile_id"])]
+        else:
+            codes = sorted({r["variable_code"] for r in rows})
         cols = await conn.fetch(
             """
             SELECT code, name, domain, unit, period_aggregation
@@ -591,15 +805,20 @@ async def batch_detail(
         uploadedAt=b["uploaded_at"].isoformat(), uploadedBy=b["full_name"],
         editable=editable, columns=columns,
         periods=list(COLLECTION_PERIODS), divisionsAll=divisions_all,
+        currentProfileCode=b["active_code"],
+        fromThisImport=sum(1 for r in rows if r["import_batch_id"] == batch_id),
         values=[ValueRow(
             id=r["id"], dsCode=r["ds_code"], dsName=r["ds_name"],
             variableCode=r["variable_code"], domain=r["domain"],
             value=r["raw_value"],
             period="%s-%s" % (r["year_start"], r["year_end"])
-                   if r["year_start"] else "") for r in rows])
+                   if r["year_start"] else "",
+            fromThisImport=r["import_batch_id"] == batch_id,
+            lastImportedBy=None if r["import_batch_id"] == batch_id else r["owner_code"])
+            for r in rows])
 
 
-async def _may_edit(conn, user: CurrentUser, b: asyncpg.Record) -> bool:
+async def _may_edit(conn, user: CurrentUser, b) -> bool:
     """Asked of the database, exactly as the loader asks it. An administrator
     bypasses inside `may_write_profile` itself, so there is no second rule
     here."""
@@ -622,6 +841,7 @@ async def correct_values(
     pool: asyncpg.Pool = Depends(db),
     user: CurrentUser = Depends(get_current_user),
 ) -> CorrectionReport:
+    require_import_role(user)
     if not body.edits:
         raise HTTPException(400, "no corrections were sent")
     async with pool.acquire() as conn:
@@ -645,8 +865,8 @@ async def correct_values(
                 SELECT EXISTS (
                     SELECT 1 FROM indicator_value v
                       JOIN indicator_catalog ic ON ic.id = v.indicator_id
-                     WHERE v.import_batch_id = $1 AND v.id = ANY($2::bigint[])
-                       AND ic.domain = 'hazard')
+                     WHERE v.id = ANY($2::bigint[])
+                       AND ic.domain = 'hazard' AND $1::bigint IS NOT NULL)
                 """, batch_id, [e.id for e in body.edits])
             if touches_hazard and not await conn.fetchval(
                     "SELECT may_write_hazard($1, $2)", user.id, b["province_id"]):
@@ -671,10 +891,21 @@ async def correct_values(
                                    COALESCE(notes, '') || E'\n' ||
                                    'corrected ' || to_char(now(), 'YYYY-MM-DD') ||
                                    ' by ' || $4)
-                     WHERE id = $1 AND import_batch_id = $2
+                     WHERE id = $1 AND source = 'data'
+                       AND (import_batch_id = $2
+                            -- a cell of this workbook that a later import
+                            -- carrying the same variable last wrote: shown in
+                            -- this view, so correctable from it, under the same
+                            -- grant (checked above) and the same profile.
+                            OR ($5::bigint IS NOT NULL AND EXISTS (
+                                SELECT 1 FROM profile_indicator pi
+                                  JOIN ds_division d ON d.id = indicator_value.ds_division_id
+                                 WHERE pi.profile_id = $5
+                                   AND pi.indicator_id = indicator_value.indicator_id
+                                   AND d.province_id = $6)))
                      RETURNING id
                     """, e.id, batch_id, e.value,
-                    user.full_name or user.email)
+                    user.full_name or user.email, b["profile_id"], b["province_id"])
                 if row is None:
                     raise HTTPException(
                         400, "value %d does not belong to this import" % e.id)

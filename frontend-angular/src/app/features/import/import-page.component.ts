@@ -6,6 +6,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
 import { ProfileScope } from '../../core/models/profile.model';
+import { scopeToQueryParams } from '../../core/models/query-param.util';
+import { ApiClientService } from '../../core/services/api-client.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TaxonomyService } from '../../core/services/taxonomy.service';
 import { WeightsConfirmComponent } from './weights-confirm.component';
@@ -156,6 +158,9 @@ export interface ValueRow {
   domain: string;
   value: number;
   period: string;
+  /** False when a later import carrying the same variable last wrote this cell. */
+  fromThisImport?: boolean;
+  lastImportedBy?: string | null;
 }
 
 export interface BatchDetail {
@@ -169,6 +174,10 @@ export interface BatchDetail {
   /** Whether THIS reader may correct it, decided by the server from the same
    * grant that governs uploading. The server checks again on the way in. */
   editable: boolean;
+  /** The active profile these values feed (profileCode may be a V1 issue stamp). */
+  currentProfileCode?: string | null;
+  /** How many of the values shown this import itself wrote. */
+  fromThisImport?: number;
   values: ValueRow[];
   /** The column contract for the variables this batch wrote. */
   columns: GridColumn[];
@@ -198,8 +207,26 @@ export class ImportPageComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly taxonomyService = inject(TaxonomyService);
-  private readonly auth = inject(AuthService);
+  readonly auth = inject(AuthService);
+  private readonly api = inject(ApiClientService);
   private readonly base = environment.apiBaseUrl;
+
+  /** Workbook import writes the OFFICIAL data track, so it is for data officers
+   * (and admins). QA 26 Sep 2026: an expert account was loading workbooks here.
+   * Experts and community members enter their own figures on the map instead;
+   * the server refuses them regardless (imports.require_import_role). */
+  readonly mayImport = computed(
+    () => !this.auth.isAuthenticated() || this.auth.hasRole('admin') || this.auth.hasRole('data_officer'),
+  );
+  readonly contributorTrack = computed(() =>
+    this.auth.hasRole('expert') ? 'expert' : this.auth.hasRole('community') ? 'community' : null,
+  );
+
+  /** The ACTIVE profile the pickers point at -- what an import lands in. The
+   * workbooks issued in August all say _V1; this says which version is live. */
+  readonly activeProfile = signal<{ profileCode: string; version: number; variables: number } | null>(null);
+  readonly templateBusy = signal(false);
+  readonly templateError = signal<string | null>(null);
 
   readonly taxonomy = this.taxonomyService.taxonomy;
   readonly taxonomyError = this.taxonomyService.error;
@@ -309,7 +336,7 @@ export class ImportPageComponent implements OnInit {
     const sector = this.sectors().find((s) => s.code === this.sector());
     if (!sector) return all;
     const sub = sector.subsectors.find((x) => x.code === this.subsector());
-    const allowed = sub ? sub.hazards : sector.hazards;
+    const allowed = (sub ? sub.hazards : sector.hazards).map((ha) => ha.hazard);
     // FAIL OPEN, NOT SHUT. An API that has not been restarted still serves the
     // old taxonomy, which carries no per-subsector hazard list. Narrowing
     // against a missing list yielded an EMPTY dropdown -- no hazard could be
@@ -349,9 +376,16 @@ export class ImportPageComponent implements OnInit {
   readonly backTarget = computed(() =>
     this.route.snapshot.queryParams['from'] === 'weights' ? '/weights' : '/map',
   );
+  // "Back to data entry" named a screen that no longer exists (/entry now
+  // redirects here), and the link actually went to the map. Say where it goes.
   readonly backLabel = computed(() =>
-    this.backTarget() === '/weights' ? 'Back to weights' : 'Back to data entry',
+    this.backTarget() === '/weights' ? 'Back to weights' : 'Back to the map',
   );
+  /** Query params that open the weights editor on the profile picked above. */
+  readonly weightsParams = computed(() => {
+    const scope = this.importScope();
+    return scope ? { ...scopeToQueryParams(scope), from: 'import' } : null;
+  });
   /** The scope this page is working in, so Back does not drop it either. */
   readonly backParams = computed(() => {
     const { province, sector, subsector, hazard, period } = this.route.snapshot.queryParams;
@@ -375,6 +409,31 @@ export class ImportPageComponent implements OnInit {
     effect(() => {
       this.province();
       if (this.taxonomy()) untracked(() => this.loadBatches());
+    });
+
+    // QA 26 Sep 2026: "Score status unavailable - sign in to see it" while
+    // signed in. The status was asked for once, in ngOnInit, before the
+    // taxonomy had arrived -- no province name yet, so the request was never
+    // sent and nothing asked again. Asked whenever the province (or the
+    // account) settles instead.
+    effect(() => {
+      const province = this.nameOf().province;
+      this.auth.currentUser();
+      if (province) untracked(() => this.refreshStaleness());
+    });
+
+    effect(() => {
+      const n = this.nameOf();
+      const signedIn = this.auth.isAuthenticated();
+      if (this.kind() !== 'sector' || !signedIn || !n.province || !n.sector || !n.hazard) {
+        this.activeProfile.set(null);
+        return;
+      }
+      untracked(() =>
+        this.api
+          .getImportProfile({ province: n.province!, sector: n.sector!, subsector: n.subsector, hazard: n.hazard! })
+          .subscribe({ next: (p) => this.activeProfile.set(p), error: () => this.activeProfile.set(null) }),
+      );
     });
 
     effect(() => {
@@ -648,6 +707,34 @@ export class ImportPageComponent implements OnInit {
               : (err?.error?.detail ?? err?.message ?? 'The import could not be completed.'),
           );
           this.busy.set(false);
+        },
+      });
+  }
+
+  /** Download the upload workbook for the ACTIVE profile, current values pre-filled. */
+  downloadTemplate(): void {
+    const n = this.nameOf();
+    if (!n.province || !n.sector || !n.hazard) return;
+    this.templateBusy.set(true);
+    this.templateError.set(null);
+    this.api
+      .downloadImportTemplate({ province: n.province, sector: n.sector, subsector: n.subsector, hazard: n.hazard })
+      .subscribe({
+        next: (res) => {
+          const cd = res.headers.get('Content-Disposition') ?? '';
+          const name = /filename="?([^";]+)"?/.exec(cd)?.[1] ??
+            `${this.activeProfile()?.profileCode ?? 'profile'}_upload_template.xlsx`;
+          const url = URL.createObjectURL(res.body as Blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = name;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          this.templateBusy.set(false);
+        },
+        error: (err) => {
+          this.templateError.set(err?.error?.detail ?? err?.message ?? 'The template could not be downloaded.');
+          this.templateBusy.set(false);
         },
       });
   }

@@ -31,6 +31,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from app.deps import CurrentUser, db, get_current_user
+from app.engine.track import recompute_track_province
 from app.engine.vulnerability import Refusal, compute_profile, store
 
 log = logging.getLogger(__name__)
@@ -93,11 +94,11 @@ async def status(
         SELECT (SELECT max(iv.updated_at)
                   FROM indicator_value iv
                   JOIN ds_division d ON d.id = iv.ds_division_id
-                 WHERE d.province_id = $1)                      AS last_value,
+                 WHERE d.province_id = $1 AND iv.source = 'data')  AS last_value,
                (SELECT max(vr.computed_at)
                   FROM vulnerability_result vr
                   JOIN ds_division d ON d.id = vr.ds_division_id
-                 WHERE d.province_id = $1)                      AS last_computed
+                 WHERE d.province_id = $1 AND vr.source = 'data') AS last_computed
         """, pid)
     last_value, last_computed = row["last_value"], row["last_computed"]
     if last_value is None:
@@ -163,6 +164,9 @@ async def run(
             # profiles already scored -- same granularity as compute_all.py.
             async with conn.transaction():
                 rows += await store(conn, prof, result)
+                # Expert and community scores are placed on the official ranges,
+                # which have just moved -- re-score them in the same step.
+                await recompute_track_province(conn, prof["id"], pid, y0, y1)
             computed += 1
             outcomes.append(ProfileOutcome(
                 profileCode=result.profile_code, ok=True, scored=result.scored,

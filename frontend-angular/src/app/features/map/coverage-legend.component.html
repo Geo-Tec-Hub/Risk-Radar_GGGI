@@ -3,10 +3,10 @@
     Coverage — {{ indexScope() === 'provincial' ? 'provincial index' : 'national index' }}
   </h3>
 
-  <p class="legend__subtitle">Vulnerability level of assessed DS divisions</p>
+  <p class="legend__subtitle">{{ layerLabel() }} level of assessed DS divisions</p>
 
   <ul class="legend__ramp">
-    @for (b of bands; track b.band) {
+    @for (b of bands(); track b.band) {
       <li class="legend__ramp-step">
         <span class="legend__ramp-swatch" [style.background]="b.swatch"></span>
         <span class="legend__ramp-label">{{ b.label }}</span>
@@ -15,8 +15,7 @@
     }
   </ul>
   <p class="legend__ramp-note">
-    Darker red = more vulnerable. Lighter red = less vulnerable. Scores are the
-    rescaled 0&ndash;1 index within the
+    {{ layerNote() }} Darker = higher. Values are relative to the
     {{ indexScope() === 'provincial' ? 'province' : 'country' }}; band
     thresholds are fixed and do not change as new data arrives.
   </p>
@@ -24,13 +23,14 @@
   <p class="legend__subtitle">Data coverage</p>
 
   <ul class="legend__states">
-    @for (item of legend; track item.state) {
+    @for (item of visibleStates(); track item.state) {
       <li class="legend__state">
         <span
           class="legend__swatch"
           [class.legend__swatch--hatched]="item.state === 'unassessed'"
           [class.legend__swatch--dashed]="item.state === 'pending'"
-          [style.background]="item.state === 'assessed' || item.state === 'not_applicable' ? item.swatch : null"
+          [class.legend__swatch--dots]="item.state === 'not_applicable'"
+          [style.background]="item.state === 'assessed' ? bands()[2].swatch : null"
         ></span>
         <span class="legend__label">{{ item.label }}</span>
         <span class="legend__hint">({{ item.hint }})</span>
@@ -38,16 +38,8 @@
     }
   </ul>
 
-  @if (coverage(); as c) {
-    <p class="legend__statement">
-      {{ c.assessed }} assessed ({{ pct(c.assessed, c.total) }}) ·
-      {{ c.pending }} pending ({{ pct(c.pending, c.total) }}) ·
-      {{ c.unassessed }} unassessed ({{ pct(c.unassessed, c.total) }})
-      @if (c.notApplicable > 0) {
-        · {{ c.notApplicable }} where the sector is not present ({{ pct(c.notApplicable, c.total) }})
-      }
-      — {{ c.total }} DS divisions
-    </p>
+  @if (statement(); as s) {
+    <p class="legend__statement">{{ s }}</p>
   } @else {
     <p class="legend__statement legend__statement--muted">Coverage statement unavailable.</p>
   }

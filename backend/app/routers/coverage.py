@@ -68,6 +68,9 @@ class ProfileCoverage(BaseModel):
     divisionsEmpty: int
     # --- results
     scored: int
+    # Computed, but the sector is absent there (hazard or exposure index 0), so
+    # the map shows "sector not present" rather than a score.
+    notPresent: int = 0
     status: str
     note: str
     gaps: list[Gap]
@@ -133,14 +136,25 @@ async def coverage(
 
         rows = await conn.fetch(_SUMMARY_SQL, pid, y0)
         gaps = await conn.fetch(_GAPS_SQL, pid, y0)
-        scored = {r["profile_id"]: r["n"] for r in await conn.fetch(
+        scored = {r["profile_id"]: (r["n"], r["na"]) for r in await conn.fetch(
             """
-            SELECT vr.profile_id, count(DISTINCT vr.ds_division_id) AS n
+            SELECT vr.profile_id, count(DISTINCT vr.ds_division_id) AS n,
+                   -- The engine's own decision, from raw exposure values --
+                   -- never `exposure_index = 0`, which is merely the provincial
+                   -- minimum (26 Sep 2026; see routers/vulnerability.py).
+                   count(DISTINCT vr.ds_division_id)
+                         FILTER (WHERE (vr.method->>'sector_absent')::boolean) AS na
               FROM vulnerability_result vr
               JOIN vulnerability_profile vp ON vp.id = vr.profile_id
              WHERE vp.province_id = $1 AND vp.is_active AND vr.year_start = $2
+               AND vr.source = 'data' AND vr.index_scope = 'provincial'
              GROUP BY vr.profile_id
             """, pid, y0)}
+        # QA 26 Sep 2026: "41 scored" for Inland Fishery, where the map shows 22
+        # scores and 19 divisions with no fishery at all. Those 19 ARE computed
+        # (the row exists, with an honest 0), but the map withholds them as
+        # "sector not present", so the count has to say the same thing.
+        not_present = scored
 
     by_profile: dict[int, list[Gap]] = {}
     for g in gaps:
@@ -149,8 +163,11 @@ async def coverage(
 
     out = []
     for r in rows:
-        n_scored = scored.get(r["profile_id"], 0)
+        n_scored, n_na = not_present.get(r["profile_id"], (0, 0))
         status, note = _status(r, n_scored, divisions)
+        if status == "scored" and n_na:
+            note = "complete and scored - %d division(s) have no %s, so no score " \
+                   "is shown there" % (n_na, (r["subsector"] or r["sector"]).lower())
         out.append(ProfileCoverage(
             profileCode=r["code"], sector=r["sector"], subsector=r["subsector"],
             hazard=r["hazard"], weightsOk=r["is_computable"],
@@ -158,7 +175,8 @@ async def coverage(
             hazardTotal=float(r["hazard_total"]) if r["hazard_total"] is not None else None,
             exposureTotal=float(r["exposure_total"]) if r["exposure_total"] is not None else None,
             divisionsComplete=r["complete"], divisionsPartial=r["partial"],
-            divisionsEmpty=r["empty"], scored=n_scored, status=status, note=note,
+            divisionsEmpty=r["empty"], scored=n_scored - n_na, notPresent=n_na,
+            status=status, note=note,
             gaps=by_profile.get(r["profile_id"], [])[:8]))
     return CoverageReport(province=prov["name"], period=period,
                           divisions=divisions, profiles=out)
@@ -193,6 +211,8 @@ _CELLS = """
           FROM indicator_value iv
           JOIN div d ON d.id = iv.ds_division_id
          WHERE iv.year_start <= $2
+           -- official values only: the engine reads nothing else
+           AND iv.source = 'data' AND iv.scenario_id IS NULL
     ),
     cell AS (
         SELECT m.profile_id, d.id AS div_id, m.code, m.domain,

@@ -65,18 +65,32 @@ class CodeName(BaseModel):
     name: str
 
 
+class HazardAvailability(BaseModel):
+    """A hazard, and the provinces a profile actually exists in for it.
+
+    Added 26 Sep 2026. `hazards` used to be a flat `list[str]` -- the UNION of
+    hazard codes with any profile, in any province. That is exactly the defect
+    the hazards-per-subsector change fixed, one axis up: Inland Fishery exists
+    only in Central, so Eastern's dropdown offered it and `/vulnerability`
+    404ed, which the map banner then reported as a transient outage rather than
+    a permanent, by-design absence (O-3). A combination is offerable only when
+    a profile exists for it IN THE SELECTED PROVINCE."""
+    hazard: str
+    provinces: list[str]
+
+
 class SubsectorOption(CodeName):
-    """The hazards a profile actually exists for under this subsector.
+    """Hazards a profile actually exists for under this subsector, per province.
 
     A sector with no subsectors carries one entry with code `null`, so the
     client has exactly one place to look up hazards regardless of shape."""
-    hazards: list[str]
+    hazards: list[HazardAvailability]
 
 
 class SectorOption(CodeName):
     subsectors: list[SubsectorOption]
     """Hazards available for the sector as a whole (no subsector selected)."""
-    hazards: list[str]
+    hazards: list[HazardAvailability]
 
 
 class DivisionCoverage(BaseModel):
@@ -161,20 +175,22 @@ async def taxonomy(pool: asyncpg.Pool = Depends(db)) -> Taxonomy:
         provinces = await conn.fetch("SELECT code, name FROM province ORDER BY name")
         hazards = await conn.fetch("SELECT code, name FROM hazard_type ORDER BY name")
 
-        # Only pairs that a profile actually exists for. Offering a sector /
-        # subsector combination with no profile behind it produces a 404 the
-        # user cannot act on.
+        # Only combinations a profile actually exists for, WITH the province it
+        # exists in. Offering a sector/subsector/hazard with no profile behind
+        # it in the selected province produces a 404 the user cannot act on.
         rows = await conn.fetch(
             """
-            SELECT DISTINCT s.code AS sector_code, s.name AS sector_name,
+            SELECT DISTINCT p.code AS province_code,
+                   s.code AS sector_code, s.name AS sector_name,
                    ss.code AS subsector_code, ss.name AS subsector_name,
                    h.code  AS hazard_code
               FROM vulnerability_profile vp
+              JOIN province p    ON p.id = vp.province_id
               JOIN sector s      ON s.id = vp.sector_id
               LEFT JOIN subsector ss ON ss.id = vp.subsector_id
               JOIN hazard_type h ON h.id = vp.hazard_type_id
              WHERE vp.is_active
-             ORDER BY s.name, ss.name, h.code
+             ORDER BY s.name, ss.name, h.code, p.code
             """)
         periods = await conn.fetch(
             """
@@ -189,23 +205,30 @@ async def taxonomy(pool: asyncpg.Pool = Depends(db)) -> Taxonomy:
               FROM ds_division
             """)
 
+    def _add(lst: list[HazardAvailability], hazard: str, province: str) -> None:
+        for ha in lst:
+            if ha.hazard == hazard:
+                if province not in ha.provinces:
+                    ha.provinces.append(province)
+                return
+        lst.append(HazardAvailability(hazard=hazard, provinces=[province]))
+
     sectors: dict[str, SectorOption] = {}
     for r in rows:
         opt = sectors.setdefault(
             r["sector_code"],
             SectorOption(code=r["sector_code"], name=r["sector_name"],
                          subsectors=[], hazards=[]))
-        if r["hazard_code"] not in opt.hazards:
-            opt.hazards.append(r["hazard_code"])
         if not r["subsector_code"]:
+            # No subsector: the profile is the sector as a whole.
+            _add(opt.hazards, r["hazard_code"], r["province_code"])
             continue
         sub = next((x for x in opt.subsectors if x.code == r["subsector_code"]), None)
         if sub is None:
             sub = SubsectorOption(code=r["subsector_code"],
                                   name=r["subsector_name"], hazards=[])
             opt.subsectors.append(sub)
-        if r["hazard_code"] not in sub.hazards:
-            sub.hazards.append(r["hazard_code"])
+        _add(sub.hazards, r["hazard_code"], r["province_code"])
 
     return Taxonomy(
         provinces=[CodeName(code=p["code"], name=p["name"]) for p in provinces],

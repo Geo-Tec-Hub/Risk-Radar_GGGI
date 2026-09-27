@@ -424,6 +424,30 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
     warnings = list(wb.warnings)
     for s in wb.sheets:
         warnings.extend("%s: %s" % (s.tab, w) for w in s.warnings)
+
+    # THE BATCH RECORDS THE PROFILE THE VALUES LAND IN, NOT THE ONE THE FILE WAS
+    # PRINTED FOR (QA 26 Sep 2026). Every workbook issued on 15 Aug says `_V1`;
+    # the loader routes by scope to the ACTIVE profile (V2, V4 ...), so the
+    # import history said V1 while the map said V4 and nobody could tell which
+    # version a batch fed. Recorded as the active code, with the file's own
+    # stamp kept in a warning so the difference stays visible.
+    if not is_climate and ctx.get("profile_code") and wb.profile_code != ctx["profile_code"]:
+        # Hazard columns are left out on purpose for most officers -- they come
+        # in through the climate workbook -- so only exposure gaps are news.
+        missing_cols = [c for c in ctx["codes"] if c not in (wb.expected_columns or [])
+                        and c not in ctx["hazard_codes"]]
+        warnings.append(
+            "this workbook was issued for %s; the current profile is %s, and the "
+            "values load into %s.%s Download the current template from the import "
+            "tab to get the latest columns."
+            % (wb.profile_code or "an unnamed profile", ctx["profile_code"],
+               ctx["profile_code"],
+               (" %d variable(s) of the current profile have no column in this "
+                "file and stay as they are: %s." % (
+                    len(missing_cols), ", ".join(missing_cols[:6])
+                    + (" ..." if len(missing_cols) > 6 else "")))
+               if missing_cols and not review_copy else ""))
+        wb.profile_code = ctx["profile_code"]
     if errors:
         return LoadResult(wb.filename, wb.profile_code, wb.value_count, 0, 0,
                           errors, warnings)

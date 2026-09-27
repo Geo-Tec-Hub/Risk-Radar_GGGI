@@ -8,7 +8,7 @@
 
   <label class="filter-bar__field">
     <span>Province</span>
-    <select [ngModel]="province()" name="province" (ngModelChange)="province.set($event); onFieldChange()">
+    <select [ngModel]="province()" name="province" (ngModelChange)="onProvinceChange($event)">
       @for (p of provinces(); track p.code) {
         <option [ngValue]="p.code">{{ p.name }}</option>
       }
@@ -48,10 +48,19 @@
   </label>
 
   <label class="filter-bar__field">
+    <span>Map layer</span>
+    <select [ngModel]="layer()" name="layer" (ngModelChange)="onLayerChange($event)">
+      @for (l of layers; track l) {
+        <option [ngValue]="l">{{ layerLabel[l] }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="filter-bar__field">
     <span>Track</span>
     <select [ngModel]="track()" name="track" (ngModelChange)="track.set($event); onFieldChange()">
       @for (t of tracks; track t) {
-        <option [ngValue]="t">{{ t }}</option>
+        <option [ngValue]="t">{{ trackLabel(t) }}</option>
       }
     </select>
   </label>

@@ -25,3 +25,7 @@
 .coverage__detail > td { background: #fbfcfd; font-size: .78rem; }
 .coverage__gaps { margin: .3rem 0 .6rem; padding-left: 1.1rem; }
 .coverage__gaps li { margin-bottom: .15rem; }
+
+/* The profile code sat directly against the sector name
+   ("Human Settlements SectorHUMAN_SETTLEMENTS_...") when there was no subsector. */
+.coverage__code { display: block; font-size: 0.75rem; }

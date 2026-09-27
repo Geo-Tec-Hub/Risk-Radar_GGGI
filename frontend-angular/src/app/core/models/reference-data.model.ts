@@ -28,16 +28,13 @@ export const SECTORS: readonly Sector[] = [
   { code: 'WATER', name: 'Water', subsectors: ['Irrigation Water', 'Potable Water'] },
 ];
 
-/** 9 provinces (design/ingestion/dsd_register.csv). NOTE: "Northwestern"
- *  here (no space) does not match province.name in the database, which
- *  seeds 'North Western' (schema.sql) -- a pre-existing inconsistency, not
- *  introduced by T2b. This list matches the shipped GeoJSON asset's own
- *  `province` property, which the map's filter logic depends on, so it is
- *  left as-is rather than "fixed" in a way that would break that matching;
- *  auth.service.ts normalises spacing/case when it needs to line an
- *  account's database province name up against this list (province lock,
- *  T2b). The real fix is a GET /provinces endpoint that replaces both
- *  copies -- out of scope here. */
+/** 9 provinces. The live database is seeded by `seed_all.sql`, which writes
+ *  'Northwestern' (no space) -- the same spelling the GeoJSON asset and
+ *  `dsd_register.csv` use. The superseded base `schema.sql` still spells it
+ *  'North Western', which is where the old "mismatch" note came from; with
+ *  `seed_all.sql` as the authority the map's province filter and the database
+ *  agree. This constant is kept as a historical shape reference only -- the
+ *  filter bar reads provinces from `/reference/taxonomy`. */
 export const PROVINCES: readonly string[] = [
   'Central',
   'Eastern',

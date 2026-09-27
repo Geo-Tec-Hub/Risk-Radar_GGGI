@@ -28,15 +28,28 @@ export interface CodeName {
   readonly name: string;
 }
 
+/**
+ * A hazard, and the provinces a profile actually exists in for it.
+ *
+ * `hazards` used to be a flat list of hazard codes — the union across every
+ * province. That let a province's dropdown offer a combination that only
+ * exists elsewhere (Inland Fishery is Central-only; Eastern offered it and
+ * `/vulnerability` 404ed). The filter now narrows on the province too.
+ */
+export interface HazardAvailability {
+  readonly hazard: string;
+  readonly provinces: readonly string[];
+}
+
 export interface SubsectorOption extends CodeName {
-  /** Hazard codes a profile actually exists for under this subsector. */
-  readonly hazards: readonly string[];
+  /** Hazards a profile actually exists for under this subsector, per province. */
+  readonly hazards: readonly HazardAvailability[];
 }
 
 export interface SectorOption extends CodeName {
   readonly subsectors: readonly SubsectorOption[];
-  /** Hazard codes for the sector as a whole (no subsector selected). */
-  readonly hazards: readonly string[];
+  /** Hazards for the sector as a whole (no subsector selected), per province. */
+  readonly hazards: readonly HazardAvailability[];
 }
 
 /** Register counts. Never a constant: 330 -> 331 -> 340 inside three weeks. */

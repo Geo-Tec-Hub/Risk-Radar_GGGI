@@ -86,6 +86,14 @@
   }
 }
 
+/* The provincial [min, max] that produced a normalised value (FR-5.9). */
+.panel__var-bounds {
+  display: block;
+  font-size: 0.6875rem;
+  color: #868e96;
+  white-space: nowrap;
+}
+
 .panel__footnote {
   margin: 0.5rem 0 0;
   font-size: 0.6875rem;

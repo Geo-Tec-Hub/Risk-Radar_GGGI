@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -19,6 +19,15 @@ import { AdminUser, CatalogItem, HazardType, NewVariable, RoleOption } from '../
 import { ImportBatch, ImportSummary } from '../models/import.model';
 import { ProfileScope, ProfileWeights, ProfileWeightsVersion, SaveWeightsPayload, encodeProfileScope } from '../models/profile.model';
 import { CoverageSummary, VulnerabilityComposition, VulnerabilityQuery, VulnerabilityUnit } from '../models/vulnerability.model';
+import { AssessmentForm, AssessmentPayload, AssessmentResult } from '../models/assessment.model';
+
+/** The four import pickers, by display NAME as the import tab holds them. */
+export interface ImportScopeNames {
+  readonly province: string;
+  readonly sector: string;
+  readonly subsector?: string;
+  readonly hazard: string;
+}
 
 /** The session cookie is opaque and HttpOnly (T2b) -- Angular never reads
  * it, but every auth call must still send/receive it, including across the
@@ -64,6 +73,39 @@ export class ApiClientService {
   ): Observable<VulnerabilityComposition> {
     const params = toHttpParams({ ...query });
     return this.http.get<VulnerabilityComposition>(`${this.base}/vulnerability/${dsCode}`, { params });
+  }
+
+  /** GET /assessments/form -- the expert/community entry form for one division. */
+  getAssessmentForm(dsCode: string, query: VulnerabilityQuery): Observable<AssessmentForm> {
+    const params = toHttpParams({ ...query, ds: dsCode });
+    return this.http.get<AssessmentForm>(`${this.base}/assessments/form`, { params, withCredentials: true });
+  }
+
+  /** POST /assessments -- save my figures for one division; returns the new score. */
+  saveAssessment(payload: AssessmentPayload): Observable<AssessmentResult> {
+    return this.http.post<AssessmentResult>(`${this.base}/assessments`, payload, WITH_CREDENTIALS);
+  }
+
+  /** GET /import/profile -- which profile version an import with these pickers lands in. */
+  getImportProfile(scope: ImportScopeNames): Observable<{ profileCode: string; version: number; variables: number }> {
+    return this.http.get<{ profileCode: string; version: number; variables: number }>(
+      `${this.base}/import/profile`, { params: toHttpParams({ ...scope }), withCredentials: true });
+  }
+
+  /** GET /import/template -- the upload workbook for the ACTIVE profile, values pre-filled. */
+  downloadImportTemplate(scope: ImportScopeNames): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this.base}/import/template`, {
+      params: toHttpParams({ ...scope }), withCredentials: true,
+      responseType: 'blob', observe: 'response',
+    });
+  }
+
+  /** GET /maps/pdf -- printable maps (one profile, or every profile of a province). */
+  downloadMapsPdf(params: Record<string, string | undefined>): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this.base}/maps/pdf`, {
+      params: toHttpParams(params), withCredentials: true,
+      responseType: 'blob', observe: 'response',
+    });
   }
 
   /** GET /coverage -- assessed/pending/unassessed counts for the current selection (FR-5.15). */

@@ -25,6 +25,7 @@ import { BoundaryService } from '../../core/services/boundary.service';
 import { DsDivisionProperties } from '../../core/models/ds-division.model';
 import { VulnerabilityUnit } from '../../core/models/vulnerability.model';
 import { styleForState } from './coverage-style';
+import { MapLayer } from '../../core/models/map-layer.model';
 
 const SRI_LANKA_CENTER = fromLonLat([80.7, 7.85]);
 
@@ -38,6 +39,8 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
   /** Results for the current filter selection, keyed by ds_code. Empty until Stage 4 exists. */
   readonly unitsByCode = input<ReadonlyMap<string, VulnerabilityUnit>>(new Map());
   readonly selectedCode = input<string | null>(null);
+  /** Which index colours the divisions: vulnerability, hazard or exposure. */
+  readonly layer = input<MapLayer>('vulnerability');
   /**
    * Province code of the current selection. The boundary asset holds all 340
    * divisions nationally, but a score is scaled WITHIN one province - so
@@ -68,6 +71,7 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
     effect(() => {
       this.unitsByCode();
       this.selectedCode();
+      this.layer();
       this.vectorSource.changed();
     });
 
@@ -173,7 +177,7 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
     const state = unit?.state ?? 'unassessed';
     const band = unit?.band ?? null;
     const selected = this.selectedCode() === dsCode;
-    return styleForState(state, band, selected);
+    return styleForState(state, band, selected, this.layer());
   }
 
   ngOnDestroy(): void {

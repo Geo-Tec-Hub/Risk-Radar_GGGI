@@ -9,12 +9,13 @@ import { DsDivisionProperties } from '../models/ds-division.model';
  * Serves the DS-division boundaries currently in the register.
  *
  * Stand-in for `GET /tiles/{level}/{z}/{x}/{y}.mvt` (§9, Stage 5.2), which
- * does not exist yet -- there is no backend at all (PROGRESS_TRACKER.md).
- * This loads a single simplified GeoJSON asset instead of vector tiles,
- * which SRS §4.3 explicitly rules out at national scale for the *production*
- * case ("makes the map take tens of seconds to draw"). At ~270KB simplified
- * it is fine for local development; it is not a substitute for FR-5.2 and
- * must be replaced when the tile endpoint lands.
+ * does not exist yet. This loads a single simplified GeoJSON asset instead of
+ * vector tiles, which SRS §4.3 explicitly rules out at national scale for the
+ * *production* case ("makes the map take tens of seconds to draw"). The asset
+ * is 1.87 MB simplified (602 KB gzipped -- topology-preserving, see
+ * design/spatial/generate_simplified_geojson.py); fine for local development,
+ * but not a substitute for FR-5.2 and it must be replaced when the tile
+ * endpoint lands.
  *
  * **This asset is not the division register and its feature count is not the
  * division count.** It holds shapefile polygons; divisions can be registered

@@ -415,7 +415,10 @@ def read_workbook(path: str, expected: Optional[list[str]] = None,
         out.weights_tab_present = True
         out.weights, w_warn = read_weights(wb[WEIGHTS_SHEET], aliases)
         out.warnings.extend(w_warn)
-    else:
+    elif "downloaded" not in str(meta.get("source") or ""):
+        # A workbook downloaded from the import tab carries no WEIGHTS tab on
+        # purpose (weights live in the weights editor), so saying so on every
+        # upload of one is noise rather than news.
         out.warnings.append(
             "this workbook has no WEIGHTS tab, so no weights were proposed with "
             "it. Weights are set in the weights editor.")

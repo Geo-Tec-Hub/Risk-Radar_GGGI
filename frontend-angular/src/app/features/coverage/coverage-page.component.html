@@ -73,7 +73,7 @@
             <tr class="coverage__row" (click)="toggleProfile(p.profileCode)">
               <td>
                 {{ p.sector }}@if (p.subsector) { / {{ p.subsector }} }
-                <span class="coverage__muted">{{ p.profileCode }}</span>
+                <span class="coverage__muted coverage__code">{{ p.profileCode }}</span>
               </td>
               <td>{{ p.hazard }}</td>
               <td>
@@ -82,7 +82,12 @@
                 }
               </td>
               <td>{{ p.divisionsComplete }} / {{ r.divisions }}</td>
-              <td>{{ p.scored }}</td>
+              <td>
+                {{ p.scored }}
+                @if (p.notPresent) {
+                  <span class="coverage__muted coverage__code">+ {{ p.notPresent }} sector not present</span>
+                }
+              </td>
               <td>
                 <span class="coverage__pill coverage__pill--{{ p.status }}">{{ p.status }}</span>
                 {{ p.note }}

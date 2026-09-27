@@ -3,6 +3,7 @@ import { Injectable, inject, signal } from '@angular/core';
 
 import { environment } from '../../../environments/environment';
 import { Taxonomy } from '../models/taxonomy.model';
+import { withViewTimeout } from './view-request';
 
 /**
  * Loads the filter taxonomy once, from the API rather than from constants.
@@ -26,7 +27,9 @@ export class TaxonomyService {
   load(): void {
     if (this.started) return;
     this.started = true;
-    this.http.get<Taxonomy>(`${environment.apiBaseUrl}/reference/taxonomy`).subscribe({
+    this.http.get<Taxonomy>(`${environment.apiBaseUrl}/reference/taxonomy`)
+      .pipe(withViewTimeout())
+      .subscribe({
       next: (t) => this.state.set(t),
       error: (err) => {
         this.started = false; // allow a retry when the API comes back

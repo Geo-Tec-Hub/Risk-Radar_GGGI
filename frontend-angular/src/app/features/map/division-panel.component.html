@@ -19,6 +19,8 @@
       </p>
 
       <dl class="panel__composition">
+        <dt>Vulnerability</dt>
+        <dd>{{ c.value === null ? (c.state === 'not_applicable' ? 'sector not present' : c.state === 'pending' ? 'awaiting recomputation' : 'unassessed') : (c.value | number: '1.0-4') }}</dd>
         <dt>Hazard index</dt>
         <dd>{{ (c.hazardIndex | number: '1.0-4') ?? 'unassessed' }}</dd>
         <dt>Exposure index</dt>
@@ -27,10 +29,20 @@
         <dd>{{ (c.rawIndex | number: '1.0-4') ?? 'unassessed' }}</dd>
         <dt>Bounds used</dt>
         <dd>{{ (c.boundMin | number: '1.0-4') ?? '—' }} to {{ (c.boundMax | number: '1.0-4') ?? '—' }}</dd>
+        <dt>Track</dt>
+        <dd>{{ trackLabel(c.track) }}</dd>
+        <dt>Period</dt>
+        <dd>{{ c.period }}</dd>
         <dt>Profile version</dt>
         <dd>{{ c.profileVersion ?? '—' }}</dd>
+        <dt>Last updated</dt>
+        <dd>{{ c.lastUpdated ? (c.lastUpdated | date: 'medium') : '—' }}</dd>
       </dl>
 
+      <!-- On the expert/community track, before this division has a score, the
+           entry form below lists the same variables with an input each - show
+           them once, not twice. -->
+      @if (!(query().track !== 'data' && c.state === 'unassessed' && auth.isAuthenticated())) {
       @if (c.hazardVariables.length > 0) {
         <h4 class="panel__block-title">Hazard variables</h4>
         <table class="panel__variables">
@@ -46,9 +58,14 @@
             @for (v of c.hazardVariables; track v.indicatorCode) {
               <tr>
                 <td>{{ v.indicatorName }} ({{ v.direction }})</td>
-                <td>{{ v.weightPct }}</td>
-                <td>{{ v.rawValue ?? '—' }} {{ v.unit }}</td>
-                <td>{{ (v.normalisedValue | number: '1.0-4') ?? '—' }}</td>
+                <td>{{ v.weightPct ?? '—' }}</td>
+                <td>{{ v.rawValue === null ? '—' : (v.rawValue | number: '1.0-3') }} {{ v.unit ?? '' }}</td>
+                <td>
+                  {{ (v.normalisedValue | number: '1.0-4') ?? '—' }}
+                  @if (v.boundMin !== null && v.boundMax !== null) {
+                    <span class="panel__var-bounds">({{ v.boundMin | number: '1.0-3' }}–{{ v.boundMax | number: '1.0-3' }})</span>
+                  }
+                </td>
               </tr>
             }
           </tbody>
@@ -70,19 +87,55 @@
             @for (v of c.exposureVariables; track v.indicatorCode) {
               <tr>
                 <td>{{ v.indicatorName }} ({{ v.direction }})</td>
-                <td>{{ v.weightPct }}</td>
-                <td>{{ v.rawValue ?? '—' }} {{ v.unit }}</td>
-                <td>{{ (v.normalisedValue | number: '1.0-4') ?? '—' }}</td>
+                <td>{{ v.weightPct ?? '—' }}</td>
+                <td>{{ v.rawValue === null ? '—' : (v.rawValue | number: '1.0-3') }} {{ v.unit ?? '' }}</td>
+                <td>
+                  {{ (v.normalisedValue | number: '1.0-4') ?? '—' }}
+                  @if (v.boundMin !== null && v.boundMax !== null) {
+                    <span class="panel__var-bounds">({{ v.boundMin | number: '1.0-3' }}–{{ v.boundMax | number: '1.0-3' }})</span>
+                  }
+                </td>
               </tr>
             }
           </tbody>
         </table>
       }
 
+      }
+
+      @if (c.state !== 'assessed' && c.hazardVariables.length + c.exposureVariables.length > 0) {
+        <p class="panel__status">
+          @if (c.state === 'not_applicable') {
+            This sector is not present in this division, so no score is shown.
+          } @else if (c.state === 'pending') {
+            Every variable has a value but no score has been computed yet — the
+            scores are awaiting recomputation.
+          } @else {
+            Not scored on the {{ trackLabel(c.track) }} track yet.
+          }
+        </p>
+      }
+      @if (c.contributedBy) {
+        <p class="panel__meta">
+          {{ query().track === 'data' ? 'Profile owner: ' : 'Based on ' }}{{ c.contributedBy }}.
+        </p>
+      }
+
       <p class="panel__footnote">
-        † Normalised within {{ d.province }} Province (CHANGES 2026-08-09 C1) — never compare this
+        † Normalised within {{ d.province }} Province — never compare this
         column across divisions in different provinces.
       </p>
+
+      @if (query().track === 'data' && canContribute(); as t) {
+        <p class="panel__scope-note">
+          To add your own assessment for {{ d.ds_division }}, set <strong>Track</strong> to <strong>{{ trackLabel(t) }}</strong>
+          in the filter bar.
+        </p>
+      }
+    }
+
+    @if (!loading()) {
+      <app-assessment-form [dsCode]="d.ds_code" [query]="query()" (saved)="onAssessmentSaved($event)" />
     }
   </div>
 } @else {

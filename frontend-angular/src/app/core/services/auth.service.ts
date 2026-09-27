@@ -14,14 +14,17 @@ import {
 } from '../models/auth.model';
 import { PROVINCES } from '../models/reference-data.model';
 
-/** admin -> /admin/registrations, data_officer/expert -> /import (their
- * write workflow starts there), everyone else (community, or no role yet)
- * -> /map (FR-12.8: route by role on sign-in). */
+/** admin -> /admin/registrations, data_officer -> /import, expert and
+ * community -> the map on their own track, everyone else -> /map
+ * (FR-12.8: route by role on sign-in). */
 const ROLE_LANDING: Record<RoleCode, string> = {
   admin: '/admin/registrations',
   data_officer: '/import',
-  expert: '/import',
-  community: '/map',
+  // QA 26 Sep 2026: an expert or community member does not import workbooks --
+  // they select a division on the map and enter their own figures there, so
+  // they land on the map with their own track already chosen.
+  expert: '/map?track=expert',
+  community: '/map?track=community',
 };
 
 /**

@@ -49,3 +49,7 @@ tmp/
 # design/templates/generated/ the 243 workbooks actually distributed
 # design/srs/*.docx           the builds sent for review
 # design/database/erd.*       regenerable, but small and worth diffing
+
+_to_delete/
+deploy/*.zip
+deploy/zidVaTaD
