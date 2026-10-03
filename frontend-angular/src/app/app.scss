@@ -82,6 +82,9 @@
 .app-main {
   flex: 1;
   min-height: 0;
+  /* Long pages scroll INSIDE main, so the footer stays at the bottom of the
+     window instead of landing in the middle of the page content. */
+  overflow-y: auto;
 }
 
 /* The account name sat beside the nav links in the same weight, so it read as
