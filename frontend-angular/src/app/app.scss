@@ -92,3 +92,17 @@
   font-weight: 400;
   cursor: default;
 }
+
+.app-footer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.35rem 1rem;
+  background: #f1f3f5;
+  border-top: 1px solid #dee2e6;
+  color: #6c757d;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+
+  a { color: #1c3d5a; }
+}

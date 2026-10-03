@@ -85,6 +85,8 @@ export class RegisterPageComponent {
       .map((k) => k.split('/')[0]);
   });
 
+  readonly agreedTerms = signal(false);
+
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
   readonly registeredEmail = signal<string | null>(null);
@@ -93,7 +95,8 @@ export class RegisterPageComponent {
     !!this.email() && this.password().length >= 8 && !!this.fullName()
     && (!this.needsProvince() || this.provinceId() !== undefined)
     && (!this.needsInterestAreas() || this.chosen().size > 0)
-    && this.redundant().length === 0,
+    && this.redundant().length === 0
+    && this.agreedTerms(),
   );
 
   constructor() {

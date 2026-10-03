@@ -77,6 +77,8 @@ apply "8b    Addendum: per-sector write scope"                 /design/database/
 # Must run BEFORE the DS-division load below, because it adds
 # ds_division.legacy_code.
 apply "8c    Addendum: official DS codes + the 2025 boundary revision" /design/database/schema_official_dscode_addendum.sql
+apply "8d    Addendum: unit change history"                    /design/database/schema_unit_history_addendum.sql
+apply "8e    Addendum: direct index entry (expert/community)"  /design/database/schema_track_index_entry_addendum.sql
 
 say "9/13  DS divisions + spatial layers"
 if "${EXEC[@]}" bash -c 'command -v ogr2ogr >/dev/null'; then

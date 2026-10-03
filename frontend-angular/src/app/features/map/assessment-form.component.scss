@@ -29,3 +29,6 @@
 }
 .af__btn--ghost { background: #fff; color: #1c3a5b; border: 1px solid #1c3a5b; }
 .af__result { margin-top: 0.5rem; padding: 0.5rem 0.6rem; background: #ebfbee; color: #2b8a3e; border-radius: 4px; font-size: 0.8125rem; }
+.af__mode { display: flex; flex-direction: column; gap: 0.2rem; margin: 0.4rem 0; font-size: 0.8125rem; }
+.af__mode-opt { display: flex; gap: 0.35rem; align-items: center; }
+.af__unit { color: #495057; white-space: nowrap; }

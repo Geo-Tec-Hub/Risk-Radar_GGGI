@@ -154,6 +154,54 @@
     }
     <p class="am__muted">{{ catalog().length }} variable(s){{ catalogBusy() ? ' · loading…' : '' }}</p>
 
+    @if (catalog().length) {
+      <h4>Units</h4>
+      <p class="am__muted">
+        The unit a variable is measured in. It is shown in the weights editor and in row 3 of every
+        upload template. A unit is shared by every province and sector that uses the variable, and
+        every change is recorded with who made it. Changing it does not change any value, weight or score.
+      </p>
+      @if (unitMessage(); as m) {
+        <p class="am__muted" role="status">{{ m }}</p>
+      }
+      <div class="am__scroll">
+        <table class="am__table">
+          <thead>
+            <tr><th>Variable</th><th>Code</th><th>Domain</th><th>Unit</th><th></th></tr>
+          </thead>
+          <tbody>
+            @for (c of catalog(); track c.id) {
+              <tr>
+                <td>{{ c.name }}</td>
+                <td class="am__mono">{{ c.code }}</td>
+                <td>{{ c.domain }}</td>
+                <td>
+                  <input
+                    [ngModel]="unitDraft()[c.id] ?? c.unit ?? ''"
+                    [name]="'unit' + c.id"
+                    placeholder="not set"
+                    maxlength="40"
+                    (ngModelChange)="setUnitDraft(c.id, $event)"
+                  />
+                  @if (c.unitChangedAt) {
+                    <div class="am__muted">
+                      was "{{ c.unitPrevious || 'not set' }}" · changed by {{ c.unitChangedBy || 'unknown' }}
+                      on {{ c.unitChangedAt.slice(0, 10) }}
+                    </div>
+                  }
+                </td>
+                <td>
+                  <button type="button"
+                          [disabled]="unitDraft()[c.id] === undefined || (unitDraft()[c.id] ?? '') === (c.unit ?? '')"
+                          (click)="saveUnit(c)">Save</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
     <h4>Propose a new variable</h4>
     <div class="am__row">
       <label class="am__field">

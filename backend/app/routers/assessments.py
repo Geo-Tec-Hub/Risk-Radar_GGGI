@@ -19,6 +19,13 @@ WHO MAY WRITE WHICH TRACK.
     admin      either track, for testing and support
 Nobody writes the `data` track here -- that stays with the import tab.
 
+TWO WAYS TO ASSESS (2 Oct 2026). `mode = "parameters"` sends a raw figure for
+every weighted variable (as before). `mode = "index"` sends only a Hazard index
+and a Potential Exposure index, each 0-1 (track_index_entry). Saving one clears
+that person's entry of the other kind for the same division, scope and period,
+so one person never mixes the two. The raw index and the normalised score are
+computed by the engine in both cases.
+
 EACH PERSON'S FIGURES ARE THEIR OWN. Rows are keyed by user (indicator_value_uniq
 includes user_id), a new save replaces only that person's previous figures for
 the division and period, and the track's score is the mean over contributors.
@@ -33,7 +40,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from app.deps import CurrentUser, db, get_current_user, get_optional_user
-from app.engine.track import compute_track_division, contributors
+from app.engine.track import compute_track_division, contributors, index_entries
 from app.importer.load_template import AGG_HINT
 
 router = APIRouter(prefix="/assessments", tags=["assessments"])
@@ -69,6 +76,11 @@ class AssessmentForm(BaseModel):
     contributors: int
     hazardVariables: list[FormVariable]
     exposureVariables: list[FormVariable]
+    # Direct index entry: this user's last entry, if any, and which way they
+    # last assessed this division ('parameters' | 'index' | None).
+    myMode: Optional[str] = None
+    myHazardIndex: Optional[float] = None
+    myExposureIndex: Optional[float] = None
 
 
 class ValueIn(BaseModel):
@@ -84,7 +96,10 @@ class AssessmentIn(BaseModel):
     period: str = Field(pattern=r"^\d{4}-\d{4}$")
     track: Track
     dsCode: str
-    values: list[ValueIn] = Field(min_length=1, max_length=200)
+    mode: Literal["parameters", "index"] = "parameters"
+    values: list[ValueIn] = Field(default_factory=list, max_length=200)
+    hazardIndex: Optional[float] = Field(default=None, ge=0, le=1)
+    exposureIndex: Optional[float] = Field(default=None, ge=0, le=1)
     note: Optional[str] = Field(default=None, max_length=1000)
 
 
@@ -99,13 +114,15 @@ class AssessmentOut(BaseModel):
     vulnerabilityIndex: Optional[float] = None
     baseline: Optional[str] = None
     contributors: int = 0
+    entry: Optional[str] = None
 
 
 async def _profile(conn, province: str, sector: str, subsector: Optional[str],
                    hazard: str):
     prof = await conn.fetchrow(
         """
-        SELECT vp.id, vp.code, vp.version, vp.province_id, p.name AS province_name
+        SELECT vp.id, vp.code, vp.version, vp.province_id, p.name AS province_name,
+               vp.sector_id, vp.subsector_id, vp.hazard_type_id
           FROM vulnerability_profile vp
           JOIN province p     ON p.id = vp.province_id
           JOIN sector   s     ON s.id = vp.sector_id
@@ -214,12 +231,15 @@ async def form(
              GROUP BY indicator_id
             """, div["id"], ids, track, y0)}
         n_people = await contributors(conn, prof["id"], div["id"], track, y0)
+        idx = await index_entries(conn, prof, div["id"], track, y0)
+        n_people += len(idx)
+        my_idx = next((r for r in idx if user is not None and r["user_id"] == user.id), None)
+        my_mode = "index" if my_idx else ("parameters" if mine else None)
 
     weights_complete = bool(members) and all(m["weight_pct"] is not None for m in members)
     allowed, reason = may_write_track(user, track, prof["province_id"])
-    if allowed and not weights_complete:
-        allowed, reason = False, ("this profile's weights are not finished yet, so "
-                                  "no score can be computed")
+    # Unfinished weights block entry BY PARAMETERS only; an index entry needs
+    # no weights, so the form stays open and the client offers index mode.
 
     def _v(m) -> FormVariable:
         return FormVariable(
@@ -237,7 +257,10 @@ async def form(
         period=period, track=track, canSubmit=allowed, reason=reason,
         weightsComplete=weights_complete, contributors=n_people,
         hazardVariables=[_v(m) for m in members if m["domain"] == "hazard"],
-        exposureVariables=[_v(m) for m in members if m["domain"] == "exposure"])
+        exposureVariables=[_v(m) for m in members if m["domain"] == "exposure"],
+        myMode=my_mode,
+        myHazardIndex=my_idx["hazard_index"] if my_idx else None,
+        myExposureIndex=my_idx["exposure_index"] if my_idx else None)
 
 
 @router.post("", response_model=AssessmentOut)
@@ -260,6 +283,61 @@ async def save(
               JOIN indicator_catalog ic ON ic.id = pi.indicator_id
              WHERE pi.profile_id = $1 AND pi.consensus IN ('agreed', 'contested')
             """, prof["id"])}
+        # Every variable the profile carries, so switching to index mode clears
+        # all of this person's parameter figures for the scope, not only the
+        # weighted ones.
+        all_member_ids = [r["indicator_id"] for r in await conn.fetch(
+            "SELECT indicator_id FROM profile_indicator WHERE profile_id = $1", prof["id"])]
+        note = ("entered on the map" + (": " + body.note.strip() if body.note else ""))
+
+        if body.mode == "index":
+            if body.hazardIndex is None or body.exposureIndex is None:
+                raise HTTPException(400, "index entry needs both a Hazard index and a "
+                                         "Potential Exposure index, each between 0 and 1")
+            async with conn.transaction():
+                await conn.execute(
+                    """
+                    DELETE FROM indicator_value
+                     WHERE ds_division_id = $1 AND source = $2::source_type AND user_id = $3
+                       AND indicator_id = ANY($4::bigint[])
+                       AND year_start = $5 AND year_end = $6 AND scenario_id IS NULL
+                    """, div["id"], body.track, user.id, all_member_ids, y0, y1)
+                await conn.execute(
+                    """
+                    DELETE FROM track_index_entry
+                     WHERE ds_division_id = $1 AND sector_id = $2
+                       AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
+                       AND source = $5::source_type AND user_id = $6
+                       AND year_start = $7 AND year_end = $8
+                    """, div["id"], prof["sector_id"], prof["subsector_id"],
+                    prof["hazard_type_id"], body.track, user.id, y0, y1)
+                await conn.execute(
+                    """
+                    INSERT INTO track_index_entry
+                        (ds_division_id, sector_id, subsector_id, hazard_type_id, source,
+                         user_id, year_start, year_end, hazard_index, exposure_index, note)
+                    VALUES ($1, $2, $3, $4, $5::source_type, $6, $7, $8, $9, $10, $11)
+                    """, div["id"], prof["sector_id"], prof["subsector_id"],
+                    prof["hazard_type_id"], body.track, user.id, y0, y1,
+                    body.hazardIndex, body.exposureIndex, note)
+                result = await compute_track_division(conn, prof["id"], div["id"],
+                                                      body.track, y0, y1)
+            return AssessmentOut(saved=2, **{
+                k: result.get(k) for k in ("ok", "reason", "hazardIndex", "exposureIndex",
+                                           "rawIndex", "vulnerabilityIndex", "baseline",
+                                           "entry")},
+                missing=result.get("missing", []), contributors=result.get("contributors", 0))
+
+        if not members or any(
+                w is None for w in [r["weight_pct"] for r in await conn.fetch(
+                    """SELECT weight_pct FROM profile_indicator
+                        WHERE profile_id = $1 AND consensus IN ('agreed', 'contested')""",
+                    prof["id"])]):
+            raise HTTPException(400, "this profile's weights are not finished yet, so it "
+                                     "cannot be assessed by parameters. Enter the "
+                                     "Hazard and Exposure indexes directly instead.")
+        if not body.values:
+            raise HTTPException(400, "no figures were sent")
 
         problems: list[str] = []
         seen: set[str] = set()
@@ -280,8 +358,17 @@ async def save(
         if problems:
             raise HTTPException(400, "; ".join(problems))
 
-        note = ("entered on the map" + (": " + body.note.strip() if body.note else ""))
         async with conn.transaction():
+            # One way per person: a parameter save clears their index entry.
+            await conn.execute(
+                """
+                DELETE FROM track_index_entry
+                 WHERE ds_division_id = $1 AND sector_id = $2
+                   AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
+                   AND source = $5::source_type AND user_id = $6
+                   AND year_start = $7 AND year_end = $8
+                """, div["id"], prof["sector_id"], prof["subsector_id"],
+                prof["hazard_type_id"], body.track, user.id, y0, y1)
             await conn.execute(
                 """
                 DELETE FROM indicator_value
@@ -303,5 +390,6 @@ async def save(
                                                   body.track, y0, y1)
     return AssessmentOut(saved=len(body.values), **{
         k: result.get(k) for k in ("ok", "reason", "hazardIndex", "exposureIndex",
-                                   "rawIndex", "vulnerabilityIndex", "baseline")},
+                                   "rawIndex", "vulnerabilityIndex", "baseline",
+                                   "entry")},
         missing=result.get("missing", []), contributors=result.get("contributors", 0))

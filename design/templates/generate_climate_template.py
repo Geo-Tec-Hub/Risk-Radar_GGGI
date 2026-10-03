@@ -2,6 +2,11 @@
 """
 Climate (hazard-domain) upload template - DRAFT for panel review.
 
+SUPERSEDED 2 Oct 2026 for issuing files: download the climate workbook from the
+import tab (GET /api/import/climate-template), whose columns come from each
+province's live profiles. The CLIMATE list below is national and stale -- it
+predates the flood / very-wet-days splits and caused the Western refusal.
+
 WHY THIS EXISTS
 ---------------
 The twelve hazard/climate variables are not sector data. `indicator_value`

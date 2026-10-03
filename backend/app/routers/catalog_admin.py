@@ -4,6 +4,7 @@ Admin: the variable catalogue, hazard types, and who may write what.
     GET  /api/admin/catalog                  browse variables
     POST /api/admin/catalog                  propose a NEW variable (pending)
     POST /api/admin/catalog/{id}/status      approve or retire one (admin)
+    PUT  /api/admin/catalog/{id}/unit        set or correct a variable's unit (admin, expert, data officer; recorded)
     GET  /api/admin/hazards                  hazard types
     POST /api/admin/hazards                  add one (admin)
     GET  /api/admin/users                    accounts, roles, sectors, province
@@ -51,6 +52,10 @@ class CatalogItem(BaseModel):
     direction: str
     status: str
     usedInProfiles: int
+    # Last unit change, so a wrong edit is visible next to the unit itself.
+    unitPrevious: Optional[str] = None
+    unitChangedBy: Optional[str] = None
+    unitChangedAt: Optional[str] = None
 
 
 class NewVariable(BaseModel):
@@ -82,8 +87,14 @@ async def list_catalog(
                ic.direction::text AS direction, ic.status::text AS status,
                (SELECT count(*) FROM profile_indicator pi
                  JOIN vulnerability_profile vp ON vp.id = pi.profile_id
-                WHERE pi.indicator_id = ic.id AND vp.is_active) AS used
+                WHERE pi.indicator_id = ic.id AND vp.is_active) AS used,
+               uc.old_unit, uc.changed_at, au.full_name AS changed_by
           FROM indicator_catalog ic
+          LEFT JOIN LATERAL (
+                SELECT old_unit, changed_at, changed_by FROM indicator_unit_change
+                 WHERE indicator_id = ic.id ORDER BY changed_at DESC, id DESC LIMIT 1
+          ) uc ON true
+          LEFT JOIN app_user au ON au.id = uc.changed_by
          WHERE ($1::text IS NULL OR ic.code ILIKE '%' || $1 || '%'
                                  OR ic.name ILIKE '%' || $1 || '%')
            AND ($2::text IS NULL OR ic.domain::text = $2)
@@ -93,7 +104,11 @@ async def list_catalog(
         """, q, domain, status, min(limit, 500))
     return [CatalogItem(id=r["id"], code=r["code"], name=r["name"],
                         domain=r["domain"], unit=r["unit"], direction=r["direction"],
-                        status=r["status"], usedInProfiles=r["used"]) for r in rows]
+                        status=r["status"], usedInProfiles=r["used"],
+                        unitPrevious=r["old_unit"],
+                        unitChangedBy=r["changed_by"],
+                        unitChangedAt=r["changed_at"].isoformat() if r["changed_at"] else None)
+            for r in rows]
 
 
 @router.post("/admin/catalog", response_model=CatalogItem, status_code=201)
@@ -178,6 +193,76 @@ async def set_variable_status(
     return CatalogItem(id=r["id"], code=r["code"], name=r["name"], domain=r["domain"],
                        unit=r["unit"], direction=r["direction"], status=r["status"],
                        usedInProfiles=used)
+
+
+class UnitChange(BaseModel):
+    # Blank clears the unit. Kept short: it is printed in a narrow column and
+    # in row 3 of every upload template.
+    unit: Optional[str] = Field(default=None, max_length=40)
+
+
+@router.put("/admin/catalog/{ref}/unit", response_model=CatalogItem)
+async def set_variable_unit(
+    ref: str,
+    body: UnitChange,
+    user: CurrentUser = Depends(get_current_user),
+    pool: asyncpg.Pool = Depends(db),
+) -> CatalogItem:
+    """Set the unit a variable is measured in.
+
+    WHO (owner decision, 2 Oct 2026): an administrator, expert or data officer.
+    A unit belongs to the variable, so a change made for one province is seen
+    by every province and sector that reads it -- hence every change is written
+    to `indicator_unit_change` (old, new, who, when) in the same transaction,
+    and the catalogue shows the previous unit beside the current one.
+
+    The unit describes the variable; it does not change any stored value,
+    weight or score, so it does not create a new profile version."""
+    if not (user.has_role("admin") or user.has_role("expert")
+            or user.has_role("data_officer")):
+        raise HTTPException(403, "only a data officer, expert or administrator "
+                                 "may change a unit")
+    unit = (body.unit or "").strip() or None
+    async with pool.acquire() as conn:
+        # `ref` is the numeric id (Model page) or the variable code (weights
+        # editor, which knows codes, not ids).
+        variable_id = await conn.fetchval(
+            "SELECT id FROM indicator_catalog WHERE id::text = $1 OR code = upper($1)", ref)
+        if variable_id is None:
+            raise HTTPException(404, "no such variable")
+        async with conn.transaction():
+            old = await conn.fetchrow(
+                "SELECT unit FROM indicator_catalog WHERE id = $1 FOR UPDATE", variable_id)
+            if old is None:
+                raise HTTPException(404, "no such variable")
+            if (old["unit"] or None) != unit:
+                await conn.execute(
+                    """INSERT INTO indicator_unit_change
+                           (indicator_id, old_unit, new_unit, changed_by)
+                       VALUES ($1, $2, $3, $4)""",
+                    variable_id, old["unit"], unit, user.id)
+                await conn.execute(
+                    "UPDATE indicator_catalog SET unit = $2 WHERE id = $1",
+                    variable_id, unit)
+        r = await conn.fetchrow(
+            """SELECT ic.id, ic.code, ic.name, ic.domain::text AS domain, ic.unit,
+                      ic.direction::text AS direction, ic.status::text AS status,
+                      (SELECT count(*) FROM profile_indicator pi
+                         JOIN vulnerability_profile vp ON vp.id = pi.profile_id
+                        WHERE pi.indicator_id = ic.id AND vp.is_active) AS used,
+                      uc.old_unit, uc.changed_at, au.full_name AS changed_by
+                 FROM indicator_catalog ic
+                 LEFT JOIN LATERAL (
+                       SELECT old_unit, changed_at, changed_by FROM indicator_unit_change
+                        WHERE indicator_id = ic.id ORDER BY changed_at DESC, id DESC LIMIT 1
+                 ) uc ON true
+                 LEFT JOIN app_user au ON au.id = uc.changed_by
+                WHERE ic.id = $1""", variable_id)
+    return CatalogItem(id=r["id"], code=r["code"], name=r["name"], domain=r["domain"],
+                       unit=r["unit"], direction=r["direction"], status=r["status"],
+                       usedInProfiles=r["used"], unitPrevious=r["old_unit"],
+                       unitChangedBy=r["changed_by"],
+                       unitChangedAt=r["changed_at"].isoformat() if r["changed_at"] else None)
 
 
 # ------------------------------------------------------------- hazard types

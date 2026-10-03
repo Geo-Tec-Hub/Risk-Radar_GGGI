@@ -20,56 +20,112 @@
       @if (!f.canSubmit) {
         <p class="af__note af__note--warn">{{ f.reason }}</p>
       } @else {
-        <p class="af__note">
-          Enter a raw figure for every variable. The vulnerability is computed as soon as you save, on the same
-          provincial scale as the published score.
-        </p>
-        @if (anyOfficial()) {
-          <div class="af__actions">
-            <button type="button" class="af__btn af__btn--ghost" (click)="copyOfficial(true)">
-              Fill blanks with official figures
-            </button>
-          </div>
+        <div class="af__mode" role="radiogroup" aria-label="How do you want to assess this division?">
+          <label class="af__mode-opt">
+            <input type="radio" name="af-mode" [checked]="mode() === 'parameters'"
+                   [disabled]="!f.weightsComplete" (change)="setMode('parameters')" />
+            By parameters
+          </label>
+          <label class="af__mode-opt">
+            <input type="radio" name="af-mode" [checked]="mode() === 'index'" (change)="setMode('index')" />
+            By index (enter Hazard and Exposure indexes directly)
+          </label>
+        </div>
+        @if (!f.weightsComplete) {
+          <p class="af__note af__note--warn">
+            This profile's weights are not finished yet, so it can only be assessed by index for now.
+          </p>
+        }
+        @if (f.myMode && f.myMode !== mode()) {
+          <p class="af__note">
+            You last assessed this division {{ f.myMode === 'index' ? 'by index' : 'by parameters' }}. Saving this way
+            replaces that entry.
+          </p>
         }
       }
 
-      @for (group of [{ label: 'Hazard', vars: f.hazardVariables }, { label: 'Exposure', vars: f.exposureVariables }]; track group.label) {
-        @if (group.vars.length > 0) {
-          <h5 class="af__group">{{ group.label }}</h5>
-          <table class="af__table">
-            <thead>
-              <tr>
-                <th>Variable</th>
-                <th>Weight</th>
-                <th>Official</th>
-                <th>Your figure</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (v of group.vars; track v.code) {
+      @if (mode() === 'index') {
+        <p class="af__note">
+          Give each index on a 0&ndash;1 scale (0 = none, 1 = the highest in this province). The raw index (H × E) and
+          the normalised vulnerability are calculated for you.
+        </p>
+        <table class="af__table">
+          <tbody>
+            <tr>
+              <td><span class="af__name">Hazard index</span><span class="af__hint">0 to 1</span></td>
+              <td>
+                <input class="af__input" type="number" step="0.01" min="0" max="1" aria-label="Hazard index"
+                       [disabled]="!f.canSubmit" [ngModel]="hazardIndex()" (ngModelChange)="setIndex('hazard', $event)" />
+              </td>
+            </tr>
+            <tr>
+              <td><span class="af__name">Potential Exposure index</span><span class="af__hint">0 to 1</span></td>
+              <td>
+                <input class="af__input" type="number" step="0.01" min="0" max="1" aria-label="Potential Exposure index"
+                       [disabled]="!f.canSubmit" [ngModel]="exposureIndex()" (ngModelChange)="setIndex('exposure', $event)" />
+              </td>
+            </tr>
+            <tr>
+              <td><span class="af__name">Raw index (H × E)</span><span class="af__hint">calculated</span></td>
+              <td>{{ indexRaw() === null ? '—' : (indexRaw() | number: '1.0-4') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      } @else {
+        @if (f.canSubmit) {
+          <p class="af__note">
+            Enter a raw figure for every variable, in the unit shown. The vulnerability is computed as soon as you
+            save, on the same provincial scale as the published score.
+          </p>
+          @if (anyOfficial()) {
+            <div class="af__actions">
+              <button type="button" class="af__btn af__btn--ghost" (click)="copyOfficial(true)">
+                Fill blanks with official figures
+              </button>
+            </div>
+          }
+        }
+
+        @for (group of [{ label: 'Hazard', vars: f.hazardVariables }, { label: 'Exposure', vars: f.exposureVariables }]; track group.label) {
+          @if (group.vars.length > 0) {
+            <h5 class="af__group">{{ group.label }}</h5>
+            <table class="af__table">
+              <thead>
                 <tr>
-                  <td>
-                    <span class="af__name">{{ v.name }} ({{ v.direction }})</span>
-                    @if (v.hint) { <span class="af__hint">{{ v.hint }}</span> }
-                  </td>
-                  <td>{{ v.weightPct ?? '—' }}</td>
-                  <td>{{ v.officialValue === null ? '—' : (v.officialValue | number: '1.0-3') }}</td>
-                  <td>
-                    <input
-                      class="af__input"
-                      type="number"
-                      step="any"
-                      [attr.min]="v.signed ? null : 0"
-                      [attr.aria-label]="'Your figure for ' + v.name"
-                      [disabled]="!f.canSubmit"
-                      [ngModel]="values()[v.code]"
-                      (ngModelChange)="setValue(v.code, $event)"
-                    />
-                  </td>
+                  <th>Variable</th>
+                  <th>Unit</th>
+                  <th>Weight</th>
+                  <th>Official</th>
+                  <th>Your figure</th>
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @for (v of group.vars; track v.code) {
+                  <tr>
+                    <td>
+                      <span class="af__name">{{ v.name }} ({{ v.direction }})</span>
+                      @if (v.hint) { <span class="af__hint">{{ v.hint }}</span> }
+                    </td>
+                    <td class="af__unit">{{ v.unit || 'not set' }}</td>
+                    <td>{{ v.weightPct ?? '—' }}</td>
+                    <td>{{ v.officialValue === null ? '—' : (v.officialValue | number: '1.0-3') }}</td>
+                    <td>
+                      <input
+                        class="af__input"
+                        type="number"
+                        step="any"
+                        [attr.min]="v.signed ? null : 0"
+                        [attr.aria-label]="'Your figure for ' + v.name + (v.unit ? ' in ' + v.unit : '')"
+                        [disabled]="!f.canSubmit || !f.weightsComplete"
+                        [ngModel]="values()[v.code]"
+                        (ngModelChange)="setValue(v.code, $event)"
+                      />
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
         }
       }
 
@@ -80,11 +136,14 @@
             placeholder="source or reasoning for your figures"></textarea>
         </label>
         <div class="af__actions">
-          <button type="button" class="af__btn" [disabled]="saving() || missing().length > 0" (click)="submit()">
+          <button type="button" class="af__btn" [disabled]="saving() || !canSave()" (click)="submit()">
             {{ saving() ? 'Saving…' : 'Save and calculate vulnerability' }}
           </button>
-          @if (missing().length > 0) {
+          @if (mode() === 'parameters' && missing().length > 0) {
             <span class="af__hint">{{ missing().length }} figure(s) still needed</span>
+          }
+          @if (mode() === 'index' && !indexReady()) {
+            <span class="af__hint">both indexes are needed, each between 0 and 1</span>
           }
         </div>
       }
@@ -96,7 +155,13 @@
         @if (r.ok) {
           <div class="af__result" role="status">
             <strong>Saved.</strong> Vulnerability {{ r.vulnerabilityIndex | number: '1.0-4' }}
-            (hazard {{ r.hazardIndex | number: '1.0-4' }} × exposure {{ r.exposureIndex | number: '1.0-4' }}).
+            (hazard {{ r.hazardIndex | number: '1.0-4' }} × exposure {{ r.exposureIndex | number: '1.0-4' }}
+            = raw {{ r.rawIndex | number: '1.0-4' }}).
+            @if (r.entry === 'index') {
+              <br />Entered as indexes.
+            } @else if (r.entry === 'mixed') {
+              <br />This track's score combines contributors who entered parameters and contributors who entered indexes.
+            }
             @if (r.baseline === 'none') {
               <br />No official data for this province yet, so this is the raw H × E, not rescaled against a
               provincial range.

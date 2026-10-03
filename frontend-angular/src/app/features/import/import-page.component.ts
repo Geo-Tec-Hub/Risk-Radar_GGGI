@@ -354,7 +354,7 @@ export class ImportPageComponent implements OnInit {
 
   /** Names rather than codes: the scope check compares against `_META`, which
    * carries the names the generator wrote into the workbook. */
-  private readonly nameOf = computed(() => {
+  readonly nameOf = computed(() => {
     const t = this.taxonomy();
     return {
       province: t?.provinces.find((p) => p.code === this.province())?.name,
@@ -737,6 +737,33 @@ export class ImportPageComponent implements OnInit {
           this.templateBusy.set(false);
         },
       });
+  }
+
+  /** The province's climate workbook. Its columns come from that province's
+   * own profiles, so a parameter added or removed in the weights editor shows
+   * up here on the next download. */
+  downloadClimateTemplate(): void {
+    const province = this.nameOf().province;
+    if (!province) return;
+    this.templateBusy.set(true);
+    this.templateError.set(null);
+    this.api.downloadClimateTemplate(province).subscribe({
+      next: (res) => {
+        const cd = res.headers.get('Content-Disposition') ?? '';
+        const name = /filename="?([^";]+)"?/.exec(cd)?.[1] ?? 'CLIMATE_upload_template.xlsx';
+        const url = URL.createObjectURL(res.body as Blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        this.templateBusy.set(false);
+      },
+      error: (err) => {
+        this.templateError.set(err?.error?.detail ?? err?.message ?? 'The climate template could not be downloaded.');
+        this.templateBusy.set(false);
+      },
+    });
   }
 
   refreshStaleness(): void {

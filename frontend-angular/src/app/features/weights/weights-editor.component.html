@@ -1,6 +1,9 @@
 <div class="weights">
-  <a routerLink="/import" class="weights__back">&larr; Back to Import</a>
+  <a [routerLink]="back().link" [queryParams]="back().params" class="weights__back">&larr; {{ back().label }}</a>
   <h2>Profile weights</h2>
+  @if (unitNotice(); as m) {
+    <p class="weights__unit-notice" role="status">{{ m }}</p>
+  }
 
   @if (addNotice(); as m) {
     <p class="weights__added" role="status">{{ m }}</p>
@@ -21,7 +24,7 @@
     <p class="weights__error" role="alert">Could not load weights: {{ message }}</p>
   } @else {
     <label class="weights__decider">
-      <span>Decided by (required to exclude a variable)</span>
+      <span>Decided by (required to remove a variable)</span>
       <input type="text" [ngModel]="decidedByName()" (ngModelChange)="decidedByName.set($event)" placeholder="Officer or expert name" />
     </label>
 
@@ -38,6 +41,12 @@
           }
         </span>
         <button type="button" (click)="distributeRemaining('hazard')">Distribute remaining</button>
+        @if (canRescale('hazard')) {
+          <button type="button" (click)="rescaleToHundred('hazard')"
+                  title="Scale the remaining weights up or down in proportion so they total 100. Nothing is saved until you press Save.">
+            Rescale the rest to 100
+          </button>
+        }
       </div>
 
       <table class="weights__table">
@@ -59,7 +68,19 @@
                   <span class="weights__badge">composite index</span>
                 }
               </td>
-              <td>{{ row.unit }}</td>
+              <td>
+                @if (unitEditing() === row.indicatorCode) {
+                  <input class="weights__unit-input" maxlength="40" placeholder="e.g. ha"
+                         [ngModel]="unitEditValue()" (ngModelChange)="unitEditValue.set($event)" />
+                  <button type="button" [disabled]="unitSaving()" (click)="saveUnit(row.indicatorCode)">Save</button>
+                  <button type="button" (click)="unitEditing.set(null)">Cancel</button>
+                } @else {
+                  {{ row.unit }}
+                  <button type="button" class="weights__unit-edit"
+                          title="The unit is shared by every province and sector that uses this parameter. Your change is recorded with your name."
+                          (click)="editUnit(row)">{{ row.unit ? 'edit' : 'set unit' }}</button>
+                }
+              </td>
               <td>{{ row.direction }}</td>
               <td>
                 <input
@@ -74,7 +95,7 @@
               <td>
                 @if (row.consensus === 'rejected') {
                   <span class="weights__decision weights__decision--rejected">
-                    Excluded by {{ row.decidedBy }}
+                    Removed by {{ row.decidedBy }}
                     @if (row.consensusNote) { — "{{ row.consensusNote }}" }
                   </span>
                   <button type="button" (click)="reconsider('hazard', row.indicatorCode)">Reconsider</button>
@@ -88,7 +109,7 @@
                     (ngModelChange)="updateNote('hazard', row.indicatorCode, $event)"
                   />
                   <button type="button" [disabled]="!decidedByName().trim()" (click)="exclude('hazard', row.indicatorCode)">
-                    Exclude
+                    Remove
                   </button>
                 } @else if (row.weightPct === null) {
                   <input
@@ -99,10 +120,14 @@
                     (ngModelChange)="updateNote('hazard', row.indicatorCode, $event)"
                   />
                   <button type="button" [disabled]="!decidedByName().trim()" (click)="exclude('hazard', row.indicatorCode)">
-                    Exclude
+                    Remove
                   </button>
                 } @else {
                   <span class="weights__decision">agreed</span>
+                  <button type="button" [disabled]="!decidedByName().trim()" (click)="exclude('hazard', row.indicatorCode)"
+                          title="Remove this parameter from the profile. Its weight is dropped and the rest must be brought back to 100 before saving.">
+                    Remove
+                  </button>
                 }
               </td>
             </tr>
@@ -124,6 +149,12 @@
           }
         </span>
         <button type="button" (click)="distributeRemaining('exposure')">Distribute remaining</button>
+        @if (canRescale('exposure')) {
+          <button type="button" (click)="rescaleToHundred('exposure')"
+                  title="Scale the remaining weights up or down in proportion so they total 100. Nothing is saved until you press Save.">
+            Rescale the rest to 100
+          </button>
+        }
       </div>
       <table class="weights__table">
         <thead>
@@ -139,7 +170,19 @@
           @for (row of exposureRows(); track row.indicatorCode) {
             <tr [class.weights__row--unresolved]="row.consensus === null && row.weightPct === null" [class.weights__row--excluded]="row.consensus === 'rejected'" [class.weights__row--invalid]="isInvalidZero(row)">
               <td>{{ row.indicatorName }}</td>
-              <td>{{ row.unit }}</td>
+              <td>
+                @if (unitEditing() === row.indicatorCode) {
+                  <input class="weights__unit-input" maxlength="40" placeholder="e.g. ha"
+                         [ngModel]="unitEditValue()" (ngModelChange)="unitEditValue.set($event)" />
+                  <button type="button" [disabled]="unitSaving()" (click)="saveUnit(row.indicatorCode)">Save</button>
+                  <button type="button" (click)="unitEditing.set(null)">Cancel</button>
+                } @else {
+                  {{ row.unit }}
+                  <button type="button" class="weights__unit-edit"
+                          title="The unit is shared by every province and sector that uses this parameter. Your change is recorded with your name."
+                          (click)="editUnit(row)">{{ row.unit ? 'edit' : 'set unit' }}</button>
+                }
+              </td>
               <td>{{ row.direction }}</td>
               <td>
                 <input
@@ -154,7 +197,7 @@
               <td>
                 @if (row.consensus === 'rejected') {
                   <span class="weights__decision weights__decision--rejected">
-                    Excluded by {{ row.decidedBy }}
+                    Removed by {{ row.decidedBy }}
                     @if (row.consensusNote) { — "{{ row.consensusNote }}" }
                   </span>
                   <button type="button" (click)="reconsider('exposure', row.indicatorCode)">Reconsider</button>
@@ -170,10 +213,14 @@
                     (ngModelChange)="updateNote('exposure', row.indicatorCode, $event)"
                   />
                   <button type="button" [disabled]="!decidedByName().trim()" (click)="exclude('exposure', row.indicatorCode)">
-                    Exclude
+                    Remove
                   </button>
                 } @else {
                   <span class="weights__decision">agreed</span>
+                  <button type="button" [disabled]="!decidedByName().trim()" (click)="exclude('exposure', row.indicatorCode)"
+                          title="Remove this parameter from the profile. Its weight is dropped and the rest must be brought back to 100 before saving.">
+                    Remove
+                  </button>
                 }
               </td>
             </tr>
@@ -196,11 +243,11 @@
           Both blocks must total exactly 100 from agreed/contested weights, with every row either
           weighted or explicitly excluded.
           @if (unresolvedNames()) {
-            Still blank: {{ unresolvedNames() }}. Weight each one, or type a name above and Exclude it.
+            Still blank: {{ unresolvedNames() }}. Weight each one, or type a name above and Remove it.
           }
           @if (zeroWeightNames()) {
             Weighted at 0 (not allowed — the database requires a weight above 0): {{ zeroWeightNames() }}.
-            Give it a real weight, or type a name above and Exclude it instead.
+            Give it a real weight, or type a name above and Remove it instead.
           }
         </span>
       }

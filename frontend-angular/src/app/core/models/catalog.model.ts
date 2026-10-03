@@ -16,6 +16,10 @@ export interface CatalogItem {
   status: 'active' | 'pending' | 'retired';
   /** Active profiles citing it. Non-zero means retiring it would move scores. */
   usedInProfiles: number;
+  /** The last unit change: what it was before, who changed it, when. */
+  unitPrevious?: string | null;
+  unitChangedBy?: string | null;
+  unitChangedAt?: string | null;
 }
 
 export interface NewVariable {

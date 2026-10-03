@@ -35,6 +35,15 @@ SEVERAL CONTRIBUTORS. Each person's figures are kept as their own rows
 track's value for a variable is the MEAN of the contributors' latest figures,
 and the result row records how many people it rests on.
 
+DIRECT INDEX ENTRY (2 Oct 2026). A contributor may instead give just a
+Hazard index and a Potential Exposure index (0-1), stored in
+`track_index_entry`. Each person uses one way per division/scope/period. The
+track's H and E are then the mean over ALL contributors: the parameter group
+counts as its number of contributors at the H and E computed from their mean
+figures, and each index contributor counts once at their own H and E. The raw
+product and the rescale are computed exactly as for parameters -- nobody types
+them. `method.entry` records 'parameters', 'index' or 'mixed'.
+
 NEVER MIXED WITH THE DATA TRACK. Every query below names its source. The data
 engine was also changed to read `source = 'data'` only -- before that, the first
 expert entry would have been folded silently into the official score.
@@ -131,13 +140,29 @@ async def _track_range(conn, indicator_id: int, province_id: int, track: str,
     return row["lo"], row["hi"]
 
 
+async def index_entries(conn, prof, division_id: int, track: str,
+                        year_start: int) -> list[dict]:
+    """Each contributor's latest index entry (H, E) for this profile's scope."""
+    rows = await conn.fetch(
+        """
+        SELECT DISTINCT ON (user_id) user_id, hazard_index, exposure_index
+          FROM track_index_entry
+         WHERE ds_division_id = $1 AND sector_id = $2
+           AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
+           AND source = $5::source_type AND year_start <= $6
+         ORDER BY user_id, year_start DESC, id DESC
+        """, division_id, prof["sector_id"], prof["subsector_id"],
+        prof["hazard_type_id"], track, year_start)
+    return [dict(r) for r in rows]
+
+
 async def compute_track_division(conn, profile_id: int, division_id: int,
                                  track: str, year_start: int, year_end: int) -> dict:
     """Score one division on the expert or community track and store it.
 
-    Returns {'ok': bool, 'reason'?: str, ...}. A division whose contributions do
-    not cover every weighted variable is NOT scored (absent is not zero) and any
-    earlier result for it is removed, so the map never shows a stale score."""
+    Returns {'ok': bool, 'reason'?: str, ...}. A division with neither complete
+    parameter figures nor an index entry is NOT scored (absent is not zero) and
+    any earlier result for it is removed, so the map never shows a stale score."""
     if track not in TRACKS:
         raise ValueError("track must be expert or community")
     prof = await conn.fetchrow(
@@ -145,14 +170,6 @@ async def compute_track_division(conn, profile_id: int, division_id: int,
              FROM vulnerability_profile WHERE id = $1 AND is_active""", profile_id)
     if prof is None:
         return {"ok": False, "reason": "no such active profile"}
-    members = await load_memberships(conn, profile_id)
-    refusal = check_computable(prof["code"], members)
-    if refusal:
-        return {"ok": False, "reason": str(refusal)}
-    counted = [m for m in members if m["consensus"] in ("agreed", "contested")]
-
-    vals = await track_values(conn, profile_id, division_id, track, year_start)
-    missing = [m["code"] for m in counted if m["indicator_id"] not in vals]
 
     async def _clear():
         await conn.execute(
@@ -163,38 +180,63 @@ async def compute_track_division(conn, profile_id: int, division_id: int,
                   AND year_end IS NOT DISTINCT FROM $5""",
             division_id, profile_id, track, year_start, year_end)
 
-    if missing:
+    idx = await index_entries(conn, prof, division_id, track, year_start)
+
+    # ---- the parameter group -------------------------------------------
+    members = await load_memberships(conn, profile_id)
+    refusal = check_computable(prof["code"], members)
+    counted = [m for m in members if m["consensus"] in ("agreed", "contested")]
+    vals = await track_values(conn, profile_id, division_id, track, year_start)
+    n_param = await contributors(conn, profile_id, division_id, track, year_start)
+    missing = [m["code"] for m in counted if m["indicator_id"] not in vals]
+
+    param_ok = bool(vals) and not refusal and not missing
+    if not param_ok and not idx:
         await _clear()
+        if refusal and vals:
+            return {"ok": False, "reason": str(refusal)}
         return {"ok": False, "reason": "a value is still needed for every weighted "
                 "variable", "missing": sorted(missing)}
 
     bounds: dict[str, list[float]] = {}
     official_vars = 0
-    h = e = 0.0
-    for m in counted:
-        v = vals[m["indicator_id"]]["mean"]
-        rng = await _official_range(conn, m["indicator_id"], prof["province_id"], year_start)
-        if rng is not None:
-            official_vars += 1
-        else:
-            rng = await _track_range(conn, m["indicator_id"], prof["province_id"],
-                                     track, year_start) or (v, v)
-        lo, hi = min(rng[0], v), max(rng[1], v)
-        bounds[m["code"]] = [lo, hi]
-        n = _scale(v, lo, hi)
-        if m["relationship"] == "higher_is_better":
-            n = 1.0 - n
-        if m["domain"] == "hazard":
-            h += m["weight_pct"] * n / 100.0
-        else:
-            e += m["weight_pct"] * n / 100.0
+    sector_absent = False
+    h_p = e_p = 0.0
+    if param_ok:
+        for m in counted:
+            v = vals[m["indicator_id"]]["mean"]
+            rng = await _official_range(conn, m["indicator_id"], prof["province_id"], year_start)
+            if rng is not None:
+                official_vars += 1
+            else:
+                rng = await _track_range(conn, m["indicator_id"], prof["province_id"],
+                                         track, year_start) or (v, v)
+            lo, hi = min(rng[0], v), max(rng[1], v)
+            bounds[m["code"]] = [lo, hi]
+            n = _scale(v, lo, hi)
+            if m["relationship"] == "higher_is_better":
+                n = 1.0 - n
+            if m["domain"] == "hazard":
+                h_p += m["weight_pct"] * n / 100.0
+            else:
+                e_p += m["weight_pct"] * n / 100.0
+        h_p, e_p = min(1.0, max(0.0, h_p)), min(1.0, max(0.0, e_p))
+        # Same rule as the data engine: the sector is absent only when EVERY
+        # exposure figure the contributors gave is exactly zero.
+        exposure_members = [m for m in counted if m["domain"] == "exposure"]
+        sector_absent = bool(exposure_members) and not idx and all(
+            vals[m["indicator_id"]]["mean"] == 0.0 for m in exposure_members)
+    else:
+        n_param = 0
+
+    # ---- combine: every contributor counts once --------------------------
+    n_idx = len(idx)
+    total = n_param + n_idx
+    h = (n_param * h_p + sum(r["hazard_index"] for r in idx)) / total
+    e = (n_param * e_p + sum(r["exposure_index"] for r in idx)) / total
     h, e = min(1.0, max(0.0, h)), min(1.0, max(0.0, e))
     p = h * e
-    # Same rule as the data engine: the sector is absent only when EVERY
-    # exposure figure the contributors gave is exactly zero -- never from e == 0.
-    exposure_members = [m for m in counted if m["domain"] == "exposure"]
-    sector_absent = bool(exposure_members) and all(
-        vals[m["indicator_id"]]["mean"] == 0.0 for m in exposure_members)
+    entry = "mixed" if n_param and n_idx else ("index" if n_idx else "parameters")
 
     base = await conn.fetchrow(
         """SELECT min(bound_min) AS lo, max(bound_max) AS hi
@@ -205,26 +247,34 @@ async def compute_track_division(conn, profile_id: int, division_id: int,
     if base is not None and base["lo"] is not None:
         plo, phi = min(base["lo"], p), max(base["hi"], p)
         v_index = _scale(p, plo, phi)
-        baseline = "official" if official_vars == len(counted) else "partial"
+        if entry == "index":
+            baseline = "official"
+        else:
+            baseline = "official" if official_vars == len(counted) else "partial"
     else:
         plo = phi = None
         v_index = p
         baseline = "none"
 
-    n_people = await contributors(conn, profile_id, division_id, track, year_start)
     method = {
         "model": "one division on the %s track, scaled against the province's "
                  "official ranges and product bounds" % track,
         "scope": "provincial",
         "track": track,
         "period": "%d-%d" % (year_start, year_end),
-        "variables": len(counted),
+        "entry": entry,
+        "variables": len(counted) if param_ok else 0,
         "variable_bounds": bounds,
         "baseline": baseline,
         "official_variables": official_vars,
-        "contributors": n_people,
+        "contributors": total,
+        "parameter_contributors": n_param,
+        "index_contributors": n_idx,
         "sector_absent": sector_absent,
     }
+    if missing and idx and vals:
+        method["note"] = ("parameter figures are incomplete for the current profile, "
+                          "so only the index entries were used")
     await _clear()
     await conn.execute(
         """
@@ -239,7 +289,7 @@ async def compute_track_division(conn, profile_id: int, division_id: int,
         json.dumps(method), plo, phi)
     return {"ok": True, "hazardIndex": h, "exposureIndex": e, "rawIndex": p,
             "vulnerabilityIndex": v_index, "baseline": baseline,
-            "contributors": n_people}
+            "contributors": total, "entry": entry}
 
 
 async def recompute_track_province(conn, profile_id: int, province_id: int,
@@ -257,7 +307,21 @@ async def recompute_track_province(conn, profile_id: int, province_id: int,
                                           AND pi.profile_id = $1
                 WHERE d.province_id = $2 AND iv.source = $3::source_type""",
             profile_id, province_id, track)
+        # ... and divisions assessed by index only.
+        divs = list(divs) + list(await conn.fetch(
+            """SELECT DISTINCT t.ds_division_id
+                 FROM track_index_entry t
+                 JOIN ds_division d ON d.id = t.ds_division_id
+                 JOIN vulnerability_profile vp ON vp.id = $1
+                WHERE d.province_id = $2 AND t.source = $3::source_type
+                  AND t.sector_id = vp.sector_id AND t.hazard_type_id = vp.hazard_type_id
+                  AND t.subsector_id IS NOT DISTINCT FROM vp.subsector_id""",
+            profile_id, province_id, track))
+        seen_divs: set[int] = set()
         for d in divs:
+            if d["ds_division_id"] in seen_divs:
+                continue
+            seen_divs.add(d["ds_division_id"])
             r = await compute_track_division(conn, profile_id, d["ds_division_id"],
                                              track, year_start, year_end)
             n += 1 if r.get("ok") else 0

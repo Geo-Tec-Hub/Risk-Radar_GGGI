@@ -38,3 +38,23 @@
   color: #c92a2a;
   max-width: 16rem;
 }
+
+.filter-bar__label-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.filter-bar__info {
+  cursor: help;
+  color: #1c3d5a;
+  font-size: 0.8rem;
+  text-transform: none;
+}
+
+.filter-bar__inline-note {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.65rem;
+  color: #868e96;
+}

@@ -85,7 +85,15 @@
         rainfall is read by every sector. They are collected once per province, by the officer who
         owns them, so that no sector import can overwrite them. Importing this file needs the
         hazard-data grant.
+        @if (nameOf().province) {
+          <button type="button" class="import__linkbtn" [disabled]="templateBusy()" (click)="downloadClimateTemplate()">
+            {{ templateBusy() ? 'Preparing…' : 'Download the current climate template for ' + nameOf().province }}
+          </button>
+        }
       </p>
+      @if (templateError(); as m) {
+        <p class="import__banner import__banner--error" role="alert">{{ m }}</p>
+      }
     }
 
     @if (kind() === 'sector' && activeProfile(); as ap) {

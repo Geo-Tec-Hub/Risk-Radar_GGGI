@@ -240,6 +240,8 @@ Apply-File '7b   Addendum: per-sector write scope' (Join-Path $Design 'database\
 # divisions that carry forward, retires Ambagamuwa and Kothmale, and adds the
 # eleven divisions the 2025 boundary revision created.
 Apply-File '8b   Addendum: official DS codes + the 2025 boundary revision' (Join-Path $Design 'database\schema_official_dscode_addendum.sql')
+Apply-File '8c   Addendum: unit change history' (Join-Path $Design 'database\schema_unit_history_addendum.sql')
+Apply-File '8d   Addendum: direct index entry (expert/community)' (Join-Path $Design 'database\schema_track_index_entry_addendum.sql')
 
 # --- DS divisions -----------------------------------------------------------
 Say '9/9  DS divisions (register + surveyed polygons; counts reported by smoke_test) + spatial layers'

@@ -10,7 +10,7 @@ import { ProfileScope, ProfileVariable, ProfileWeights, WeightConsensus, WeightD
 interface EditableRow {
   readonly indicatorCode: string;
   readonly indicatorName: string;
-  readonly unit: string | null;
+  unit: string | null;
   /** Display symbol, derived from the catalogue enum at the boundary. The API
    * carries `relationship`; '+'/'-' is the legacy workbooks' shorthand and
    * belongs in the view, not in the contract. */
@@ -110,6 +110,22 @@ export class WeightsEditorComponent {
   readonly scopeParams = computed(() => {
     const s = this.scope();
     return s ? { ...scopeToQueryParams(s), from: 'weights' } : {};
+  });
+
+  /** Back goes where the user came from: the Coverage page (same province
+   * and period) or the Import page (same profile). It always said "Back to
+   * Import" before, even when opened from Coverage. */
+  readonly back = computed(() => {
+    const q = this.route.snapshot.queryParams;
+    if (q['from'] === 'coverage') {
+      return { link: '/coverage', label: 'Back to Coverage', params: {} as Record<string, string> };
+    }
+    const s = this.scope();
+    return {
+      link: '/import',
+      label: 'Back to Import',
+      params: (s ? { ...scopeToQueryParams(s), from: 'weights' } : {}) as Record<string, string>,
+    };
   });
 
   readonly scope = signal<ProfileScope | null>(null);
@@ -270,6 +286,75 @@ export class WeightsEditorComponent {
 
     if (block === 'hazard') this.hazardRows.set(updated);
     else this.exposureRows.set(updated);
+  }
+
+  /** True when every row is decided (weighted or excluded) but the weighted
+   * ones no longer total 100 -- the state a removal leaves behind. Offered,
+   * never applied automatically: the weights are the panel's judgement, so a
+   * person presses the button and the save records who did. */
+  canRescale(block: 'hazard' | 'exposure'): boolean {
+    const rows = block === 'hazard' ? this.hazardRows() : this.exposureRows();
+    const weighted = rows.filter((r) => r.consensus !== 'rejected' && (r.weightPct ?? 0) > 0);
+    const total = includedTotal(rows);
+    return weighted.length > 0 && total !== 100 && rows.every(isResolved);
+  }
+
+  /** Proportional rescale of the weighted rows so they total exactly 100
+   * (3 dp; the last row takes the rounding remainder). Excluded rows stay
+   * excluded and carry no weight. */
+  rescaleToHundred(block: 'hazard' | 'exposure'): void {
+    if (!this.canRescale(block)) return;
+    const rows = block === 'hazard' ? this.hazardRows() : this.exposureRows();
+    const weighted = rows.filter((r) => r.consensus !== 'rejected' && (r.weightPct ?? 0) > 0);
+    const total = weighted.reduce((s, r) => s + (r.weightPct ?? 0), 0);
+    const last = weighted[weighted.length - 1];
+    let assigned = 0;
+    const updated = rows.map((r) => {
+      if (!weighted.includes(r)) return r;
+      const value = r === last ? round3(100 - assigned) : round3(((r.weightPct ?? 0) * 100) / total);
+      assigned = round3(assigned + value);
+      return { ...r, weightPct: value };
+    });
+    if (block === 'hazard') this.hazardRows.set(updated);
+    else this.exposureRows.set(updated);
+  }
+
+  // ---- units ----------------------------------------------------------
+  /** Which row's unit is being edited (by code), and the draft value. Units
+   * are saved straight away and on their own: a unit describes the parameter,
+   * so it is not part of the weights save and writes no new profile version. */
+  readonly unitEditing = signal<string | null>(null);
+  readonly unitEditValue = signal('');
+  readonly unitSaving = signal(false);
+  readonly unitNotice = signal<string | null>(null);
+
+  editUnit(row: EditableRow): void {
+    this.unitNotice.set(null);
+    this.unitEditValue.set(row.unit ?? '');
+    this.unitEditing.set(row.indicatorCode);
+  }
+
+  saveUnit(code: string): void {
+    const value = this.unitEditValue().trim();
+    this.unitSaving.set(true);
+    this.api.setVariableUnit(code, value || null).subscribe({
+      next: (saved) => {
+        const apply = (rows: EditableRow[]) =>
+          rows.map((r) => (r.indicatorCode === code ? { ...r, unit: saved.unit } : r));
+        this.hazardRows.set(apply(this.hazardRows()));
+        this.exposureRows.set(apply(this.exposureRows()));
+        this.unitEditing.set(null);
+        this.unitSaving.set(false);
+        this.unitNotice.set(
+          `Unit for "${saved.name}" ${saved.unit ? 'set to "' + saved.unit + '"' : 'cleared'}. ` +
+            'This applies in every province and sector that uses it, and the change is recorded with your name.',
+        );
+      },
+      error: (err: { error?: { detail?: string }; message?: string }) => {
+        this.unitSaving.set(false);
+        this.unitNotice.set('The unit could not be saved: ' + (err?.error?.detail ?? err?.message ?? 'unknown error'));
+      },
+    });
   }
 
   updateWeight(block: 'hazard' | 'exposure', code: string, value: number | null): void {

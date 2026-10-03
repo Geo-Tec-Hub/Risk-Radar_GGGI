@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { ApiClientService } from '../../core/services/api-client.service';
@@ -186,6 +186,15 @@ export class MapPageComponent {
   /** An expert/community score was just saved: re-read the map, keep the selection. */
   onAssessmentSaved(): void {
     this.refresh(this.query());
+  }
+
+  /** Esc clears the selected division (QA, 2 Oct 2026). Ignored while typing
+   * in a field -- Esc there should not throw away a half-filled assessment. */
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscape(event: Event): void {
+    const t = event.target as HTMLElement | null;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+    if (this.selectedDivision()) this.selectedDivision.set(null);
   }
 
   onDivisionSelected(division: DsDivisionProperties): void {

@@ -38,6 +38,10 @@ export interface AssessmentForm {
   readonly contributors: number;
   readonly hazardVariables: readonly AssessmentVariable[];
   readonly exposureVariables: readonly AssessmentVariable[];
+  /** How this user last assessed this division: 'parameters' | 'index' | null. */
+  readonly myMode: 'parameters' | 'index' | null;
+  readonly myHazardIndex: number | null;
+  readonly myExposureIndex: number | null;
 }
 
 export interface AssessmentPayload {
@@ -48,7 +52,11 @@ export interface AssessmentPayload {
   readonly period: string;
   readonly track: Exclude<Track, 'data'>;
   readonly dsCode: string;
+  /** 'parameters' (a figure per variable) or 'index' (H and E directly, 0-1). */
+  readonly mode: 'parameters' | 'index';
   readonly values: readonly { code: string; value: number }[];
+  readonly hazardIndex?: number | null;
+  readonly exposureIndex?: number | null;
   readonly note?: string | null;
 }
 
@@ -64,4 +72,6 @@ export interface AssessmentResult {
   /** 'official' | 'partial' | 'none' -- what the score was scaled against. */
   readonly baseline: string | null;
   readonly contributors: number;
+  /** 'parameters' | 'index' | 'mixed' -- how the stored score was entered. */
+  readonly entry: string | null;
 }

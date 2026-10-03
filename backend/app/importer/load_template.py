@@ -168,6 +168,47 @@ async def _catalogue_maps(conn) -> tuple[dict[str, str], set[str]]:
     return aliases, signed
 
 
+async def province_climate_codes(conn, province_id: int) -> list[str]:
+    """The climate columns ONE province uses, read from its active profiles.
+
+    WHY PER PROVINCE (2 Oct 2026). The climate list used to be one national
+    set, hard-coded in generate_climate_template.py. The provincial panels then
+    split FLOOD_EVENTS_1974_TO_2023 and VERY_WET_DAYS into their parts in
+    Western's (and Central's, Southern's ...) sector profiles, but the climate
+    template still printed the old national list. Western's officer filled the
+    split columns in by hand and the file was refused on both counts. The
+    climate contract now follows the province's own profiles: a hazard variable
+    is a column if any active profile of that province carries it and has not
+    removed it (consensus 'rejected'). Adding or removing a parameter in the
+    weights editor therefore changes the next downloaded climate template with
+    nothing else to edit.
+
+    Falls back to every active hazard variable when the province has no
+    profiles at all, so an empty province is not left with an empty file.
+    """
+    rows = await conn.fetch(
+        """
+        SELECT ic.code
+          FROM profile_indicator pi
+          JOIN vulnerability_profile vp ON vp.id = pi.profile_id
+          JOIN hazard_type h            ON h.id  = vp.hazard_type_id
+          JOIN indicator_catalog ic     ON ic.id = pi.indicator_id
+         WHERE vp.is_active AND vp.province_id = $1
+           AND ic.domain = 'hazard' AND ic.status = 'active'
+           AND pi.consensus IS DISTINCT FROM 'rejected'
+         GROUP BY ic.code
+         ORDER BY MIN(h.code), ic.code
+        """, province_id)
+    if rows:
+        return [r["code"] for r in rows]
+    return [r["code"] for r in await conn.fetch(
+        """
+        SELECT code FROM indicator_catalog
+         WHERE domain = 'hazard' AND status = 'active'
+         ORDER BY code
+        """)]
+
+
 async def climate_context(conn, province: str) -> dict | None:
     """Context for a CLIMATE workbook, which has no profile to look up.
 
@@ -181,12 +222,7 @@ async def climate_context(conn, province: str) -> dict | None:
     row = await conn.fetchrow("SELECT id FROM province WHERE name = $1", province)
     if row is None:
         return None
-    codes = [r["code"] for r in await conn.fetch(
-        """
-        SELECT code FROM indicator_catalog
-         WHERE domain = 'hazard' AND status = 'active'
-         ORDER BY code
-        """)]
+    codes = await province_climate_codes(conn, row["id"])
     aliases, signed = await _catalogue_maps(conn)
     return dict(profile_id=None, profile_code=None, province_id=row["id"],
                 sector_id=None, subsector_id=None, codes=codes,
@@ -233,10 +269,21 @@ async def profile_context(conn, province: str, main_sector: str,
           JOIN indicator_catalog ic ON ic.id = pi.indicator_id
          WHERE pi.profile_id = $1 AND ic.domain = 'hazard'
         """, row["id"])}
+    # Removed in the weights editor. Still a valid column (an older workbook
+    # carries it), but no longer printed in a downloaded template, so its
+    # absence from a file is not news.
+    removed_codes = {r["code"] for r in await conn.fetch(
+        """
+        SELECT ic.code
+          FROM profile_indicator pi
+          JOIN indicator_catalog ic ON ic.id = pi.indicator_id
+         WHERE pi.profile_id = $1 AND pi.consensus = 'rejected'
+        """, row["id"])}
     return dict(profile_id=row["id"], profile_code=row["code"],
                 province_id=row["province_id"], sector_id=row["sector_id"],
                 subsector_id=row["subsector_id"], codes=codes, aliases=aliases,
-                signed=signed, hazard_codes=hazard_codes)
+                signed=signed, hazard_codes=hazard_codes,
+                removed_codes=removed_codes)
 
 
 async def _weights_read(conn, wb: TemplateWorkbook, ctx: dict) -> list[WeightRead]:
@@ -435,7 +482,8 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
         # Hazard columns are left out on purpose for most officers -- they come
         # in through the climate workbook -- so only exposure gaps are news.
         missing_cols = [c for c in ctx["codes"] if c not in (wb.expected_columns or [])
-                        and c not in ctx["hazard_codes"]]
+                        and c not in ctx["hazard_codes"]
+                        and c not in ctx.get("removed_codes", set())]
         warnings.append(
             "this workbook was issued for %s; the current profile is %s, and the "
             "values load into %s.%s Download the current template from the import "
@@ -537,9 +585,10 @@ async def load_workbook_values(conn, path: str, *, batch_id: int, user_id: int,
                 continue
             if v.variable_code not in ind:
                 errors.append(
-                    ("%s row %d: %s is not an active hazard (climate) variable. "
-                     "A climate workbook carries hazard-domain variables only -- "
-                     "a sector's own variables belong in that sector's workbook."
+                    ("%s row %d: %s is not a climate variable used by any active "
+                     "profile of this province (it may have been removed in the "
+                     "weights editor, or be a sector variable). Download the current "
+                     "climate template from the import tab for this province's columns."
                      if is_climate else
                      "%s row %d: %s is not a variable of this profile")
                     % (s.tab, v.excel_row, v.variable_code))

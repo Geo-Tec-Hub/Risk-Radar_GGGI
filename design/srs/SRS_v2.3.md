@@ -600,6 +600,19 @@ All three share one schema and are separated by the `source` column, so they are
 directly comparable. Community averages are published only where n ≥ 10, and
 carry a low-confidence marker where 10 ≤ n < 30.
 
+**Two ways to assess on the expert and community tracks (added 2 Oct 2026,
+client request).** A contributor assesses a division either *by parameters* (a
+raw figure, in the variable's unit, for every weighted variable) or *by index*
+(a Hazard index and a Potential Exposure index, each on 0–1). One person uses
+one way per division, profile scope and period; saving one replaces the other.
+Only H and E are entered: the raw index H × E and the normalised score are
+always computed, by the same rules as parameter entry, so a typed value can
+never contradict them. The track's H and E are the mean over all contributors,
+each person counting once. A score records how it was entered (`parameters`,
+`index` or `mixed`) and the map panel says so. Index entry needs no weights, so
+it remains open while a profile's weights are unfinished. Storage:
+`track_index_entry` (`schema_track_index_entry_addendum.sql`).
+
 ## 2.7 Bands
 
 Scores are classified into four bands with configurable thresholds. The same

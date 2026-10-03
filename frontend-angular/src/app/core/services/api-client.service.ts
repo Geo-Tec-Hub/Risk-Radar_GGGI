@@ -100,6 +100,14 @@ export class ApiClientService {
     });
   }
 
+  /** GET /import/climate-template -- the province's climate workbook, columns from its own profiles. */
+  downloadClimateTemplate(province: string): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this.base}/import/climate-template`, {
+      params: toHttpParams({ province }), withCredentials: true,
+      responseType: 'blob', observe: 'response',
+    });
+  }
+
   /** GET /maps/pdf -- printable maps (one profile, or every profile of a province). */
   downloadMapsPdf(params: Record<string, string | undefined>): Observable<HttpResponse<Blob>> {
     return this.http.get(`${this.base}/maps/pdf`, {
@@ -180,6 +188,13 @@ export class ApiClientService {
   setVariableStatus(id: number, status: string): Observable<CatalogItem> {
     return this.http.post<CatalogItem>(
       `${this.base}/admin/catalog/${id}/status`, { status }, WITH_CREDENTIALS);
+  }
+
+  /** PUT /admin/catalog/{id or code}/unit -- set or clear a variable's unit
+   * (admin, expert or data officer; every change is recorded). */
+  setVariableUnit(ref: number | string, unit: string | null): Observable<CatalogItem> {
+    return this.http.put<CatalogItem>(
+      `${this.base}/admin/catalog/${encodeURIComponent(String(ref))}/unit`, { unit }, WITH_CREDENTIALS);
   }
 
   getHazards(): Observable<HazardType[]> {

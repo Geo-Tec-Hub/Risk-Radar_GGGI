@@ -1,32 +1,6 @@
 <div class="map-page">
   <app-filter-bar (queryChange)="onQueryChange($event)" (layerChange)="onLayerChange($event)" />
 
-  <div class="map-page__toolbar">
-    <button type="button" class="map-page__btn" [disabled]="exportBusy() !== null" (click)="exportThisMap()">
-      {{ exportBusy() === 'one' ? 'Preparing PDF…' : 'Export this map (PDF)' }}
-    </button>
-    <button type="button" class="map-page__btn map-page__btn--ghost" [disabled]="exportBusy() !== null"
-            (click)="exportPanelOpen.set(!exportPanelOpen())">
-      Export all maps…
-    </button>
-    @if (exportPanelOpen()) {
-      <span class="map-page__export-panel">
-        Every profile of this province with scores for {{ query().period }}, {{ query().track === 'data' ? 'official' : query().track }} track —
-        @for (l of layers; track l) {
-          <label class="map-page__check">
-            <input type="checkbox" [checked]="exportLayers()[l]" (change)="toggleExportLayer(l, $any($event.target).checked)" />
-            {{ layerLabel[l] }}
-          </label>
-        }
-        <button type="button" class="map-page__btn" [disabled]="exportBusy() !== null" (click)="exportAllMaps()">
-          {{ exportBusy() === 'all' ? 'Preparing PDF… (a few seconds)' : 'Download PDF' }}
-        </button>
-      </span>
-    }
-    @if (exportError(); as m) {
-      <span class="map-page__export-error" role="alert">{{ m }}</span>
-    }
-  </div>
 
   @if (resultsError(); as message) {
     <div class="map-page__banner" role="alert">
@@ -42,6 +16,34 @@
 
   <div class="map-page__body">
     <div class="map-page__map">
+      <!-- Export controls float in the map's top-right corner (3 Oct 2026)
+         instead of taking a full-width row above it. -->
+      <div class="map-page__toolbar">
+        <button type="button" class="map-page__btn" [disabled]="exportBusy() !== null" (click)="exportThisMap()">
+          {{ exportBusy() === 'one' ? 'Preparing PDF…' : 'Export this map (PDF)' }}
+        </button>
+        <button type="button" class="map-page__btn map-page__btn--ghost" [disabled]="exportBusy() !== null"
+                (click)="exportPanelOpen.set(!exportPanelOpen())">
+          Export all maps…
+        </button>
+        @if (exportPanelOpen()) {
+          <span class="map-page__export-panel">
+            Every profile of this province with scores for {{ query().period }}, {{ query().track === 'data' ? 'official' : query().track }} track —
+            @for (l of layers; track l) {
+              <label class="map-page__check">
+                <input type="checkbox" [checked]="exportLayers()[l]" (change)="toggleExportLayer(l, $any($event.target).checked)" />
+                {{ layerLabel[l] }}
+              </label>
+            }
+            <button type="button" class="map-page__btn" [disabled]="exportBusy() !== null" (click)="exportAllMaps()">
+              {{ exportBusy() === 'all' ? 'Preparing PDF… (a few seconds)' : 'Download PDF' }}
+            </button>
+          </span>
+        }
+        @if (exportError(); as m) {
+          <span class="map-page__export-error" role="alert">{{ m }}</span>
+        }
+      </div>
       <!-- The legend sits ON the map, not beside it. It describes what the
            colours mean, so reading it means looking away from the thing it
            explains when it lives in the sidebar - and on a laptop the sidebar

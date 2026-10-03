@@ -117,8 +117,12 @@
                     </ul>
                   }
                   <p>
-                    <a routerLink="/import">Import data</a> ·
-                    <a routerLink="/weights">Weights</a>
+                    @if (linkParams(p); as lp) {
+                      <a routerLink="/import" [queryParams]="lp">Import data</a> ·
+                      <a routerLink="/weights" [queryParams]="lp">Weights</a>
+                    } @else {
+                      <a routerLink="/import">Import data</a>
+                    }
                   </p>
                 </td>
               </tr>

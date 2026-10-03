@@ -71,7 +71,7 @@ from pydantic import BaseModel
 
 from app.deps import CurrentUser, db, get_current_user
 from app.importer.load_template import AGG_HINT, load_workbook_values
-from app.importer.template_writer import build_profile_workbook
+from app.importer.template_writer import build_climate_workbook, build_profile_workbook
 from app.routers.reference import COLLECTION_PERIODS
 
 log = logging.getLogger(__name__)
@@ -459,6 +459,27 @@ async def template(
         may_hazard = bool(await conn.fetchval("SELECT may_write_hazard($1, $2)", user.id, pid))
         name, body = await build_profile_workbook(conn, row["id"], list(COLLECTION_PERIODS),
                                                   include_hazard=may_hazard)
+    return Response(
+        content=body,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": 'attachment; filename="%s"' % name})
+
+
+@router.get("/climate-template")
+async def climate_template(
+    province: str,
+    pool: asyncpg.Pool = Depends(db),
+    user: CurrentUser = Depends(get_current_user),
+) -> Response:
+    """The province's CLIMATE upload workbook, columns read from that
+    province's own active profiles (not a national list), values pre-filled.
+    See build_climate_workbook()."""
+    require_import_role(user)
+    async with pool.acquire() as conn:
+        try:
+            name, body = await build_climate_workbook(conn, province, list(COLLECTION_PERIODS))
+        except ValueError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
     return Response(
         content=body,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

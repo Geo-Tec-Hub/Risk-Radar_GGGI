@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Params, RouterLink } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
 import { PERIODS } from '../../core/models/reference-data.model';
@@ -112,6 +112,34 @@ export class CoveragePageComponent implements OnInit {
   setPeriod(period: string): void {
     this.period.set(period);
     if (this.province()) this.refresh();
+  }
+
+  /** The row's profile as the query params /weights and /import read
+   * (province, sector, subsector, hazard -- as CODES). Coverage reports names,
+   * so they are matched against the taxonomy here. Before 2 Oct 2026 these
+   * links carried nothing, so "Weights" opened an empty editor saying "No
+   * profile selected" (QA doc, Issue 01). Null when a name cannot be matched,
+   * so the link is hidden rather than opening that same empty page. */
+  linkParams(p: ProfileCoverage): Params | null {
+    const t = this.taxonomy();
+    if (!t) return null;
+    const same = (a: string | null | undefined, b: string | null | undefined) =>
+      !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
+    const prov = t.provinces.find((x) => same(x.name, this.province()) || same(x.code, this.province()));
+    const sec = t.sectors.find((x) => same(x.name, p.sector) || same(x.code, p.sector));
+    const sub = p.subsector
+      ? sec?.subsectors.find((x) => same(x.name, p.subsector) || same(x.code, p.subsector))
+      : undefined;
+    const haz = t.hazards.find((x) => same(x.name, p.hazard) || same(x.code, p.hazard));
+    if (!prov || !sec || !haz || (p.subsector && !sub)) return null;
+    return {
+      province: prov.code,
+      sector: sec.code,
+      subsector: sub?.code ?? null,
+      hazard: haz.code,
+      period: this.period(),
+      from: 'coverage',
+    };
   }
 
   toggleProfile(code: string): void {

@@ -82,5 +82,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/import/import-upload.component').then((m) => m.ImportUploadComponent),
     title: 'Risk Radar — Import (legacy screen)',
   },
+  {
+    path: 'terms',
+    loadComponent: () => import('./features/legal/terms-page.component').then((m) => m.TermsPageComponent),
+    title: 'Risk Radar — Terms of Use',
+  },
   { path: '**', redirectTo: '' },
 ];

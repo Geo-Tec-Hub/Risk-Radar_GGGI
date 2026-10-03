@@ -45,6 +45,13 @@ export class AssessmentFormComponent {
   readonly result = signal<AssessmentResult | null>(null);
   readonly saveError = signal<string | null>(null);
 
+  /** How this person assesses: a figure per variable, or the two indexes
+   * directly (2 Oct 2026). One way per division -- saving one replaces the
+   * other. The raw index and the normalised score are always computed. */
+  readonly mode = signal<'parameters' | 'index'>('parameters');
+  readonly hazardIndex = signal<number | null>(null);
+  readonly exposureIndex = signal<number | null>(null);
+
   /** Cancelled when a newer form is requested, so a slow earlier one cannot
    * paint the wrong division's variables (QA 26 Sep 2026). */
   private request?: Subscription;
@@ -59,6 +66,22 @@ export class AssessmentFormComponent {
 
   readonly missing = computed(() =>
     this.variables().filter((v) => !this.isNumber(this.values()[v.code])).map((v) => v.code),
+  );
+
+  private inUnit(v: number | null): boolean {
+    return this.isNumber(v) && v >= 0 && v <= 1;
+  }
+
+  /** Index mode is ready when both indexes are numbers between 0 and 1. */
+  readonly indexReady = computed(() => this.inUnit(this.hazardIndex()) && this.inUnit(this.exposureIndex()));
+
+  /** H x E as the user types, so they see what will be scored. */
+  readonly indexRaw = computed(() =>
+    this.indexReady() ? (this.hazardIndex() as number) * (this.exposureIndex() as number) : null,
+  );
+
+  readonly canSave = computed(() =>
+    this.mode() === 'index' ? this.indexReady() : this.missing().length === 0 && !!this.form()?.weightsComplete,
   );
 
   readonly anyOfficial = computed(() => this.variables().some((v) => v.officialValue !== null));
@@ -89,6 +112,11 @@ export class AssessmentFormComponent {
         const v: Record<string, number | null> = {};
         for (const x of [...f.hazardVariables, ...f.exposureVariables]) v[x.code] = x.myValue;
         this.values.set(v);
+        this.hazardIndex.set(f.myHazardIndex);
+        this.exposureIndex.set(f.myExposureIndex);
+        // Open in the way this person last used; index when the weights are
+        // unfinished, because parameters cannot be scored without them.
+        this.mode.set(f.myMode === 'index' || !f.weightsComplete ? 'index' : 'parameters');
         this.loading.set(false);
       },
       error: (err: ApiError) => {
@@ -108,6 +136,19 @@ export class AssessmentFormComponent {
     this.result.set(null);
   }
 
+  setMode(m: 'parameters' | 'index'): void {
+    this.mode.set(m);
+    this.result.set(null);
+    this.saveError.set(null);
+  }
+
+  setIndex(which: 'hazard' | 'exposure', raw: unknown): void {
+    const n = raw === '' || raw === null || raw === undefined ? null : Number(raw);
+    const v = n !== null && Number.isFinite(n) ? n : null;
+    (which === 'hazard' ? this.hazardIndex : this.exposureIndex).set(v);
+    this.result.set(null);
+  }
+
   /** Start from the official figures -- the expert then changes only what they disagree with. */
   copyOfficial(onlyBlanks: boolean): void {
     this.values.update((m) => {
@@ -124,7 +165,8 @@ export class AssessmentFormComponent {
   submit(): void {
     const f = this.form();
     const q = this.query();
-    if (!f || !f.canSubmit || this.missing().length > 0) return;
+    if (!f || !f.canSubmit || !this.canSave()) return;
+    const index = this.mode() === 'index';
     if (!q.province || !q.sector || !q.hazard || !q.period) return;
     this.saving.set(true);
     this.saveError.set(null);
@@ -137,7 +179,10 @@ export class AssessmentFormComponent {
         period: q.period,
         track: f.track,
         dsCode: f.dsCode,
-        values: this.variables().map((v) => ({ code: v.code, value: this.values()[v.code] as number })),
+        mode: this.mode(),
+        values: index ? [] : this.variables().map((v) => ({ code: v.code, value: this.values()[v.code] as number })),
+        hazardIndex: index ? this.hazardIndex() : null,
+        exposureIndex: index ? this.exposureIndex() : null,
         note: this.note().trim() || null,
       })
       .subscribe({

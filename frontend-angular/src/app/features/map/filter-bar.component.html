@@ -74,19 +74,19 @@
     </select>
   </label>
 
-  <label class="filter-bar__field" [title]="nationalScopeDisabledReason()">
-    <span>Index scope</span>
+  <label class="filter-bar__field" [title]="'Provincial is the published score. ' + nationalScopeDisabledReason()">
+    <!-- The full explanation used to sit under the select in red and took a
+         lot of room. It now lives in a tooltip on the small (i) beside the
+         label, with a short grey hint, so the disabled National option is
+         still explained without crowding the filter bar. -->
+    <span class="filter-bar__label-row">
+      Index scope
+      <span class="filter-bar__info" aria-label="About index scope">ⓘ</span>
+      <span class="filter-bar__inline-note">national pending</span>
+    </span>
     <select [ngModel]="indexScope()" name="indexScope" (ngModelChange)="indexScope.set($event); onFieldChange()">
       <option [ngValue]="'provincial'">Provincial (published score)</option>
-      <option [ngValue]="'national'" disabled>National — unavailable, see below</option>
+      <option [ngValue]="'national'" disabled>National (unavailable)</option>
     </select>
-    <!-- Explains the DISABLED option. It used to sit here bare, which read as
-         an error about the current view: a user seeing a blank map and the
-         words "National index unavailable" underneath reasonably concludes
-         that is why nothing rendered. It is not — provincial is the published
-         score and works on its own. -->
-    <span class="filter-bar__field-note">
-      Provincial is the published score. {{ nationalScopeDisabledReason() }}
-    </span>
   </label>
 </form>

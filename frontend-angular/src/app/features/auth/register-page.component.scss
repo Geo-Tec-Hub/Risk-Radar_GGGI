@@ -155,3 +155,13 @@ button[type='submit']:not(:disabled):hover,
   padding-top: 0.75rem;
   border-top: 1px solid #f1f3f5;
 }
+
+.auth__terms {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  font-size: 0.8125rem;
+  color: #495057;
+
+  a { color: #1c3d5a; }
+}

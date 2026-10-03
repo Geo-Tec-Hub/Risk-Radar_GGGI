@@ -263,6 +263,31 @@ export class AdminModelComponent implements OnInit {
       });
   }
 
+  /** Unsaved unit edits, keyed by variable id. */
+  readonly unitDraft = signal<Record<number, string>>({});
+  readonly unitMessage = signal<string | null>(null);
+
+  setUnitDraft(id: number, value: string): void {
+    this.unitDraft.set({ ...this.unitDraft(), [id]: value });
+  }
+
+  saveUnit(item: CatalogItem): void {
+    const draft = this.unitDraft()[item.id];
+    if (draft === undefined) return;
+    this.catalogError.set(null);
+    this.unitMessage.set(null);
+    this.api.setVariableUnit(item.id, draft.trim() || null).subscribe({
+      next: (saved) => {
+        this.catalog.set(this.catalog().map((c) => (c.id === saved.id ? saved : c)));
+        const rest = { ...this.unitDraft() };
+        delete rest[item.id];
+        this.unitDraft.set(rest);
+        this.unitMessage.set(`${saved.name}: unit ${saved.unit ? 'set to "' + saved.unit + '"' : 'cleared'}.`);
+      },
+      error: (err) => this.catalogError.set(err?.error?.detail ?? err.message ?? 'The unit could not be saved.'),
+    });
+  }
+
   setStatus(item: CatalogItem, status: string): void {
     this.catalogError.set(null);
     this.api.setVariableStatus(item.id, status).subscribe({
