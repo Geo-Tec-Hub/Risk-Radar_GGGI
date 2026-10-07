@@ -70,6 +70,9 @@ export interface ProfileVariable {
   readonly consensusNote: string | null;
   readonly decidedBy: string | null;
   readonly decidedAt: string | null;
+  /** Where this parameter's figures come from in this province (or the default). */
+  readonly dataSource?: string | null;
+  readonly dataSourceIsDefault?: boolean;
   /**
    * True only for the hazard domain's composite-index row. C5: exclusion is
    * permitted for a blank *only* on this row. A blank on any other
@@ -119,6 +122,8 @@ export interface WeightDecision {
   readonly weightPct: number | null;
   readonly consensus: 'agreed' | 'contested' | 'rejected';
   readonly consensusNote?: string;
+  /** Sent on every save so a save never resets a "-" variable to "+". */
+  readonly relationship?: 'higher_is_worse' | 'higher_is_better';
   /** Who declared it -- there is no auth yet (Stage 9), so this is a free-text name for now. */
   readonly decidedBy: string;
 }

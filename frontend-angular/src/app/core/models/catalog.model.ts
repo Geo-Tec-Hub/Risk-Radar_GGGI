@@ -20,6 +20,8 @@ export interface CatalogItem {
   unitPrevious?: string | null;
   unitChangedBy?: string | null;
   unitChangedAt?: string | null;
+  /** Catalogue-wide data source, used where a province has not set its own. */
+  defaultDataSource?: string | null;
 }
 
 export interface NewVariable {
@@ -29,6 +31,8 @@ export interface NewVariable {
   unit?: string;
   direction?: 'higher_is_worse' | 'higher_is_better';
   description?: string;
+  /** Where its figures come from (catalogue default; provinces may override). */
+  dataSource?: string;
 }
 
 export interface HazardType {

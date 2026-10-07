@@ -106,6 +106,12 @@ class ProfileVariable(BaseModel):
     decidedAt: Optional[str]
     decidedBy: Optional[str]
     unit: Optional[str]
+    # Where this parameter's figures come from IN THIS PROVINCE (client note,
+    # 7 Oct 2026); falls back to the catalogue default. `dataSourceIsDefault`
+    # says which, so the editor can show "default" rather than imply the
+    # province chose it.
+    dataSource: Optional[str] = None
+    dataSourceIsDefault: bool = False
     # FR-4.9b turns on this, so the client must not have to guess it from the
     # code string. See schema_profile_consensus_save_addendum.sql.
     isCompositeIndex: bool
@@ -197,6 +203,7 @@ _ACTIVE_PROFILE = """
 
 _VARIABLES = """
     SELECT ic.code AS indicator_code, ic.name, ic.unit, ic.is_composite_index,
+           ips.data_source AS province_source, ic.default_data_source,
            pi.domain::text        AS domain,
            pi.weight_pct,
            pi.relationship::text  AS relationship,
@@ -207,6 +214,9 @@ _VARIABLES = """
       FROM profile_indicator pi
       JOIN indicator_catalog ic ON ic.id = pi.indicator_id
       LEFT JOIN app_user du     ON du.id = pi.decided_by
+      LEFT JOIN indicator_province_source ips
+             ON ips.indicator_id = ic.id
+            AND ips.province_id = (SELECT province_id FROM vulnerability_profile WHERE id = $1)
      WHERE pi.profile_id = $1
      ORDER BY pi.domain, ic.code
 """
@@ -325,6 +335,8 @@ async def get_weights(
             decidedAt=r["decided_at"].isoformat() if r["decided_at"] else None,
             decidedBy=r["decided_by"],
             isCompositeIndex=r["is_composite_index"],
+            dataSource=r["province_source"] or r["default_data_source"],
+            dataSourceIsDefault=r["province_source"] is None and r["default_data_source"] is not None,
         )
         for r in rows
     ]
@@ -417,6 +429,29 @@ async def put_weights(
         raise HTTPException(
             status_code=422,
             detail="no such variable: " + ", ".join(sorted(unknown)))
+
+    # DIRECTION MUST NEVER BE DROPPED BY A SAVE (7 Oct 2026). The database
+    # function stores COALESCE(relationship, 'higher_is_worse'), and the weights
+    # editor did not send relationship at all -- so every save silently turned
+    # each "-" variable into "+". A row sent without one keeps the direction it
+    # has in the active profile, or, for a newly added variable, the catalogue
+    # default.
+    current_rel = {r["code"]: r["rel"] for r in await pool.fetch(
+        """
+        SELECT ic.code, pi.relationship::text AS rel
+          FROM profile_indicator pi
+          JOIN vulnerability_profile vp ON vp.id = pi.profile_id AND vp.is_active
+          JOIN indicator_catalog ic ON ic.id = pi.indicator_id
+         WHERE vp.sector_id = $1 AND vp.hazard_type_id = $2
+           AND vp.province_id IS NOT DISTINCT FROM $3
+           AND vp.subsector_id IS NOT DISTINCT FROM $4
+        """, ids["sector_id"], ids["hazard_type_id"], ids["province_id"], ids["subsector_id"])}
+    catalogue_rel = {r["code"]: r["rel"] for r in await pool.fetch(
+        "SELECT code, direction::text AS rel FROM indicator_catalog WHERE code = ANY($1::text[])",
+        codes)}
+    for i in body.items:
+        if i.relationship not in ("higher_is_worse", "higher_is_better"):
+            i.relationship = current_rel.get(i.indicatorCode) or catalogue_rel.get(i.indicatorCode)
 
     items = [
         {

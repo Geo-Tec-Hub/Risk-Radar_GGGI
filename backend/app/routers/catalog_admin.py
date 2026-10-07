@@ -5,6 +5,9 @@ Admin: the variable catalogue, hazard types, and who may write what.
     POST /api/admin/catalog                  propose a NEW variable (pending)
     POST /api/admin/catalog/{id}/status      approve or retire one (admin)
     PUT  /api/admin/catalog/{id}/unit        set or correct a variable's unit (admin, expert, data officer; recorded)
+    PUT  /api/admin/catalog/{id}/source      set a variable's data source, per province or default (recorded)
+    PUT  /api/admin/catalog/{id}/direction   set a variable's DEFAULT direction (admin; recorded)
+    DELETE /api/admin/catalog/{id}           delete an unused variable, else retire it (admin)
     GET  /api/admin/hazards                  hazard types
     POST /api/admin/hazards                  add one (admin)
     GET  /api/admin/users                    accounts, roles, sectors, province
@@ -56,6 +59,8 @@ class CatalogItem(BaseModel):
     unitPrevious: Optional[str] = None
     unitChangedBy: Optional[str] = None
     unitChangedAt: Optional[str] = None
+    # Catalogue-wide data source, used where a province has not set its own.
+    defaultDataSource: Optional[str] = None
 
 
 class NewVariable(BaseModel):
@@ -66,6 +71,7 @@ class NewVariable(BaseModel):
     direction: str = Field(default="higher_is_worse",
                            pattern="^(higher_is_worse|higher_is_better)$")
     description: Optional[str] = None
+    dataSource: Optional[str] = Field(default=None, max_length=300)
 
 
 class StatusChange(BaseModel):
@@ -88,7 +94,8 @@ async def list_catalog(
                (SELECT count(*) FROM profile_indicator pi
                  JOIN vulnerability_profile vp ON vp.id = pi.profile_id
                 WHERE pi.indicator_id = ic.id AND vp.is_active) AS used,
-               uc.old_unit, uc.changed_at, au.full_name AS changed_by
+               uc.old_unit, uc.changed_at, au.full_name AS changed_by,
+               ic.default_data_source
           FROM indicator_catalog ic
           LEFT JOIN LATERAL (
                 SELECT old_unit, changed_at, changed_by FROM indicator_unit_change
@@ -107,7 +114,8 @@ async def list_catalog(
                         status=r["status"], usedInProfiles=r["used"],
                         unitPrevious=r["old_unit"],
                         unitChangedBy=r["changed_by"],
-                        unitChangedAt=r["changed_at"].isoformat() if r["changed_at"] else None)
+                        unitChangedAt=r["changed_at"].isoformat() if r["changed_at"] else None,
+                        defaultDataSource=r["default_data_source"])
             for r in rows]
 
 
@@ -150,16 +158,19 @@ async def propose_variable(
         r = await conn.fetchrow(
             """
             INSERT INTO indicator_catalog (code, name, description, domain, unit,
-                                           direction, status, proposed_by)
+                                           direction, status, proposed_by,
+                                           default_data_source)
             VALUES ($1, $2, $3, $4::domain_type, $5, $6::indicator_direction,
-                    'pending', $7)
+                    'pending', $7, $8)
             RETURNING id, code, name, domain::text AS domain, unit,
-                      direction::text AS direction, status::text AS status
+                      direction::text AS direction, status::text AS status,
+                      default_data_source
             """, code, body.name.strip(), body.description, body.domain,
-            body.unit, body.direction, user.id)
+            body.unit, body.direction, user.id,
+            (body.dataSource or "").strip() or None)
     return CatalogItem(id=r["id"], code=r["code"], name=r["name"], domain=r["domain"],
                        unit=r["unit"], direction=r["direction"], status=r["status"],
-                       usedInProfiles=0)
+                       usedInProfiles=0, defaultDataSource=r["default_data_source"])
 
 
 @router.post("/admin/catalog/{variable_id}/status", response_model=CatalogItem)
@@ -263,6 +274,211 @@ async def set_variable_unit(
                        usedInProfiles=r["used"], unitPrevious=r["old_unit"],
                        unitChangedBy=r["changed_by"],
                        unitChangedAt=r["changed_at"].isoformat() if r["changed_at"] else None)
+
+
+async def _resolve_variable(conn, ref: str) -> int:
+    vid = await conn.fetchval(
+        "SELECT id FROM indicator_catalog WHERE id::text = $1 OR code = upper($1)", ref)
+    if vid is None:
+        raise HTTPException(404, "no such variable")
+    return vid
+
+
+def _require_writer(user: CurrentUser) -> None:
+    if not (user.has_role("admin") or user.has_role("expert")
+            or user.has_role("data_officer")):
+        raise HTTPException(403, "only a data officer, expert or administrator may "
+                                 "change this")
+
+
+class SourceChange(BaseModel):
+    # Province CODE (WES) for a province's own source; omitted/null for the
+    # catalogue-wide default.
+    province: Optional[str] = None
+    dataSource: Optional[str] = Field(default=None, max_length=300)
+
+
+class SourceOut(BaseModel):
+    code: str
+    province: Optional[str]
+    dataSource: Optional[str]
+    effectiveDataSource: Optional[str]
+    changedBy: Optional[str] = None
+    changedAt: Optional[str] = None
+
+
+@router.put("/admin/catalog/{ref}/source", response_model=SourceOut)
+async def set_variable_source(
+    ref: str,
+    body: SourceChange,
+    user: CurrentUser = Depends(get_current_user),
+    pool: asyncpg.Pool = Depends(db),
+) -> SourceOut:
+    """Set where a parameter's figures come from (client note, 7 Oct 2026).
+
+    Per PROVINCE, because the same variable may come from different sources in
+    different provinces. A data officer or expert may set it for their own
+    province; the catalogue-wide default (no province) is an administrator's.
+    Every change is written to indicator_meta_change. Descriptive only: no
+    value, weight, version or score changes."""
+    _require_writer(user)
+    src = (body.dataSource or "").strip() or None
+    async with pool.acquire() as conn:
+        vid = await _resolve_variable(conn, ref)
+        code = await conn.fetchval("SELECT code FROM indicator_catalog WHERE id = $1", vid)
+        pid = None
+        if body.province:
+            pid = await conn.fetchval(
+                "SELECT id FROM province WHERE code = upper($1) OR name = $1", body.province)
+            if pid is None:
+                raise HTTPException(404, "no such province: %s" % body.province)
+            if not user.has_role("admin") and user.province_id != pid:
+                raise HTTPException(403, "you may set sources for your own province only")
+        elif not user.has_role("admin"):
+            raise HTTPException(403, "the default source (all provinces) is set by an "
+                                     "administrator; choose your province instead")
+        async with conn.transaction():
+            if pid is None:
+                old = await conn.fetchval(
+                    "SELECT default_data_source FROM indicator_catalog WHERE id = $1 FOR UPDATE", vid)
+                if (old or None) != src:
+                    await conn.execute(
+                        "UPDATE indicator_catalog SET default_data_source = $2 WHERE id = $1", vid, src)
+            else:
+                old = await conn.fetchval(
+                    """SELECT data_source FROM indicator_province_source
+                        WHERE indicator_id = $1 AND province_id = $2 FOR UPDATE""", vid, pid)
+                if (old or None) != src:
+                    if src is None:
+                        await conn.execute(
+                            """DELETE FROM indicator_province_source
+                                WHERE indicator_id = $1 AND province_id = $2""", vid, pid)
+                    else:
+                        await conn.execute(
+                            """INSERT INTO indicator_province_source
+                                   (indicator_id, province_id, data_source, updated_by)
+                               VALUES ($1, $2, $3, $4)
+                               ON CONFLICT (indicator_id, province_id) DO UPDATE
+                                  SET data_source = EXCLUDED.data_source,
+                                      updated_by = EXCLUDED.updated_by,
+                                      updated_at = now()""", vid, pid, src, user.id)
+            if (old or None) != src:
+                await conn.execute(
+                    """INSERT INTO indicator_meta_change
+                           (indicator_id, province_id, field, old_value, new_value, changed_by)
+                       VALUES ($1, $2, 'data_source', $3, $4, $5)""",
+                    vid, pid, old, src, user.id)
+        eff = await conn.fetchval(
+            """SELECT COALESCE(
+                   (SELECT data_source FROM indicator_province_source
+                     WHERE indicator_id = $1 AND province_id = $2),
+                   (SELECT default_data_source FROM indicator_catalog WHERE id = $1))""",
+            vid, pid)
+        last = await conn.fetchrow(
+            """SELECT mc.changed_at, au.full_name FROM indicator_meta_change mc
+                 LEFT JOIN app_user au ON au.id = mc.changed_by
+                WHERE mc.indicator_id = $1 AND mc.field = 'data_source'
+                  AND mc.province_id IS NOT DISTINCT FROM $2
+                ORDER BY mc.changed_at DESC, mc.id DESC LIMIT 1""", vid, pid)
+    return SourceOut(code=code, province=body.province, dataSource=src,
+                     effectiveDataSource=eff,
+                     changedBy=last["full_name"] if last else None,
+                     changedAt=last["changed_at"].isoformat() if last else None)
+
+
+class DirectionChange(BaseModel):
+    direction: str = Field(pattern="^(higher_is_worse|higher_is_better)$")
+
+
+@router.put("/admin/catalog/{ref}/direction", response_model=CatalogItem)
+async def set_variable_direction(
+    ref: str,
+    body: DirectionChange,
+    user: CurrentUser = Depends(require_admin),
+    pool: asyncpg.Pool = Depends(db),
+) -> CatalogItem:
+    """Change a variable's DEFAULT direction -- the one it takes when it is next
+    added to a profile. Existing profiles keep their own direction (it changes
+    scores, so it is changed per profile in the weights editor, where the save
+    writes a new profile version). Recorded in indicator_meta_change."""
+    async with pool.acquire() as conn:
+        vid = await _resolve_variable(conn, ref)
+        async with conn.transaction():
+            old = await conn.fetchval(
+                "SELECT direction::text FROM indicator_catalog WHERE id = $1 FOR UPDATE", vid)
+            if old != body.direction:
+                await conn.execute(
+                    "UPDATE indicator_catalog SET direction = $2::indicator_direction WHERE id = $1",
+                    vid, body.direction)
+                await conn.execute(
+                    """INSERT INTO indicator_meta_change
+                           (indicator_id, province_id, field, old_value, new_value, changed_by)
+                       VALUES ($1, NULL, 'direction', $2, $3, $4)""",
+                    vid, old, body.direction, user.id)
+        r = await conn.fetchrow(
+            """SELECT ic.id, ic.code, ic.name, ic.domain::text AS domain, ic.unit,
+                      ic.direction::text AS direction, ic.status::text AS status,
+                      ic.default_data_source,
+                      (SELECT count(*) FROM profile_indicator pi
+                         JOIN vulnerability_profile vp ON vp.id = pi.profile_id
+                        WHERE pi.indicator_id = ic.id AND vp.is_active) AS used
+                 FROM indicator_catalog ic WHERE ic.id = $1""", vid)
+    return CatalogItem(id=r["id"], code=r["code"], name=r["name"], domain=r["domain"],
+                       unit=r["unit"], direction=r["direction"], status=r["status"],
+                       usedInProfiles=r["used"], defaultDataSource=r["default_data_source"])
+
+
+class DeleteOut(BaseModel):
+    code: str
+    outcome: str        # 'deleted' | 'retired'
+    message: str
+
+
+@router.delete("/admin/catalog/{ref}", response_model=DeleteOut)
+async def delete_variable(
+    ref: str,
+    _admin: CurrentUser = Depends(require_admin),
+    pool: asyncpg.Pool = Depends(db),
+) -> DeleteOut:
+    """Remove an unwanted variable (client note, 7 Oct 2026).
+
+    A variable that was never used -- no values on any track, never in any
+    profile version -- is deleted outright. One with history is RETIRED
+    instead: hidden from new use, its values and old scores kept, because
+    deleting it would leave published scores resting on nothing. A variable in
+    an ACTIVE profile is refused: remove it from those profiles first."""
+    async with pool.acquire() as conn:
+        vid = await _resolve_variable(conn, ref)
+        code = await conn.fetchval("SELECT code FROM indicator_catalog WHERE id = $1", vid)
+        active = await conn.fetchval(
+            """SELECT count(*) FROM profile_indicator pi
+                 JOIN vulnerability_profile vp ON vp.id = pi.profile_id
+                WHERE pi.indicator_id = $1 AND vp.is_active""", vid)
+        if active:
+            raise HTTPException(
+                409, "%s is in %d active profile(s). Remove it from them in the weights "
+                     "editor first -- deleting it underneath them would change published "
+                     "scores with no decision behind it." % (code, active))
+        n_values = await conn.fetchval(
+            "SELECT count(*) FROM indicator_value WHERE indicator_id = $1", vid)
+        n_hist = await conn.fetchval(
+            "SELECT count(*) FROM profile_indicator WHERE indicator_id = $1", vid)
+        if n_values == 0 and n_hist == 0:
+            try:
+                async with conn.transaction():
+                    await conn.execute("DELETE FROM indicator_alias WHERE indicator_id = $1", vid)
+                    await conn.execute("DELETE FROM indicator_catalog WHERE id = $1", vid)
+                return DeleteOut(code=code, outcome="deleted",
+                                 message="%s was never used, so it was deleted." % code)
+            except asyncpg.exceptions.ForeignKeyViolationError:
+                pass    # something else still points at it: retire instead
+        await conn.execute(
+            "UPDATE indicator_catalog SET status = 'retired' WHERE id = $1", vid)
+        return DeleteOut(
+            code=code, outcome="retired",
+            message="%s has data or past profile versions behind it, so it was retired "
+                    "instead of deleted: it is hidden from new use and its history and "
+                    "old scores are kept." % code)
 
 
 # ------------------------------------------------------------- hazard types

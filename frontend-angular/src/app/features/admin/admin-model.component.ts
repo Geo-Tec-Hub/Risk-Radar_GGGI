@@ -90,7 +90,10 @@ export class AdminModelComponent implements OnInit {
     this.catalog().filter((c) => c.status === 'active' && !this.inProfile().has(c.code)),
   );
 
-  readonly newVar = signal({ code: '', name: '', domain: 'exposure' as 'hazard' | 'exposure', unit: '' });
+  readonly newVar = signal({
+    code: '', name: '', domain: 'exposure' as 'hazard' | 'exposure', unit: '',
+    direction: 'higher_is_worse' as 'higher_is_worse' | 'higher_is_better', dataSource: '',
+  });
   readonly proposeMessage = signal<string | null>(null);
   readonly proposeError = signal<string | null>(null);
 
@@ -250,13 +253,15 @@ export class AdminModelComponent implements OnInit {
         name: v.name.trim(),
         domain: v.domain,
         unit: v.unit.trim() || undefined,
+        direction: v.direction,
+        dataSource: v.dataSource.trim() || undefined,
       })
       .subscribe({
         next: (item) => {
           this.proposeMessage.set(
             `${item.code} proposed. It is pending until an administrator approves it — only then can it carry a weight.`,
           );
-          this.newVar.set({ code: '', name: '', domain: 'exposure', unit: '' });
+          this.newVar.set({ code: '', name: '', domain: 'exposure', unit: '', direction: 'higher_is_worse', dataSource: '' });
           this.searchCatalog();
         },
         error: (err) => this.proposeError.set(err?.error?.detail ?? err.message ?? 'It could not be proposed.'),
@@ -285,6 +290,56 @@ export class AdminModelComponent implements OnInit {
         this.unitMessage.set(`${saved.name}: unit ${saved.unit ? 'set to "' + saved.unit + '"' : 'cleared'}.`);
       },
       error: (err) => this.catalogError.set(err?.error?.detail ?? err.message ?? 'The unit could not be saved.'),
+    });
+  }
+
+  // ---- default data source, default direction, delete (7 Oct 2026) -------
+  readonly sourceDraft = signal<Record<number, string>>({});
+
+  setSourceDraft(id: number, value: string): void {
+    this.sourceDraft.set({ ...this.sourceDraft(), [id]: value });
+  }
+
+  saveSource(item: CatalogItem): void {
+    const draft = this.sourceDraft()[item.id];
+    if (draft === undefined) return;
+    this.catalogError.set(null);
+    this.api.setVariableSource(item.id, null, draft.trim() || null).subscribe({
+      next: (saved) => {
+        this.catalog.set(this.catalog().map((c) => (c.id === item.id ? { ...c, defaultDataSource: saved.dataSource } : c)));
+        const rest = { ...this.sourceDraft() };
+        delete rest[item.id];
+        this.sourceDraft.set(rest);
+        this.unitMessage.set(`${item.name}: default data source ${saved.dataSource ? 'set to "' + saved.dataSource + '"' : 'cleared'}.`);
+      },
+      error: (err) => this.catalogError.set(err?.error?.detail ?? err.message ?? 'The data source could not be saved.'),
+    });
+  }
+
+  saveDirection(item: CatalogItem, direction: 'higher_is_worse' | 'higher_is_better'): void {
+    if (direction === item.direction) return;
+    this.catalogError.set(null);
+    this.api.setVariableDirection(item.id, direction).subscribe({
+      next: (saved) => {
+        this.catalog.set(this.catalog().map((c) => (c.id === saved.id ? { ...c, direction: saved.direction } : c)));
+        this.unitMessage.set(
+          `${item.name}: default direction set to ${direction === 'higher_is_better' ? '−' : '+'}. ` +
+            'Existing profiles keep their own direction; change those in the weights editor.',
+        );
+      },
+      error: (err) => this.catalogError.set(err?.error?.detail ?? err.message ?? 'The direction could not be saved.'),
+    });
+  }
+
+  deleteVar(item: CatalogItem): void {
+    if (!confirm(`Delete ${item.name} (${item.code})? If it has data or history it will be retired instead.`)) return;
+    this.catalogError.set(null);
+    this.api.deleteVariable(item.id).subscribe({
+      next: (r) => {
+        this.unitMessage.set(r.message);
+        this.searchCatalog();
+      },
+      error: (err) => this.catalogError.set(err?.error?.detail ?? err.message ?? 'It could not be deleted.'),
     });
   }
 

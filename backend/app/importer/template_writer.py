@@ -63,9 +63,13 @@ async def build_profile_workbook(conn, profile_id: int, periods: list[str],
     members = await conn.fetch(
         """
         SELECT ic.id, ic.code, ic.name, ic.domain::text AS domain,
-               ic.period_aggregation, ic.value_kind::text AS value_kind, ic.unit
+               ic.period_aggregation, ic.value_kind::text AS value_kind, ic.unit,
+               COALESCE(ips.data_source, ic.default_data_source) AS data_source
           FROM profile_indicator pi
           JOIN indicator_catalog ic ON ic.id = pi.indicator_id
+          LEFT JOIN indicator_province_source ips
+                 ON ips.indicator_id = ic.id
+                AND ips.province_id = (SELECT province_id FROM vulnerability_profile WHERE id = $1)
          WHERE pi.profile_id = $1 AND ($2 OR ic.domain <> 'hazard')
            -- A parameter removed in the weights editor is not printed: the
            -- template shows what the profile uses now (2 Oct 2026).
@@ -173,8 +177,10 @@ def _hint(m) -> str:
     request, 30 Sep 2026); 'unit not set' is shown rather than nothing, so a
     missing unit in the catalogue is visible instead of silent."""
     unit = (m["unit"] or "").strip()
-    return "%s: %s\n[unit: %s]\n>> %s" % (
+    src = ((m["data_source"] if "data_source" in m.keys() else None) or "").strip()
+    return "%s: %s\n[unit: %s]%s\n>> %s" % (
         m["domain"], m["name"] or m["code"], unit or "not set",
+        ("\n[source: %s]" % src) if src else "",
         AGG_HINT.get(m["period_aggregation"], AGG_HINT["average"]))
 
 
@@ -195,10 +201,14 @@ async def build_climate_workbook(conn, province: str, periods: list[str]) -> tup
     codes = await province_climate_codes(conn, prov["id"])
     by_code = {r["code"]: r for r in await conn.fetch(
         """
-        SELECT id, code, name, domain::text AS domain, period_aggregation,
-               value_kind::text AS value_kind, unit
-          FROM indicator_catalog WHERE code = ANY($1::text[])
-        """, codes)}
+        SELECT ic.id, ic.code, ic.name, ic.domain::text AS domain, ic.period_aggregation,
+               ic.value_kind::text AS value_kind, ic.unit,
+               COALESCE(ips.data_source, ic.default_data_source) AS data_source
+          FROM indicator_catalog ic
+          LEFT JOIN indicator_province_source ips
+                 ON ips.indicator_id = ic.id AND ips.province_id = $2
+         WHERE ic.code = ANY($1::text[])
+        """, codes, prov["id"])}
     members = [by_code[c] for c in codes if c in by_code]
     divisions = await conn.fetch(
         """SELECT id, code, name, COALESCE(district_name, '') AS district

@@ -155,11 +155,13 @@
     <p class="am__muted">{{ catalog().length }} variable(s){{ catalogBusy() ? ' · loading…' : '' }}</p>
 
     @if (catalog().length) {
-      <h4>Units</h4>
+      <h4>Unit, data source, direction</h4>
       <p class="am__muted">
-        The unit a variable is measured in. It is shown in the weights editor and in row 3 of every
-        upload template. A unit is shared by every province and sector that uses the variable, and
-        every change is recorded with who made it. Changing it does not change any value, weight or score.
+        The unit is shared by every province and sector. The data source here is the default for all
+        provinces; a province can set its own on the weights page. Direction here is only the default used
+        when the variable is next added to a profile; existing profiles keep theirs (change it there, in the
+        weights editor). Every change is recorded with who made it. None of these change any stored value.
+        Delete removes a variable that was never used; one with data or history is retired instead.
       </p>
       @if (unitMessage(); as m) {
         <p class="am__muted" role="status">{{ m }}</p>
@@ -167,7 +169,7 @@
       <div class="am__scroll">
         <table class="am__table">
           <thead>
-            <tr><th>Variable</th><th>Code</th><th>Domain</th><th>Unit</th><th></th></tr>
+            <tr><th>Variable</th><th>Code</th><th>Domain</th><th>Unit</th><th></th><th>Default data source</th><th></th><th>Default direction</th><th></th></tr>
           </thead>
           <tbody>
             @for (c of catalog(); track c.id) {
@@ -194,6 +196,33 @@
                   <button type="button"
                           [disabled]="unitDraft()[c.id] === undefined || (unitDraft()[c.id] ?? '') === (c.unit ?? '')"
                           (click)="saveUnit(c)">Save</button>
+                </td>
+                <td>
+                  <input
+                    [ngModel]="sourceDraft()[c.id] ?? c.defaultDataSource ?? ''"
+                    [name]="'src' + c.id"
+                    placeholder="not set"
+                    maxlength="300"
+                    (ngModelChange)="setSourceDraft(c.id, $event)"
+                  />
+                </td>
+                <td>
+                  <button type="button"
+                          [disabled]="sourceDraft()[c.id] === undefined || (sourceDraft()[c.id] ?? '') === (c.defaultDataSource ?? '')"
+                          (click)="saveSource(c)">Save</button>
+                </td>
+                <td>
+                  <select [ngModel]="c.direction" [name]="'dir' + c.id" (ngModelChange)="saveDirection(c, $event)">
+                    <option value="higher_is_worse">+ (higher = more vulnerable)</option>
+                    <option value="higher_is_better">− (higher = less vulnerable)</option>
+                  </select>
+                </td>
+                <td>
+                  @if (c.status !== 'retired') {
+                    <button type="button" class="am__danger" (click)="deleteVar(c)">Delete</button>
+                  } @else {
+                    <span class="am__muted">retired</span>
+                  }
                 </td>
               </tr>
             }
@@ -236,6 +265,22 @@
           name="nvu"
           placeholder="ha"
           (ngModelChange)="newVar.set({ ...newVar(), unit: $event })"
+        />
+      </label>
+      <label class="am__field">
+        <span>Direction</span>
+        <select [ngModel]="newVar().direction" name="nvdir" (ngModelChange)="newVar.set({ ...newVar(), direction: $event })">
+          <option value="higher_is_worse">+ (higher = more vulnerable)</option>
+          <option value="higher_is_better">− (higher = less vulnerable)</option>
+        </select>
+      </label>
+      <label class="am__field am__field--grow">
+        <span>Data source</span>
+        <input
+          [ngModel]="newVar().dataSource"
+          name="nvs"
+          placeholder="Dept. of Census and Statistics"
+          (ngModelChange)="newVar.set({ ...newVar(), dataSource: $event })"
         />
       </label>
       <button type="button" (click)="propose()">Propose</button>

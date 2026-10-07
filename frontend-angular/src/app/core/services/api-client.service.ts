@@ -197,6 +197,27 @@ export class ApiClientService {
       `${this.base}/admin/catalog/${encodeURIComponent(String(ref))}/unit`, { unit }, WITH_CREDENTIALS);
   }
 
+  /** PUT /admin/catalog/{id or code}/source -- a parameter's data source for one
+   * province (province code), or the catalogue default (province omitted, admin). */
+  setVariableSource(ref: number | string, province: string | null, dataSource: string | null):
+      Observable<{ code: string; dataSource: string | null; effectiveDataSource: string | null }> {
+    return this.http.put<{ code: string; dataSource: string | null; effectiveDataSource: string | null }>(
+      `${this.base}/admin/catalog/${encodeURIComponent(String(ref))}/source`,
+      { province, dataSource }, WITH_CREDENTIALS);
+  }
+
+  /** PUT /admin/catalog/{id}/direction -- the DEFAULT direction for future use (admin). */
+  setVariableDirection(ref: number | string, direction: string): Observable<CatalogItem> {
+    return this.http.put<CatalogItem>(
+      `${this.base}/admin/catalog/${encodeURIComponent(String(ref))}/direction`, { direction }, WITH_CREDENTIALS);
+  }
+
+  /** DELETE /admin/catalog/{id} -- deletes an unused variable, otherwise retires it (admin). */
+  deleteVariable(ref: number | string): Observable<{ code: string; outcome: string; message: string }> {
+    return this.http.delete<{ code: string; outcome: string; message: string }>(
+      `${this.base}/admin/catalog/${encodeURIComponent(String(ref))}`, WITH_CREDENTIALS);
+  }
+
   getHazards(): Observable<HazardType[]> {
     return this.http.get<HazardType[]>(`${this.base}/admin/hazards`, WITH_CREDENTIALS);
   }

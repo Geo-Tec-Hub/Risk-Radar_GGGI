@@ -257,3 +257,8 @@
   color: #1a5fb4; text-decoration: underline; cursor: pointer; font-size: 0.8rem;
 }
 .weights__unit-notice { font-size: 0.9rem; color: #555; }
+.weights__source { font-size: 0.85rem; }
+.weights__source-default { color: #868e96; font-size: 0.75rem; margin-left: 0.25rem; }
+.weights__source-input { width: 11rem; }
+.weights__dir { min-width: 2rem; font-weight: 600; cursor: pointer; }
+.weights__dir--changed { background: #fff3bf; border-color: #f08c00; }

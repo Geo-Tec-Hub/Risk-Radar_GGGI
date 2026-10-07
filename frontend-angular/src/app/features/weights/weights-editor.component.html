@@ -54,6 +54,7 @@
           <tr>
             <th>Parameter</th>
             <th>Unit</th>
+            <th>Data source</th>
             <th>Direction</th>
             <th>Weight</th>
             <th>Decision</th>
@@ -81,7 +82,26 @@
                           (click)="editUnit(row)">{{ row.unit ? 'edit' : 'set unit' }}</button>
                 }
               </td>
-              <td>{{ row.direction }}</td>
+              <td>
+                @if (sourceEditing() === row.indicatorCode) {
+                  <input class="weights__source-input" maxlength="300" placeholder="e.g. Dept. of Census and Statistics"
+                         [ngModel]="sourceEditValue()" (ngModelChange)="sourceEditValue.set($event)" />
+                  <button type="button" [disabled]="sourceSaving()" (click)="saveSource(row.indicatorCode)">Save</button>
+                  <button type="button" (click)="sourceEditing.set(null)">Cancel</button>
+                } @else {
+                  <span class="weights__source">{{ row.dataSource || '' }}</span>
+                  @if (row.dataSourceIsDefault) { <span class="weights__source-default">(default)</span> }
+                  <button type="button" class="weights__unit-edit"
+                          title="The data source is set per province. Your change is recorded with your name."
+                          (click)="editSource(row)">{{ row.dataSource && !row.dataSourceIsDefault ? 'edit' : 'set source' }}</button>
+                }
+              </td>
+              <td>
+                <button type="button" class="weights__dir" [class.weights__dir--changed]="row.directionChanged"
+                        [disabled]="row.consensus === 'rejected'"
+                        title="Click to switch between + (higher value = more vulnerable) and - (higher value = less vulnerable). Saved with the weights as a new version."
+                        (click)="toggleDirection('hazard', row.indicatorCode)">{{ row.direction }}</button>
+              </td>
               <td>
                 <input
                   type="number"
@@ -161,6 +181,7 @@
           <tr>
             <th>Parameter</th>
             <th>Unit</th>
+            <th>Data source</th>
             <th>Direction</th>
             <th>Weight</th>
             <th>Decision</th>
@@ -183,7 +204,26 @@
                           (click)="editUnit(row)">{{ row.unit ? 'edit' : 'set unit' }}</button>
                 }
               </td>
-              <td>{{ row.direction }}</td>
+              <td>
+                @if (sourceEditing() === row.indicatorCode) {
+                  <input class="weights__source-input" maxlength="300" placeholder="e.g. Dept. of Census and Statistics"
+                         [ngModel]="sourceEditValue()" (ngModelChange)="sourceEditValue.set($event)" />
+                  <button type="button" [disabled]="sourceSaving()" (click)="saveSource(row.indicatorCode)">Save</button>
+                  <button type="button" (click)="sourceEditing.set(null)">Cancel</button>
+                } @else {
+                  <span class="weights__source">{{ row.dataSource || '' }}</span>
+                  @if (row.dataSourceIsDefault) { <span class="weights__source-default">(default)</span> }
+                  <button type="button" class="weights__unit-edit"
+                          title="The data source is set per province. Your change is recorded with your name."
+                          (click)="editSource(row)">{{ row.dataSource && !row.dataSourceIsDefault ? 'edit' : 'set source' }}</button>
+                }
+              </td>
+              <td>
+                <button type="button" class="weights__dir" [class.weights__dir--changed]="row.directionChanged"
+                        [disabled]="row.consensus === 'rejected'"
+                        title="Click to switch between + (higher value = more vulnerable) and - (higher value = less vulnerable). Saved with the weights as a new version."
+                        (click)="toggleDirection('exposure', row.indicatorCode)">{{ row.direction }}</button>
+              </td>
               <td>
                 <input
                   type="number"
@@ -228,6 +268,13 @@
         </tbody>
       </table>
     </div>
+
+    @if (directionChanges() > 0) {
+      <p class="weights__unit-notice" role="status">
+        {{ directionChanges() }} direction change(s) — saved with the weights as a new version. Recompute the province
+        afterwards to update the map.
+      </p>
+    }
 
     <label class="weights__note">
       <span>Panel note (optional)</span>

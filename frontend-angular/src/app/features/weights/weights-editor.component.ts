@@ -14,7 +14,13 @@ interface EditableRow {
   /** Display symbol, derived from the catalogue enum at the boundary. The API
    * carries `relationship`; '+'/'-' is the legacy workbooks' shorthand and
    * belongs in the view, not in the contract. */
-  readonly direction: '+' | '-';
+  direction: '+' | '-';
+  /** The catalogue enum behind `direction`; sent with every save. */
+  relationship: 'higher_is_worse' | 'higher_is_better';
+  /** True once the user flipped the direction in this session. */
+  directionChanged?: boolean;
+  dataSource: string | null;
+  dataSourceIsDefault: boolean;
   readonly isCompositeHazardIndex: boolean;
   weightPct: number | null;
   consensus: WeightConsensus;
@@ -32,6 +38,9 @@ function toEditableRows(vars: readonly ProfileVariable[] | undefined): EditableR
     indicatorName: v.indicatorName,
     unit: v.unit,
     direction: v.relationship === 'higher_is_better' ? '-' : '+',
+    relationship: v.relationship,
+    dataSource: v.dataSource ?? null,
+    dataSourceIsDefault: !!v.dataSourceIsDefault,
     isCompositeHazardIndex: v.isCompositeIndex,
     weightPct: v.weightPct,
     consensus: v.consensus,
@@ -237,6 +246,9 @@ export class WeightsEditorComponent {
           indicatorName: i.name,
           unit: i.unit,
           direction: i.direction === 'higher_is_better' ? '-' : '+',
+          relationship: i.direction,
+          dataSource: i.defaultDataSource ?? null,
+          dataSourceIsDefault: !!i.defaultDataSource,
           isCompositeHazardIndex: false,
           weightPct: null,
           consensus: null,
@@ -319,6 +331,64 @@ export class WeightsEditorComponent {
     else this.exposureRows.set(updated);
   }
 
+  // ---- direction (client note, 7 Oct 2026) -----------------------------
+  /** Flip + / -. It changes the score, so it is part of the weights save and
+   * lands in the new profile version -- nothing is written until Save. */
+  toggleDirection(block: 'hazard' | 'exposure', code: string): void {
+    const setter = block === 'hazard' ? this.hazardRows : this.exposureRows;
+    setter.update((rows) =>
+      rows.map((r) => {
+        if (r.indicatorCode !== code) return r;
+        const relationship = r.relationship === 'higher_is_better' ? 'higher_is_worse' : 'higher_is_better';
+        return { ...r, relationship, direction: relationship === 'higher_is_better' ? '-' : '+', directionChanged: !r.directionChanged };
+      }),
+    );
+  }
+
+  readonly directionChanges = computed(
+    () => this.hazardRows().concat(this.exposureRows()).filter((r) => r.directionChanged).length,
+  );
+
+  // ---- data source (client note, 7 Oct 2026) ----------------------------
+  readonly sourceEditing = signal<string | null>(null);
+  readonly sourceEditValue = signal('');
+  readonly sourceSaving = signal(false);
+
+  editSource(row: EditableRow): void {
+    this.unitNotice.set(null);
+    this.sourceEditValue.set(row.dataSourceIsDefault ? '' : row.dataSource ?? '');
+    this.sourceEditing.set(row.indicatorCode);
+  }
+
+  saveSource(code: string): void {
+    const scope = this.scope();
+    if (!scope) return;
+    const value = this.sourceEditValue().trim();
+    this.sourceSaving.set(true);
+    this.api.setVariableSource(code, scope.province, value || null).subscribe({
+      next: (saved) => {
+        const apply = (rows: EditableRow[]) =>
+          rows.map((r) =>
+            r.indicatorCode === code
+              ? { ...r, dataSource: saved.effectiveDataSource, dataSourceIsDefault: !saved.dataSource && !!saved.effectiveDataSource }
+              : r,
+          );
+        this.hazardRows.set(apply(this.hazardRows()));
+        this.exposureRows.set(apply(this.exposureRows()));
+        this.sourceEditing.set(null);
+        this.sourceSaving.set(false);
+        this.unitNotice.set(
+          `Data source for this province ${saved.dataSource ? 'set to "' + saved.dataSource + '"' : 'cleared'}. ` +
+            'Other provinces keep their own. The change is recorded with your name.',
+        );
+      },
+      error: (err: { error?: { detail?: string }; message?: string }) => {
+        this.sourceSaving.set(false);
+        this.unitNotice.set('The data source could not be saved: ' + (err?.error?.detail ?? err?.message ?? 'unknown error'));
+      },
+    });
+  }
+
   // ---- units ----------------------------------------------------------
   /** Which row's unit is being edited (by code), and the draft value. Units
    * are saved straight away and on their own: a unit describes the parameter,
@@ -398,6 +468,7 @@ export class WeightsEditorComponent {
       weightPct: r.weightPct,
       consensus: r.consensus as 'agreed' | 'contested' | 'rejected',
       consensusNote: r.consensusNote ?? undefined,
+      relationship: r.relationship,
       decidedBy: r.decidedBy ?? this.decidedByName().trim(),
     }));
   }
