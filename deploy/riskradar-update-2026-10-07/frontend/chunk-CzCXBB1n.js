@@ -1,0 +1,1 @@
+function n(r){return{province:r.province,sector:r.sector,subsector:r.subsector??null,hazard:r.hazard}}function s(r){let{province:o,sector:e,hazard:t,subsector:a}=r;return!o||!e||!t?null:{province:o,sector:e,hazard:t,subsector:a||void 0}}export{s as n,n as t};
