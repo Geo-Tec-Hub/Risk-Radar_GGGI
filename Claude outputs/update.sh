@@ -20,8 +20,8 @@ set -euo pipefail
 MODE=${1:-check}
 HERE=$(cd "$(dirname "$0")" && pwd)
 APP_ROOT=${APP_ROOT:-/var/www/sites/geoinfobox.com/riskradar_ai}
-DB=${DB:-riskradar}
-DBUSER=${DBUSER:-riskradar_app}
+DB=${DB:-infobox_riskradar_ai}
+DBUSER=${DBUSER:-postgres}
 STAMP=$(date +%F-%H%M)
 
 say() { printf '\n==> %s\n' "$*"; }
@@ -29,9 +29,9 @@ say() { printf '\n==> %s\n' "$*"; }
 # ---- find the backend (the folder that holds app/main.py) -------------------
 BACKEND_DIR=${BACKEND_DIR:-$(dirname "$(dirname "$(sudo find "$APP_ROOT" /opt/riskradar -maxdepth 4 -path '*/app/main.py' 2>/dev/null | grep -v '/venv/' | head -1)")" 2>/dev/null || true)}
 # ---- find the frontend (the folder that holds index.html + data/) -----------
-FRONT_DIR=${FRONT_DIR:-$(dirname "$(sudo find "$APP_ROOT" /var/www/riskradar -maxdepth 4 -name index.html -path '*' 2>/dev/null | while read -r f; do [ -d "$(dirname "$f")/data" ] && echo "$f"; done | head -1)" 2>/dev/null || true)}
+FRONT_DIR=${FRONT_DIR:-$APP_ROOT/frontend/frontend-angular/browser}   # the folder nginx serves; NOT a *.backup-* sibling
 # ---- find the API service -----------------------------------------------------
-SERVICE=${SERVICE:-$(systemctl list-units --type=service --all --no-legend 2>/dev/null | awk '{print $1}' | grep -i -m1 'riskradar' || true)}
+SERVICE=${SERVICE:-riskradarback.service}   # FastAPI/uvicorn. NOT riskradar-backend.service (a dead Django unit)
 
 say "What I found"
 echo "  APP_ROOT    = $APP_ROOT"
@@ -64,7 +64,7 @@ ls -lh "$B"
 say "2/5  Database: three additions (safe to re-run)"
 for f in schema_unit_history_addendum.sql schema_track_index_entry_addendum.sql schema_param_source_addendum.sql; do
   echo "  - $f"
-  sudo -u postgres psql -v ON_ERROR_STOP=1 -q -d "$DB" -f "$HERE/database/$f"
+  sudo -u postgres psql -v ON_ERROR_STOP=1 -q -d "$DB" < "$HERE/database/$f"
 done
 # The API connects as $DBUSER, so it must be able to use the new tables.
 sudo -u postgres psql -v ON_ERROR_STOP=1 -q -d "$DB" <<SQL
