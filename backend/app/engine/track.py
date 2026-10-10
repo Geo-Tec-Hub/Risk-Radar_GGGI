@@ -324,7 +324,10 @@ async def rescale_track_profile(conn, profile_id: int, track: str,
              FROM vulnerability_result
             WHERE profile_id = $1 AND source = $2::source_type
               AND index_scope = 'provincial'
-              AND year_start = $3 AND year_end = $4""",
+              AND year_start = $3 AND year_end = $4
+              -- hidden on the map, so it must not stretch the scale (same
+              -- rule as engine.vulnerability.product_bounds)
+              AND COALESCE((method->>'sector_absent')::boolean, false) = false""",
         profile_id, track, year_start, year_end)
     lo, hi = float(base["lo"]), float(base["hi"])
     if ext is not None and ext["lo"] is not None:

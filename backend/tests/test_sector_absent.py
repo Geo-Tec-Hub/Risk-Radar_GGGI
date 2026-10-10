@@ -117,6 +117,16 @@ async def test_all_zero_exposure_is_sector_absent_and_stored():
                     prof["id"], div, PERIOD[0])
                 assert _sector_absent(method) is True
                 assert _state(True, True, False, 0.0) == ("not_applicable", None)
+
+                # The hidden division must not set the scale (live QA, 10 Oct
+                # 2026): among the divisions SHOWN there is exactly one 0.000
+                # and one 1.000, and the absent one is clamped into [0, 1].
+                shown = [s.vulnerability_index for s in result.scores
+                         if not s.sector_absent]
+                assert min(shown) == 0.0 and max(shown) == 1.0
+                assert 0.0 <= mine.vulnerability_index <= 1.0
+                assert result.bound_min == min(s.v_raw for s in result.scores
+                                               if not s.sector_absent)
                 raise _Rollback
     finally:
         await conn.close()
