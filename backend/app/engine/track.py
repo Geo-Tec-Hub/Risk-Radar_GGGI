@@ -287,9 +287,60 @@ async def compute_track_division(conn, profile_id: int, division_id: int,
         """, division_id, profile_id, prof["hazard_type_id"], prof["sector_id"],
         prof["subsector_id"], track, year_start, year_end, e, h, v_index,
         json.dumps(method), plo, phi)
+    # ONE SCALE PER PROVINCE (QA 10 Oct 2026). Each division used to be
+    # rescaled with bounds widened only by its OWN raw product, so Attanagalla
+    # read "0.0255 to 0.5462" while a division whose raw product was 0 read
+    # "0 to 0.5462" -- two divisions of one map on two different scales.
+    # Every track result of this profile and period is now rescaled together.
+    bounds_now = await rescale_track_profile(conn, profile_id, track, year_start, year_end)
+    if bounds_now is not None:
+        plo, phi = bounds_now
+        v_index = _scale(p, plo, phi)
     return {"ok": True, "hazardIndex": h, "exposureIndex": e, "rawIndex": p,
             "vulnerabilityIndex": v_index, "baseline": baseline,
             "contributors": total, "entry": entry}
+
+
+async def rescale_track_profile(conn, profile_id: int, track: str,
+                                year_start: int, year_end: int):
+    """Put every division of one profile/period/track on the SAME scale.
+
+    Bounds = the official (data-track) product bounds, widened to include the
+    raw product H x E of every division scored on this track -- the same rule
+    as before, but applied once for the whole province instead of once per
+    division. Returns (lo, hi), or None where there is no official baseline
+    (those results stay the raw product, as before)."""
+    base = await conn.fetchrow(
+        """SELECT min(bound_min) AS lo, max(bound_max) AS hi
+             FROM vulnerability_result
+            WHERE profile_id = $1 AND source = 'data' AND index_scope = 'provincial'
+              AND year_start = $2 AND year_end = $3""",
+        profile_id, year_start, year_end)
+    if base is None or base["lo"] is None:
+        return None
+    ext = await conn.fetchrow(
+        """SELECT min(hazard_index * exposure_index)::float8 AS lo,
+                  max(hazard_index * exposure_index)::float8 AS hi
+             FROM vulnerability_result
+            WHERE profile_id = $1 AND source = $2::source_type
+              AND index_scope = 'provincial'
+              AND year_start = $3 AND year_end = $4""",
+        profile_id, track, year_start, year_end)
+    lo, hi = float(base["lo"]), float(base["hi"])
+    if ext is not None and ext["lo"] is not None:
+        lo, hi = min(lo, ext["lo"]), max(hi, ext["hi"])
+    await conn.execute(
+        """UPDATE vulnerability_result
+              SET vulnerability_index = CASE WHEN $6::float8 = $5::float8 THEN 0.5
+                    ELSE LEAST(1.0, GREATEST(0.0,
+                         (hazard_index * exposure_index - $5::float8) / ($6::float8 - $5::float8)))
+                    END,
+                  bound_min = $5, bound_max = $6
+            WHERE profile_id = $1 AND source = $2::source_type
+              AND index_scope = 'provincial'
+              AND year_start = $3 AND year_end = $4""",
+        profile_id, track, year_start, year_end, lo, hi)
+    return lo, hi
 
 
 async def recompute_track_province(conn, profile_id: int, province_id: int,
