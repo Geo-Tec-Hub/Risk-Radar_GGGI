@@ -180,6 +180,12 @@ FrontEnd/           RETIRED React app — reference only, do not extend
    in `PROGRESS_TRACKER.md` and `PROJECT_GUIDE.md` is superseded — read it as
    history, not as a plan.
 
+6. **Never commit a file over 50 MB** (GitHub refuses anything over 100 MB).
+   Deployment zips (`deploy.zip`, `deploy/*.zip`), database dumps and
+   `_to_delete/` are ignored on purpose; a pre-commit hook in `.git/hooks`
+   blocks large files. Owner instruction, 12 Oct 2026, after a 233 MB
+   `deploy.zip` stalled a push.
+
 ## Current state and next steps
 
 **Database built and smoke-tested (2026-07-29). The FastAPI app now exists

@@ -58,3 +58,7 @@ deploy/zidVaTaD
 # --- large deployment bundles (over GitHub 100 MB limit; kept locally) ----
 deploy.zip
 _to_delete/
+# Deployment bundles and database dumps are rebuilt from source and can be
+# hundreds of MB; GitHub refuses any file over 100 MB. Keep them local only.
+deploy/*.zip
+*.dump
