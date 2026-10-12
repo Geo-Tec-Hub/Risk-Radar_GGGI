@@ -42,6 +42,10 @@ export interface AssessmentForm {
   readonly myMode: 'parameters' | 'index' | null;
   readonly myHazardIndex: number | null;
   readonly myExposureIndex: number | null;
+  /** Scale this person last used (1 = 0-1, 4 = 0-4) and their figures as typed. */
+  readonly myIndexScale?: 1 | 4 | null;
+  readonly myHazardEntered?: number | null;
+  readonly myExposureEntered?: number | null;
 }
 
 export interface AssessmentPayload {
@@ -55,8 +59,10 @@ export interface AssessmentPayload {
   /** 'parameters' (a figure per variable) or 'index' (H and E directly, 0-1). */
   readonly mode: 'parameters' | 'index';
   readonly values: readonly { code: string; value: number }[];
+  /** On the scale given by `indexScale` (0-1 or 0-4); the server converts. */
   readonly hazardIndex?: number | null;
   readonly exposureIndex?: number | null;
+  readonly indexScale?: 1 | 4;
   readonly note?: string | null;
 }
 

@@ -49,8 +49,12 @@ export class AssessmentFormComponent {
    * directly (2 Oct 2026). One way per division -- saving one replaces the
    * other. The raw index and the normalised score are always computed. */
   readonly mode = signal<'parameters' | 'index'>('parameters');
+  /** Figures exactly as typed, on the chosen scale. */
   readonly hazardIndex = signal<number | null>(null);
   readonly exposureIndex = signal<number | null>(null);
+  /** Top of the rating scale: 4 (experts' 0-4 rating, the default) or 1.
+   * Converted linearly to the model's 0-1 scale: 2.5 on 0-4 -> 0.625. */
+  readonly indexScale = signal<1 | 4>(4);
 
   /** Cancelled when a newer form is requested, so a slow earlier one cannot
    * paint the wrong division's variables (QA 26 Sep 2026). */
@@ -68,16 +72,21 @@ export class AssessmentFormComponent {
     this.variables().filter((v) => !this.isNumber(this.values()[v.code])).map((v) => v.code),
   );
 
-  private inUnit(v: number | null): boolean {
-    return this.isNumber(v) && v >= 0 && v <= 1;
+  private inScale(v: number | null): boolean {
+    return this.isNumber(v) && v >= 0 && v <= this.indexScale();
   }
 
-  /** Index mode is ready when both indexes are numbers between 0 and 1. */
-  readonly indexReady = computed(() => this.inUnit(this.hazardIndex()) && this.inUnit(this.exposureIndex()));
+  /** The 0-1 value the model will use for a typed figure. */
+  to01(v: number | null): number | null {
+    return this.isNumber(v) ? v / this.indexScale() : null;
+  }
 
-  /** H x E as the user types, so they see what will be scored. */
+  /** Index mode is ready when both indexes are within the chosen scale. */
+  readonly indexReady = computed(() => this.inScale(this.hazardIndex()) && this.inScale(this.exposureIndex()));
+
+  /** H x E on the 0-1 scale, as the user types, so they see what will be scored. */
   readonly indexRaw = computed(() =>
-    this.indexReady() ? (this.hazardIndex() as number) * (this.exposureIndex() as number) : null,
+    this.indexReady() ? (this.to01(this.hazardIndex()) as number) * (this.to01(this.exposureIndex()) as number) : null,
   );
 
   readonly canSave = computed(() =>
@@ -112,8 +121,11 @@ export class AssessmentFormComponent {
         const v: Record<string, number | null> = {};
         for (const x of [...f.hazardVariables, ...f.exposureVariables]) v[x.code] = x.myValue;
         this.values.set(v);
-        this.hazardIndex.set(f.myHazardIndex);
-        this.exposureIndex.set(f.myExposureIndex);
+        // Reopen on the scale the person used; a first entry starts on 0-4.
+        const scale: 1 | 4 = f.myIndexScale === 1 || f.myIndexScale === 4 ? f.myIndexScale : f.myMode === 'index' ? 1 : 4;
+        this.indexScale.set(scale);
+        this.hazardIndex.set(f.myHazardEntered ?? f.myHazardIndex);
+        this.exposureIndex.set(f.myExposureEntered ?? f.myExposureIndex);
         // Open in the way this person last used; index when the weights are
         // unfinished, because parameters cannot be scored without them.
         this.mode.set(f.myMode === 'index' || !f.weightsComplete ? 'index' : 'parameters');
@@ -140,6 +152,19 @@ export class AssessmentFormComponent {
     this.mode.set(m);
     this.result.set(null);
     this.saveError.set(null);
+  }
+
+  /** Switching scale converts what is already typed, so the meaning is kept
+   * (2.5 on 0-4 becomes 0.625 on 0-1, and back). */
+  setScale(raw: unknown): void {
+    const next: 1 | 4 = Number(raw) === 1 ? 1 : 4;
+    const prev = this.indexScale();
+    if (next === prev) return;
+    const conv = (v: number | null) => (this.isNumber(v) ? Math.round((v / prev) * next * 1000) / 1000 : v);
+    this.hazardIndex.set(conv(this.hazardIndex()));
+    this.exposureIndex.set(conv(this.exposureIndex()));
+    this.indexScale.set(next);
+    this.result.set(null);
   }
 
   setIndex(which: 'hazard' | 'exposure', raw: unknown): void {
@@ -183,6 +208,7 @@ export class AssessmentFormComponent {
         values: index ? [] : this.variables().map((v) => ({ code: v.code, value: this.values()[v.code] as number })),
         hazardIndex: index ? this.hazardIndex() : null,
         exposureIndex: index ? this.exposureIndex() : null,
+        indexScale: this.indexScale(),
         note: this.note().trim() || null,
       })
       .subscribe({

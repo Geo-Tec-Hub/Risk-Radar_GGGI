@@ -81,6 +81,11 @@ class AssessmentForm(BaseModel):
     myMode: Optional[str] = None
     myHazardIndex: Optional[float] = None
     myExposureIndex: Optional[float] = None
+    # The scale this person used last time (1 or 4) and their figures exactly
+    # as typed on it, so the form reopens the way they left it.
+    myIndexScale: Optional[int] = None
+    myHazardEntered: Optional[float] = None
+    myExposureEntered: Optional[float] = None
 
 
 class ValueIn(BaseModel):
@@ -98,8 +103,11 @@ class AssessmentIn(BaseModel):
     dsCode: str
     mode: Literal["parameters", "index"] = "parameters"
     values: list[ValueIn] = Field(default_factory=list, max_length=200)
-    hazardIndex: Optional[float] = Field(default=None, ge=0, le=1)
-    exposureIndex: Optional[float] = Field(default=None, ge=0, le=1)
+    # On the scale named by `indexScale`: 0-1 (indexScale=1) or 0-4
+    # (indexScale=4, the experts' rating scale; converted as value / 4).
+    hazardIndex: Optional[float] = Field(default=None, ge=0, le=4)
+    exposureIndex: Optional[float] = Field(default=None, ge=0, le=4)
+    indexScale: Literal[1, 4] = 1
     note: Optional[str] = Field(default=None, max_length=1000)
 
 
@@ -234,6 +242,17 @@ async def form(
         idx = await index_entries(conn, prof, div["id"], track, y0)
         n_people += len(idx)
         my_idx = next((r for r in idx if user is not None and r["user_id"] == user.id), None)
+        my_entered = None
+        if my_idx is not None:
+            my_entered = await conn.fetchrow(
+                """SELECT entered_scale, hazard_entered, exposure_entered
+                     FROM track_index_entry
+                    WHERE ds_division_id = $1 AND sector_id = $2
+                      AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
+                      AND source = $5::source_type AND user_id = $6 AND year_start <= $7
+                    ORDER BY year_start DESC, id DESC LIMIT 1""",
+                div["id"], prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"],
+                track, user.id, y0)
         my_mode = "index" if my_idx else ("parameters" if mine else None)
 
     weights_complete = bool(members) and all(m["weight_pct"] is not None for m in members)
@@ -260,7 +279,12 @@ async def form(
         exposureVariables=[_v(m) for m in members if m["domain"] == "exposure"],
         myMode=my_mode,
         myHazardIndex=my_idx["hazard_index"] if my_idx else None,
-        myExposureIndex=my_idx["exposure_index"] if my_idx else None)
+        myExposureIndex=my_idx["exposure_index"] if my_idx else None,
+        myIndexScale=my_entered["entered_scale"] if my_entered else None,
+        myHazardEntered=(my_entered["hazard_entered"] if my_entered and my_entered["hazard_entered"] is not None
+                         else (my_idx["hazard_index"] if my_idx else None)),
+        myExposureEntered=(my_entered["exposure_entered"] if my_entered and my_entered["exposure_entered"] is not None
+                           else (my_idx["exposure_index"] if my_idx else None)))
 
 
 @router.post("", response_model=AssessmentOut)
@@ -291,9 +315,16 @@ async def save(
         note = ("entered on the map" + (": " + body.note.strip() if body.note else ""))
 
         if body.mode == "index":
+            top = body.indexScale
             if body.hazardIndex is None or body.exposureIndex is None:
                 raise HTTPException(400, "index entry needs both a Hazard index and a "
-                                         "Potential Exposure index, each between 0 and 1")
+                                         "Potential Exposure index, each between 0 and %d" % top)
+            if body.hazardIndex > top or body.exposureIndex > top:
+                raise HTTPException(400, "on the 0-%d scale an index cannot be above %d"
+                                    % (top, top))
+            # Linear conversion to the model's 0-1 scale (2.5 on 0-4 -> 0.625).
+            h01 = body.hazardIndex / top
+            e01 = body.exposureIndex / top
             async with conn.transaction():
                 await conn.execute(
                     """
@@ -315,11 +346,13 @@ async def save(
                     """
                     INSERT INTO track_index_entry
                         (ds_division_id, sector_id, subsector_id, hazard_type_id, source,
-                         user_id, year_start, year_end, hazard_index, exposure_index, note)
-                    VALUES ($1, $2, $3, $4, $5::source_type, $6, $7, $8, $9, $10, $11)
+                         user_id, year_start, year_end, hazard_index, exposure_index, note,
+                         entered_scale, hazard_entered, exposure_entered)
+                    VALUES ($1, $2, $3, $4, $5::source_type, $6, $7, $8, $9, $10, $11,
+                            $12, $13, $14)
                     """, div["id"], prof["sector_id"], prof["subsector_id"],
                     prof["hazard_type_id"], body.track, user.id, y0, y1,
-                    body.hazardIndex, body.exposureIndex, note)
+                    h01, e01, note, top, body.hazardIndex, body.exposureIndex)
                 result = await compute_track_division(conn, prof["id"], div["id"],
                                                       body.track, y0, y1)
             return AssessmentOut(saved=2, **{

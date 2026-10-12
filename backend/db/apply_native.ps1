@@ -243,6 +243,7 @@ Apply-File '8b   Addendum: official DS codes + the 2025 boundary revision' (Join
 Apply-File '8c   Addendum: unit change history' (Join-Path $Design 'database\schema_unit_history_addendum.sql')
 Apply-File '8d   Addendum: direct index entry (expert/community)' (Join-Path $Design 'database\schema_track_index_entry_addendum.sql')
 Apply-File '8e   Addendum: data source per parameter and province' (Join-Path $Design 'database\schema_param_source_addendum.sql')
+Apply-File '8f   Addendum: index entry on a 0-4 scale' (Join-Path $Design 'database\schema_index_scale_addendum.sql')
 
 # --- DS divisions -----------------------------------------------------------
 Say '9/9  DS divisions (register + surveyed polygons; counts reported by smoke_test) + spatial layers'

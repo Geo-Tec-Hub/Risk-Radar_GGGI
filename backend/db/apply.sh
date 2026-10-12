@@ -80,6 +80,7 @@ apply "8c    Addendum: official DS codes + the 2025 boundary revision" /design/d
 apply "8d    Addendum: unit change history"                    /design/database/schema_unit_history_addendum.sql
 apply "8e    Addendum: direct index entry (expert/community)"  /design/database/schema_track_index_entry_addendum.sql
 apply "8f    Addendum: data source per parameter and province" /design/database/schema_param_source_addendum.sql
+apply "8g    Addendum: index entry on a 0-4 scale"            /design/database/schema_index_scale_addendum.sql
 
 say "9/13  DS divisions + spatial layers"
 if "${EXEC[@]}" bash -c 'command -v ogr2ogr >/dev/null'; then
