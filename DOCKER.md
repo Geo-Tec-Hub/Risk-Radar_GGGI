@@ -60,8 +60,8 @@ sites), under user `riskradar` in `/srv/riskradar`:
 - `app/` -- a git checkout of `master`. **Deploy-only; never edit it there.**
 - `riskradar.env` -- the database password (not in git).
 - `backups/` -- a database dump taken before every update (newest 30 kept).
-- `docker-compose.prod.yml` adds the server differences: no database port,
-  website on `127.0.0.1:8180` only, secure cookie. Host nginx
+- `docker-compose.prod.yml` adds the server differences: database on
+  `127.0.0.1:5434` and website on `127.0.0.1:8180` (never public), secure cookie. Host nginx
   (`server/nginx-riskradar.conf`) does HTTPS and forwards to it.
 
 **Updating it: push to `master`.** GitHub Actions (`.github/workflows/deploy.yml`)
@@ -84,3 +84,11 @@ and on GitHub: Actions -> Deploy to server -> Run workflow, tick
 
 Other commands (as `riskradar` on the server): `app/server/deploy.sh status`,
 `app/server/deploy.sh backup`.
+
+**pgAdmin on the live database:** new server, *Connection* tab: host
+`127.0.0.1`, port `5434`, database `riskradar`, user `riskradar`, password =
+`RR_DB_PASSWORD` in `/srv/riskradar/riskradar.env`
+(`sudo cat /srv/riskradar/riskradar.env` on the server). *SSH Tunnel* tab: on,
+host `geoinfobox.ddns.net`, port 22, user `admin`, password authentication.
+(The server's own PostgreSQL 18 on 5432 is a different database -- not the
+one the site uses.)

@@ -6,7 +6,8 @@
 #
 # Differences from local:
 #  - real database password, read from /srv/riskradar/riskradar.env (not in git)
-#  - database NOT published at all; website published on 127.0.0.1 only.
+#  - database and website published on 127.0.0.1 only (database: 5434, for
+#    pgAdmin over an SSH tunnel).
 #    Docker-published ports bypass ufw, so anything bound to 0.0.0.0 here would
 #    be open to the internet regardless of the firewall.
 #  - session cookie marked Secure (the site is HTTPS-only behind host nginx)
@@ -16,7 +17,10 @@ services:
     platform: !reset null          # server is x86_64, no emulation needed
     environment:
       POSTGRES_PASSWORD: ${RR_DB_PASSWORD:?set RR_DB_PASSWORD in riskradar.env}
-    ports: !reset []
+    # Loopback only: reachable through an SSH tunnel (pgAdmin "SSH Tunnel" tab
+    # -> geoinfobox.ddns.net, then host 127.0.0.1 port 5434), never from outside.
+    ports: !override
+      - "127.0.0.1:${RR_DB_PORT:-5434}:5432"
 
   api:
     environment:
