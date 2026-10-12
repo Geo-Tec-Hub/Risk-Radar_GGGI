@@ -54,3 +54,7 @@ _to_delete/
 deploy/*.zip
 deploy/zidVaTaD
 .claude/settings.local.json
+
+# --- large deployment bundles (over GitHub 100 MB limit; kept locally) ----
+deploy.zip
+_to_delete/
