@@ -1,0 +1,29 @@
+# Production overrides for the server (riskradar.geoinfobox.com).
+# Used ONLY by server/deploy.sh, together with docker-compose.yml:
+#
+#   docker compose -p riskradar -f docker-compose.yml -f docker-compose.prod.yml \
+#                  --env-file /srv/riskradar/riskradar.env up -d --build
+#
+# Differences from local:
+#  - real database password, read from /srv/riskradar/riskradar.env (not in git)
+#  - database NOT published at all; website published on 127.0.0.1 only.
+#    Docker-published ports bypass ufw, so anything bound to 0.0.0.0 here would
+#    be open to the internet regardless of the firewall.
+#  - session cookie marked Secure (the site is HTTPS-only behind host nginx)
+
+services:
+  db:
+    platform: !reset null          # server is x86_64, no emulation needed
+    environment:
+      POSTGRES_PASSWORD: ${RR_DB_PASSWORD:?set RR_DB_PASSWORD in riskradar.env}
+    ports: !reset []
+
+  api:
+    environment:
+      PGPASSWORD: ${RR_DB_PASSWORD:?set RR_DB_PASSWORD in riskradar.env}
+      CORS_ORIGIN: ${RR_PUBLIC_ORIGIN:-https://riskradar.geoinfobox.com}
+      SESSION_COOKIE_SECURE: "true"
+
+  web:
+    ports: !override
+      - "127.0.0.1:${RR_WEB_PORT:-8180}:80"

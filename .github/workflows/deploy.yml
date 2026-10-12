@@ -1,0 +1,42 @@
+# Push to master -> update riskradar.geoinfobox.com (Docker on geoinfobox.ddns.net).
+#
+# The runner only SSHes in; the server-side key is locked to server/deploy.sh
+# (forced command in ~riskradar/.ssh/authorized_keys), so this key can do
+# nothing except deploy or report status.
+#
+# If the push changes database SQL the deploy stops before touching anything
+# (the job fails and lists the files). Apply them on the server, then use
+# "Run workflow" here with "schema applied" ticked.
+name: Deploy to server
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      schema_applied:
+        description: "I have already applied the new database SQL on the server"
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Deploy over SSH
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          HOST: ${{ vars.DEPLOY_HOST }}
+          CMD: ${{ inputs.schema_applied && 'deploy --schema-applied' || 'deploy' }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key -o CheckHostIP=no -o ServerAliveInterval=30 \
+              "riskradar@${HOST}" "$CMD"

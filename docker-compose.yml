@@ -30,7 +30,9 @@ services:
     restart: unless-stopped
 
   api:
-    build: ./backend
+    build:
+      context: .                       # repo root: the importer needs design/ingestion/
+      dockerfile: backend/Dockerfile
     environment:
       PGHOST: db
       PGPORT: "5432"

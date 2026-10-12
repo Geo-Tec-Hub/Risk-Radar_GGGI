@@ -1,0 +1,10 @@
+# The API image is built with the repository root as context (it needs two
+# files from design/ingestion). Send only what the Dockerfile copies -- the
+# root also holds data sets and deployment zips of several hundred MB.
+*
+!backend/requirements-docker.txt
+!backend/app
+!design/ingestion/dsd_register.csv
+!design/ingestion/seed_all.sql
+**/__pycache__
+**/*.pyc
