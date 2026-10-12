@@ -1,0 +1,13 @@
+# Everything the API needs to run, pinned to the versions in the working
+# local venv (12 Oct 2026). requirements.txt lists only reportlab, so the
+# Docker image installs from this file instead.
+fastapi==0.141.1
+uvicorn[standard]==0.52.1
+asyncpg==0.31.0
+pydantic==2.13.4
+pydantic-settings==2.15.0
+argon2-cffi==25.1.0
+openpyxl==3.1.5
+python-multipart==0.0.32
+reportlab==5.0.1
+pillow==12.3.0
