@@ -36,6 +36,9 @@
           @if (unresolvedHazard().length) {
             &middot; {{ unresolvedHazard().length }} unresolved
           }
+          @if (heldNames().length) {
+            &middot; {{ heldNames().length }} held pending the panel
+          }
           @if (zeroWeightHazard().length) {
             &middot; {{ zeroWeightHazard().length }} weighted at 0
           }
@@ -131,6 +134,11 @@
                   <button type="button" [disabled]="!decidedByName().trim()" (click)="exclude('hazard', row.indicatorCode)">
                     Remove
                   </button>
+                } @else if (isHeld(row)) {
+                  <span class="weights__decision"
+                        title="The composite hazard index carries the whole hazard weight, so this component is not weighted. Saved as pending, not removed.">
+                    Held pending the panel
+                  </span>
                 } @else if (row.weightPct === null) {
                   <input
                     type="text"
@@ -144,10 +152,14 @@
                   </button>
                 } @else {
                   <span class="weights__decision">agreed</span>
-                  <button type="button" [disabled]="!decidedByName().trim()" (click)="exclude('hazard', row.indicatorCode)"
-                          title="Remove this parameter from the profile. Its weight is dropped and the rest must be brought back to 100 before saving.">
-                    Remove
-                  </button>
+                  @if (canRemoveHazard(row)) {
+                    <button type="button" [disabled]="!decidedByName().trim()" (click)="exclude('hazard', row.indicatorCode)"
+                            title="Remove this parameter from the profile. Its weight is dropped and the rest must be brought back to 100 before saving.">
+                      Remove
+                    </button>
+                  } @else {
+                    <span class="weights__source-default">cannot be removed while the composite index carries the weight</span>
+                  }
                 }
               </td>
             </tr>
@@ -289,6 +301,13 @@
         <span class="weights__save-hint">
           Both blocks must total exactly 100 from agreed/contested weights, with every row either
           weighted or explicitly excluded.
+          @if (exposureShortfall() > 0 && exposureTotal() > 0) {
+            Exposure is {{ exposureShortfall() }} points short of 100: weight the blank rows, or remove them and use
+            "Rescale the rest to 100".
+          }
+          @if (heldNames().length) {
+            Held pending the panel (saved as pending, not removed): {{ heldNames().join(', ') }}.
+          }
           @if (unresolvedNames()) {
             Still blank: {{ unresolvedNames() }}. Weight each one, or type a name above and Remove it.
           }

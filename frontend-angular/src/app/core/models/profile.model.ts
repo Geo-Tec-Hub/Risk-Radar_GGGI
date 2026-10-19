@@ -47,7 +47,7 @@ export function encodeProfileScope(scope: ProfileScope): string {
  * carries weight nor blocks the domain from reaching 100. `null` means
  * genuinely undecided -- the state a fresh blank starts in.
  */
-export type WeightConsensus = 'agreed' | 'contested' | 'rejected' | null;
+export type WeightConsensus = 'agreed' | 'contested' | 'rejected' | 'proposed' | null;
 
 /** One row in a profile's hazard or exposure block (DATA_ENTRY_WORKFLOW.md Step 2). */
 export interface ProfileVariable {
@@ -120,7 +120,7 @@ export interface ProfileWeights {
 export interface WeightDecision {
   readonly indicatorCode: string;
   readonly weightPct: number | null;
-  readonly consensus: 'agreed' | 'contested' | 'rejected';
+  readonly consensus: 'agreed' | 'contested' | 'rejected' | 'proposed';
   readonly consensusNote?: string;
   /** Sent on every save so a save never resets a "-" variable to "+". */
   readonly relationship?: 'higher_is_worse' | 'higher_is_better';

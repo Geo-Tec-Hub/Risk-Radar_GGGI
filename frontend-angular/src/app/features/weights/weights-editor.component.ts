@@ -149,10 +149,38 @@ export class WeightsEditorComponent {
   /** Shared across every exclude action in this session -- see class doc on C6. */
   readonly decidedByName = signal('');
 
+  /** True while the hazard composite index carries the weight. Then the
+   * components are not weighted and must not be removed (FR-4.9b): removing one
+   * would hand the hazard score back to the composite, which [P-5] ruled out.
+   * They are HELD pending the panel instead -- saved as 'proposed', no weight. */
+  readonly compositeCarriesWeight = computed(() =>
+    this.hazardRows().some((r) => r.isCompositeHazardIndex && r.consensus !== 'rejected' && (r.weightPct ?? 0) > 0),
+  );
+
+  /** A blank hazard component under a weighted composite index. */
+  isHeld(row: EditableRow): boolean {
+    return (
+      this.compositeCarriesWeight() &&
+      !row.isCompositeHazardIndex &&
+      row.weightPct === null &&
+      row.consensus !== 'rejected'
+    );
+  }
+
+  /** Remove is refused by the database for a hazard component while the
+   * composite carries weight, so the button is not offered. */
+  canRemoveHazard(row: EditableRow): boolean {
+    return !(this.compositeCarriesWeight() && !row.isCompositeHazardIndex);
+  }
+
+  readonly heldNames = computed(() =>
+    this.hazardRows().filter((r) => this.isHeld(r)).map((r) => r.indicatorName),
+  );
+
   readonly hazardTotal = computed(() => includedTotal(this.hazardRows()));
   readonly exposureTotal = computed(() => includedTotal(this.exposureRows()));
   readonly hazardComplete = computed(
-    () => this.hazardTotal() === 100 && this.hazardRows().every(isResolved) && !this.hazardRows().some(hasInvalidZeroWeight),
+    () => this.hazardTotal() === 100 && this.hazardRows().every((r) => isResolved(r) || this.isHeld(r)) && !this.hazardRows().some(hasInvalidZeroWeight),
   );
   readonly exposureComplete = computed(
     () => this.exposureTotal() === 100 && this.exposureRows().every(isResolved) && !this.exposureRows().some(hasInvalidZeroWeight),
@@ -162,7 +190,7 @@ export class WeightsEditorComponent {
   /** Named so the block header doesn't read "100 / 100" (implying ready to
    * save) while a blank row is still silently missing from that total --
    * a weightless row contributes 0 and is invisible to includedTotal(). */
-  readonly unresolvedHazard = computed(() => this.hazardRows().filter((r) => !isResolved(r)).map((r) => r.indicatorName));
+  readonly unresolvedHazard = computed(() => this.hazardRows().filter((r) => !isResolved(r) && !this.isHeld(r)).map((r) => r.indicatorName));
   readonly unresolvedExposure = computed(() => this.exposureRows().filter((r) => !isResolved(r)).map((r) => r.indicatorName));
   readonly unresolvedNames = computed(() => this.unresolvedHazard().concat(this.unresolvedExposure()).join(', '));
 
@@ -172,6 +200,11 @@ export class WeightsEditorComponent {
   readonly zeroWeightHazard = computed(() => this.hazardRows().filter(hasInvalidZeroWeight).map((r) => r.indicatorName));
   readonly zeroWeightExposure = computed(() => this.exposureRows().filter(hasInvalidZeroWeight).map((r) => r.indicatorName));
   readonly zeroWeightNames = computed(() => this.zeroWeightHazard().concat(this.zeroWeightExposure()).join(', '));
+
+  /** How many points short of 100 a block is -- said in words so the officer
+   * knows what is missing rather than just seeing a red total. */
+  readonly exposureShortfall = computed(() => round3(100 - this.exposureTotal()));
+  readonly hazardShortfall = computed(() => round3(100 - this.hazardTotal()));
 
   readonly saving = signal(false);
   readonly saveError = signal<string | null>(null);
@@ -285,6 +318,9 @@ export class WeightsEditorComponent {
 
     const alreadyAssigned = includedTotal(rows);
     const remaining = round3(100 - alreadyAssigned);
+    // Nothing left to share out (e.g. the composite index already carries 100):
+    // handing out 0 would create invalid zero weights.
+    if (remaining <= 0) return;
     const share = round3(remaining / undecided.length);
 
     let assignedSoFar = 0;
@@ -447,6 +483,10 @@ export class WeightsEditorComponent {
     const name = this.decidedByName().trim();
     if (!name) return;
     const setter = block === 'hazard' ? this.hazardRows : this.exposureRows;
+    if (block === 'hazard') {
+      const row = this.hazardRows().find((r) => r.indicatorCode === code);
+      if (row && !this.canRemoveHazard(row)) return;
+    }
     setter.update((rows) =>
       rows.map((r) => (r.indicatorCode === code ? { ...r, weightPct: null, consensus: 'rejected', decidedBy: name } : r)),
     );
@@ -466,7 +506,9 @@ export class WeightsEditorComponent {
     return rows.map((r) => ({
       indicatorCode: r.indicatorCode,
       weightPct: r.weightPct,
-      consensus: r.consensus as 'agreed' | 'contested' | 'rejected',
+      // A held component is sent as 'proposed' (no weight, still to be decided
+      // by the panel) -- never as a removal.
+      consensus: (this.isHeld(r) ? 'proposed' : r.consensus) as 'agreed' | 'contested' | 'rejected' | 'proposed',
       consensusNote: r.consensusNote ?? undefined,
       relationship: r.relationship,
       decidedBy: r.decidedBy ?? this.decidedByName().trim(),

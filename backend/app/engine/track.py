@@ -309,15 +309,17 @@ async def rescale_track_profile(conn, profile_id: int, track: str,
     raw product H x E of every division scored on this track -- the same rule
     as before, but applied once for the whole province instead of once per
     division. Returns (lo, hi), or None where there is no official baseline
-    (those results stay the raw product, as before)."""
+    (those results stay the raw product, as before).
+
+    With no official baseline the scale is the range of this track's own
+    divisions in the province (see the comment below)."""
     base = await conn.fetchrow(
         """SELECT min(bound_min) AS lo, max(bound_max) AS hi
              FROM vulnerability_result
             WHERE profile_id = $1 AND source = 'data' AND index_scope = 'provincial'
               AND year_start = $2 AND year_end = $3""",
         profile_id, year_start, year_end)
-    if base is None or base["lo"] is None:
-        return None
+    no_official = base is None or base["lo"] is None
     ext = await conn.fetchrow(
         """SELECT min(hazard_index * exposure_index)::float8 AS lo,
                   max(hazard_index * exposure_index)::float8 AS hi
@@ -329,9 +331,21 @@ async def rescale_track_profile(conn, profile_id: int, track: str,
               -- rule as engine.vulnerability.product_bounds)
               AND COALESCE((method->>'sector_absent')::boolean, false) = false""",
         profile_id, track, year_start, year_end)
-    lo, hi = float(base["lo"]), float(base["hi"])
-    if ext is not None and ext["lo"] is not None:
-        lo, hi = min(lo, ext["lo"]), max(hi, ext["hi"])
+    if no_official:
+        # NO OFFICIAL DATA YET (Northwestern, 19 Oct 2026): there are no official
+        # product bounds, so the scores used to stay as the raw product H x E
+        # and the map was never put on the 0-1 scale. Scale them across the
+        # divisions assessed on this track in this province instead. Needs at
+        # least two different products, or the scale would be meaningless (one
+        # division would read 0.5). When official data arrive the next
+        # recompute switches back to the official bounds.
+        if ext is None or ext["lo"] is None or ext["hi"] is None or ext["hi"] <= ext["lo"]:
+            return None
+        lo, hi = float(ext["lo"]), float(ext["hi"])
+    else:
+        lo, hi = float(base["lo"]), float(base["hi"])
+        if ext is not None and ext["lo"] is not None:
+            lo, hi = min(lo, ext["lo"]), max(hi, ext["hi"])
     await conn.execute(
         """UPDATE vulnerability_result
               SET vulnerability_index = CASE WHEN $6::float8 = $5::float8 THEN 0.5
