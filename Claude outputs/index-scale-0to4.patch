@@ -1,0 +1,320 @@
+diff --git a/backend/app/routers/assessments.py b/backend/app/routers/assessments.py
+index 0391daf..7b21f4a 100644
+--- a/backend/app/routers/assessments.py
++++ b/backend/app/routers/assessments.py
+@@ -81,6 +81,11 @@ class AssessmentForm(BaseModel):
+     myMode: Optional[str] = None
+     myHazardIndex: Optional[float] = None
+     myExposureIndex: Optional[float] = None
++    # The scale this person used last time (1 or 4) and their figures exactly
++    # as typed on it, so the form reopens the way they left it.
++    myIndexScale: Optional[int] = None
++    myHazardEntered: Optional[float] = None
++    myExposureEntered: Optional[float] = None
+ 
+ 
+ class ValueIn(BaseModel):
+@@ -98,8 +103,11 @@ class AssessmentIn(BaseModel):
+     dsCode: str
+     mode: Literal["parameters", "index"] = "parameters"
+     values: list[ValueIn] = Field(default_factory=list, max_length=200)
+-    hazardIndex: Optional[float] = Field(default=None, ge=0, le=1)
+-    exposureIndex: Optional[float] = Field(default=None, ge=0, le=1)
++    # On the scale named by `indexScale`: 0-1 (indexScale=1) or 0-4
++    # (indexScale=4, the experts' rating scale; converted as value / 4).
++    hazardIndex: Optional[float] = Field(default=None, ge=0, le=4)
++    exposureIndex: Optional[float] = Field(default=None, ge=0, le=4)
++    indexScale: Literal[1, 4] = 1
+     note: Optional[str] = Field(default=None, max_length=1000)
+ 
+ 
+@@ -234,6 +242,17 @@ async def form(
+         idx = await index_entries(conn, prof, div["id"], track, y0)
+         n_people += len(idx)
+         my_idx = next((r for r in idx if user is not None and r["user_id"] == user.id), None)
++        my_entered = None
++        if my_idx is not None:
++            my_entered = await conn.fetchrow(
++                """SELECT entered_scale, hazard_entered, exposure_entered
++                     FROM track_index_entry
++                    WHERE ds_division_id = $1 AND sector_id = $2
++                      AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
++                      AND source = $5::source_type AND user_id = $6 AND year_start <= $7
++                    ORDER BY year_start DESC, id DESC LIMIT 1""",
++                div["id"], prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"],
++                track, user.id, y0)
+         my_mode = "index" if my_idx else ("parameters" if mine else None)
+ 
+     weights_complete = bool(members) and all(m["weight_pct"] is not None for m in members)
+@@ -260,7 +279,12 @@ async def form(
+         exposureVariables=[_v(m) for m in members if m["domain"] == "exposure"],
+         myMode=my_mode,
+         myHazardIndex=my_idx["hazard_index"] if my_idx else None,
+-        myExposureIndex=my_idx["exposure_index"] if my_idx else None)
++        myExposureIndex=my_idx["exposure_index"] if my_idx else None,
++        myIndexScale=my_entered["entered_scale"] if my_entered else None,
++        myHazardEntered=(my_entered["hazard_entered"] if my_entered and my_entered["hazard_entered"] is not None
++                         else (my_idx["hazard_index"] if my_idx else None)),
++        myExposureEntered=(my_entered["exposure_entered"] if my_entered and my_entered["exposure_entered"] is not None
++                           else (my_idx["exposure_index"] if my_idx else None)))
+ 
+ 
+ @router.post("", response_model=AssessmentOut)
+@@ -291,9 +315,16 @@ async def save(
+         note = ("entered on the map" + (": " + body.note.strip() if body.note else ""))
+ 
+         if body.mode == "index":
++            top = body.indexScale
+             if body.hazardIndex is None or body.exposureIndex is None:
+                 raise HTTPException(400, "index entry needs both a Hazard index and a "
+-                                         "Potential Exposure index, each between 0 and 1")
++                                         "Potential Exposure index, each between 0 and %d" % top)
++            if body.hazardIndex > top or body.exposureIndex > top:
++                raise HTTPException(400, "on the 0-%d scale an index cannot be above %d"
++                                    % (top, top))
++            # Linear conversion to the model's 0-1 scale (2.5 on 0-4 -> 0.625).
++            h01 = body.hazardIndex / top
++            e01 = body.exposureIndex / top
+             async with conn.transaction():
+                 await conn.execute(
+                     """
+@@ -315,11 +346,13 @@ async def save(
+                     """
+                     INSERT INTO track_index_entry
+                         (ds_division_id, sector_id, subsector_id, hazard_type_id, source,
+-                         user_id, year_start, year_end, hazard_index, exposure_index, note)
+-                    VALUES ($1, $2, $3, $4, $5::source_type, $6, $7, $8, $9, $10, $11)
++                         user_id, year_start, year_end, hazard_index, exposure_index, note,
++                         entered_scale, hazard_entered, exposure_entered)
++                    VALUES ($1, $2, $3, $4, $5::source_type, $6, $7, $8, $9, $10, $11,
++                            $12, $13, $14)
+                     """, div["id"], prof["sector_id"], prof["subsector_id"],
+                     prof["hazard_type_id"], body.track, user.id, y0, y1,
+-                    body.hazardIndex, body.exposureIndex, note)
++                    h01, e01, note, top, body.hazardIndex, body.exposureIndex)
+                 result = await compute_track_division(conn, prof["id"], div["id"],
+                                                       body.track, y0, y1)
+             return AssessmentOut(saved=2, **{
+diff --git a/design/database/schema_index_scale_addendum.sql b/design/database/schema_index_scale_addendum.sql
+new file mode 100644
+index 0000000..56e3edc
+--- /dev/null
++++ b/design/database/schema_index_scale_addendum.sql
+@@ -0,0 +1,27 @@
++-- schema_index_scale_addendum.sql
++-- Added 2026-10-12.
++--
++-- INDEX ENTRY ON A 0-4 SCALE. Experts rate the Hazard and Potential Exposure
++-- indexes on 0-4; the model works on 0-1. The form now lets the person pick the
++-- scale (0-1 or 0-4) and the value is converted linearly (value / 4) before it
++-- is scored. hazard_index / exposure_index keep the 0-1 value the engine uses;
++-- the figure exactly as typed and its scale are kept beside it, so the record
++-- always shows what the expert actually entered.
++
++BEGIN;
++
++ALTER TABLE track_index_entry
++    ADD COLUMN IF NOT EXISTS entered_scale    SMALLINT NOT NULL DEFAULT 1,
++    ADD COLUMN IF NOT EXISTS hazard_entered   DOUBLE PRECISION,
++    ADD COLUMN IF NOT EXISTS exposure_entered DOUBLE PRECISION;
++
++DO $$ BEGIN
++    ALTER TABLE track_index_entry
++        ADD CONSTRAINT track_index_entry_scale_chk CHECK (entered_scale IN (1, 4));
++EXCEPTION WHEN duplicate_object THEN NULL; END $$;
++
++COMMENT ON COLUMN track_index_entry.entered_scale IS
++    'Top of the scale the person used: 1 (0-1) or 4 (0-4). hazard_index and '
++    'exposure_index are always the converted 0-1 values.';
++
++COMMIT;
+diff --git a/frontend-angular/src/app/core/models/assessment.model.ts b/frontend-angular/src/app/core/models/assessment.model.ts
+index 18e5f4e..0099c85 100644
+--- a/frontend-angular/src/app/core/models/assessment.model.ts
++++ b/frontend-angular/src/app/core/models/assessment.model.ts
+@@ -42,6 +42,10 @@ export interface AssessmentForm {
+   readonly myMode: 'parameters' | 'index' | null;
+   readonly myHazardIndex: number | null;
+   readonly myExposureIndex: number | null;
++  /** Scale this person last used (1 = 0-1, 4 = 0-4) and their figures as typed. */
++  readonly myIndexScale?: 1 | 4 | null;
++  readonly myHazardEntered?: number | null;
++  readonly myExposureEntered?: number | null;
+ }
+ 
+ export interface AssessmentPayload {
+@@ -55,8 +59,10 @@ export interface AssessmentPayload {
+   /** 'parameters' (a figure per variable) or 'index' (H and E directly, 0-1). */
+   readonly mode: 'parameters' | 'index';
+   readonly values: readonly { code: string; value: number }[];
++  /** On the scale given by `indexScale` (0-1 or 0-4); the server converts. */
+   readonly hazardIndex?: number | null;
+   readonly exposureIndex?: number | null;
++  readonly indexScale?: 1 | 4;
+   readonly note?: string | null;
+ }
+ 
+diff --git a/frontend-angular/src/app/features/map/assessment-form.component.html b/frontend-angular/src/app/features/map/assessment-form.component.html
+index ac477e2..8198e0f 100644
+--- a/frontend-angular/src/app/features/map/assessment-form.component.html
++++ b/frontend-angular/src/app/features/map/assessment-form.component.html
+@@ -46,28 +46,43 @@
+ 
+       @if (mode() === 'index') {
+         <p class="af__note">
+-          Give each index on a 0&ndash;1 scale (0 = none, 1 = the highest in this province). The raw index (H × E) and
+-          the normalised vulnerability are calculated for you.
++          Give each index on the scale you rated it on. The system converts it to 0&ndash;1 in a straight line
++          (on 0&ndash;4, 2.5 becomes 0.625) and calculates the raw index (H × E) and the normalised vulnerability for you.
+         </p>
++        <label class="af__label">
++          Scale
++          <select class="af__scale" [ngModel]="indexScale()" (ngModelChange)="setScale($event)" [disabled]="!f.canSubmit">
++            <option [ngValue]="4">0 – 4 (expert rating)</option>
++            <option [ngValue]="1">0 – 1</option>
++          </select>
++        </label>
+         <table class="af__table">
+           <tbody>
+             <tr>
+-              <td><span class="af__name">Hazard index</span><span class="af__hint">0 to 1</span></td>
++              <td><span class="af__name">Hazard index</span><span class="af__hint">0 to {{ indexScale() }}</span></td>
+               <td>
+-                <input class="af__input" type="number" step="0.01" min="0" max="1" aria-label="Hazard index"
+-                       [disabled]="!f.canSubmit" [ngModel]="hazardIndex()" (ngModelChange)="setIndex('hazard', $event)" />
++                <input class="af__input" type="number" [attr.step]="indexScale() === 4 ? 0.1 : 0.01" min="0" [attr.max]="indexScale()"
++                       aria-label="Hazard index" [disabled]="!f.canSubmit"
++                       [ngModel]="hazardIndex()" (ngModelChange)="setIndex('hazard', $event)" />
++              </td>
++              <td class="af__conv">
++                @if (indexScale() === 4 && isNumber(hazardIndex())) { → {{ to01(hazardIndex()) | number: '1.0-4' }} }
+               </td>
+             </tr>
+             <tr>
+-              <td><span class="af__name">Potential Exposure index</span><span class="af__hint">0 to 1</span></td>
++              <td><span class="af__name">Potential Exposure index</span><span class="af__hint">0 to {{ indexScale() }}</span></td>
+               <td>
+-                <input class="af__input" type="number" step="0.01" min="0" max="1" aria-label="Potential Exposure index"
+-                       [disabled]="!f.canSubmit" [ngModel]="exposureIndex()" (ngModelChange)="setIndex('exposure', $event)" />
++                <input class="af__input" type="number" [attr.step]="indexScale() === 4 ? 0.1 : 0.01" min="0" [attr.max]="indexScale()"
++                       aria-label="Potential Exposure index" [disabled]="!f.canSubmit"
++                       [ngModel]="exposureIndex()" (ngModelChange)="setIndex('exposure', $event)" />
++              </td>
++              <td class="af__conv">
++                @if (indexScale() === 4 && isNumber(exposureIndex())) { → {{ to01(exposureIndex()) | number: '1.0-4' }} }
+               </td>
+             </tr>
+             <tr>
+-              <td><span class="af__name">Raw index (H × E)</span><span class="af__hint">calculated</span></td>
+-              <td>{{ indexRaw() === null ? '—' : (indexRaw() | number: '1.0-4') }}</td>
++              <td><span class="af__name">Raw index (H × E)</span><span class="af__hint">calculated, 0–1</span></td>
++              <td colspan="2">{{ indexRaw() === null ? '—' : (indexRaw() | number: '1.0-4') }}</td>
+             </tr>
+           </tbody>
+         </table>
+@@ -143,7 +158,7 @@
+             <span class="af__hint">{{ missing().length }} figure(s) still needed</span>
+           }
+           @if (mode() === 'index' && !indexReady()) {
+-            <span class="af__hint">both indexes are needed, each between 0 and 1</span>
++            <span class="af__hint">both indexes are needed, each between 0 and {{ indexScale() }}</span>
+           }
+         </div>
+       }
+diff --git a/frontend-angular/src/app/features/map/assessment-form.component.scss b/frontend-angular/src/app/features/map/assessment-form.component.scss
+index a4ad8e6..1d8f77c 100644
+--- a/frontend-angular/src/app/features/map/assessment-form.component.scss
++++ b/frontend-angular/src/app/features/map/assessment-form.component.scss
+@@ -32,3 +32,5 @@
+ .af__mode { display: flex; flex-direction: column; gap: 0.2rem; margin: 0.4rem 0; font-size: 0.8125rem; }
+ .af__mode-opt { display: flex; gap: 0.35rem; align-items: center; }
+ .af__unit { color: #495057; white-space: nowrap; }
++.af__scale { margin-left: 0.4rem; font: inherit; }
++.af__conv { color: #495057; white-space: nowrap; font-size: 0.75rem; }
+diff --git a/frontend-angular/src/app/features/map/assessment-form.component.ts b/frontend-angular/src/app/features/map/assessment-form.component.ts
+index 6a02013..e82e698 100644
+--- a/frontend-angular/src/app/features/map/assessment-form.component.ts
++++ b/frontend-angular/src/app/features/map/assessment-form.component.ts
+@@ -49,8 +49,12 @@ export class AssessmentFormComponent {
+    * directly (2 Oct 2026). One way per division -- saving one replaces the
+    * other. The raw index and the normalised score are always computed. */
+   readonly mode = signal<'parameters' | 'index'>('parameters');
++  /** Figures exactly as typed, on the chosen scale. */
+   readonly hazardIndex = signal<number | null>(null);
+   readonly exposureIndex = signal<number | null>(null);
++  /** Top of the rating scale: 4 (experts' 0-4 rating, the default) or 1.
++   * Converted linearly to the model's 0-1 scale: 2.5 on 0-4 -> 0.625. */
++  readonly indexScale = signal<1 | 4>(4);
+ 
+   /** Cancelled when a newer form is requested, so a slow earlier one cannot
+    * paint the wrong division's variables (QA 26 Sep 2026). */
+@@ -68,16 +72,21 @@ export class AssessmentFormComponent {
+     this.variables().filter((v) => !this.isNumber(this.values()[v.code])).map((v) => v.code),
+   );
+ 
+-  private inUnit(v: number | null): boolean {
+-    return this.isNumber(v) && v >= 0 && v <= 1;
++  private inScale(v: number | null): boolean {
++    return this.isNumber(v) && v >= 0 && v <= this.indexScale();
+   }
+ 
+-  /** Index mode is ready when both indexes are numbers between 0 and 1. */
+-  readonly indexReady = computed(() => this.inUnit(this.hazardIndex()) && this.inUnit(this.exposureIndex()));
++  /** The 0-1 value the model will use for a typed figure. */
++  to01(v: number | null): number | null {
++    return this.isNumber(v) ? v / this.indexScale() : null;
++  }
++
++  /** Index mode is ready when both indexes are within the chosen scale. */
++  readonly indexReady = computed(() => this.inScale(this.hazardIndex()) && this.inScale(this.exposureIndex()));
+ 
+-  /** H x E as the user types, so they see what will be scored. */
++  /** H x E on the 0-1 scale, as the user types, so they see what will be scored. */
+   readonly indexRaw = computed(() =>
+-    this.indexReady() ? (this.hazardIndex() as number) * (this.exposureIndex() as number) : null,
++    this.indexReady() ? (this.to01(this.hazardIndex()) as number) * (this.to01(this.exposureIndex()) as number) : null,
+   );
+ 
+   readonly canSave = computed(() =>
+@@ -112,8 +121,11 @@ export class AssessmentFormComponent {
+         const v: Record<string, number | null> = {};
+         for (const x of [...f.hazardVariables, ...f.exposureVariables]) v[x.code] = x.myValue;
+         this.values.set(v);
+-        this.hazardIndex.set(f.myHazardIndex);
+-        this.exposureIndex.set(f.myExposureIndex);
++        // Reopen on the scale the person used; a first entry starts on 0-4.
++        const scale: 1 | 4 = f.myIndexScale === 1 || f.myIndexScale === 4 ? f.myIndexScale : f.myMode === 'index' ? 1 : 4;
++        this.indexScale.set(scale);
++        this.hazardIndex.set(f.myHazardEntered ?? f.myHazardIndex);
++        this.exposureIndex.set(f.myExposureEntered ?? f.myExposureIndex);
+         // Open in the way this person last used; index when the weights are
+         // unfinished, because parameters cannot be scored without them.
+         this.mode.set(f.myMode === 'index' || !f.weightsComplete ? 'index' : 'parameters');
+@@ -142,6 +154,19 @@ export class AssessmentFormComponent {
+     this.saveError.set(null);
+   }
+ 
++  /** Switching scale converts what is already typed, so the meaning is kept
++   * (2.5 on 0-4 becomes 0.625 on 0-1, and back). */
++  setScale(raw: unknown): void {
++    const next: 1 | 4 = Number(raw) === 1 ? 1 : 4;
++    const prev = this.indexScale();
++    if (next === prev) return;
++    const conv = (v: number | null) => (this.isNumber(v) ? Math.round((v / prev) * next * 1000) / 1000 : v);
++    this.hazardIndex.set(conv(this.hazardIndex()));
++    this.exposureIndex.set(conv(this.exposureIndex()));
++    this.indexScale.set(next);
++    this.result.set(null);
++  }
++
+   setIndex(which: 'hazard' | 'exposure', raw: unknown): void {
+     const n = raw === '' || raw === null || raw === undefined ? null : Number(raw);
+     const v = n !== null && Number.isFinite(n) ? n : null;
+@@ -183,6 +208,7 @@ export class AssessmentFormComponent {
+         values: index ? [] : this.variables().map((v) => ({ code: v.code, value: this.values()[v.code] as number })),
+         hazardIndex: index ? this.hazardIndex() : null,
+         exposureIndex: index ? this.exposureIndex() : null,
++        indexScale: this.indexScale(),
+         note: this.note().trim() || null,
+       })
+       .subscribe({
