@@ -2,7 +2,11 @@
   <app-filter-bar (queryChange)="onQueryChange($event)" (layerChange)="onLayerChange($event)" />
 
 
-  @if (resultsError(); as message) {
+  @if (hazardLayerMissing()) {
+    <div class="map-page__banner map-page__banner--notice" role="status">
+      The overall hazard layer for {{ provinceName() }} Province has not been supplied yet, so no hazard ranks are shown.
+    </div>
+  } @else if (resultsError(); as message) {
     <div class="map-page__banner" role="alert">
       Results are unavailable ({{ message }}). Every division is shown as unassessed until this recovers.
     </div>

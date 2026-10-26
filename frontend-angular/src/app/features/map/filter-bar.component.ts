@@ -62,9 +62,20 @@ export class FilterBarComponent implements OnInit {
   readonly layer = signal<MapLayer>('vulnerability');
 
   onLayerChange(layer: MapLayer): void {
+    const wasHazard = this.layer() === 'hazard';
     this.layer.set(layer);
     this.layerChange.emit(layer);
+    // Leaving Overall hazard: the hazard picked there (e.g. landslide) may not
+    // exist for the selected sector, so re-validate before the sector query.
+    if (wasHazard && layer !== 'hazard') {
+      this.keepHazardValid();
+      this.emit();
+    }
   }
+
+  /** Overall hazard is not sector-specific, so every hazard is offered. */
+  readonly hazardOptions = computed(() =>
+    this.layer() === 'hazard' ? (this.taxonomy()?.hazards ?? []) : this.hazards());
 
   /**
    * Sectors narrowed to those with a profile in the SELECTED PROVINCE. A score
@@ -214,7 +225,7 @@ export class FilterBarComponent implements OnInit {
    * no landslide profile. Fall back to the first that does rather than emitting
    * a query the API can only answer with 404. */
   private keepHazardValid(): void {
-    const options = this.hazards();
+    const options = this.hazardOptions();
     if (!options.some((h) => h.code === this.hazard())) {
       this.hazard.set(options[0]?.code);
     }

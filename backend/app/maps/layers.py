@@ -39,22 +39,22 @@ from typing import Optional
 LAYERS = ("vulnerability", "hazard", "exposure")
 
 RAMPS = {
-    "vulnerability": ("#eb827b", "#d36963", "#bc504c", "#8d1a1e"),
-    "hazard":        ("#e78a45", "#cd732b", "#b45c03", "#773a00"),
-    "exposure":      ("#67aaed", "#5092d3", "#397bbb", "#024f8a"),
+    "vulnerability": ("#ffffb0", "#f7c348", "#c46d1b", "#6b0601"),
+    "hazard":        ("#ffffb0", "#f7c348", "#c46d1b", "#6b0601"),
+    "exposure":      ("#ffffb0", "#f7c348", "#c46d1b", "#6b0601"),
 }
 BAND_LABELS = ("Very low", "Low", "Moderate", "High")
 BAND_EDGES = (0.25, 0.5, 0.75)
 
 TITLES = {
-    "vulnerability": "Vulnerability",
+    "vulnerability": "Potential exposure",
     "hazard": "Hazard",
-    "exposure": "Exposure",
+    "exposure": "Sector index",
 }
 LEGEND_TEXT = {
-    "vulnerability": "Vulnerability index: hazard x exposure, rescaled 0-1 within the province.",
+    "vulnerability": "Potential exposure index: hazard x sector index, rescaled 0-1 within the province.",
     "hazard": "Hazard index: this sector profile's weighted, province-normalised hazard variables (0-1).",
-    "exposure": "Exposure index: this sector's weighted, province-normalised exposure variables (0-1).",
+    "exposure": "Sector index: this sector's weighted, province-normalised exposure variables (0-1).",
 }
 
 

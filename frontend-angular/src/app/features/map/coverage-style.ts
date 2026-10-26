@@ -39,7 +39,7 @@ const BAND_COLORS: Record<1 | 2 | 3 | 4, string> = {
  * boundaries stay crisp at full opacity so province/division edges remain
  * legible; only the colour wash is see-through.
  */
-const FILL_ALPHA = 0.65;
+const FILL_ALPHA = 1; // client request 26 Oct 2026 (NOTED-9): no transparency
 
 function withAlpha(hex: string, alpha: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -183,7 +183,8 @@ export function bandLegendFor(layer: MapLayer) {
     band: b.band,
     label: b.label,
     swatch: withAlpha(bandColor((i + 1) as 1 | 2 | 3 | 4, layer), FILL_ALPHA),
-    range: `${b.min.toFixed(2)}\u2013${b.max.toFixed(2)}`,
+    // The overall hazard layer is a rank (1-4), not a 0-1 index.
+    range: layer === 'hazard' ? `Rank ${i + 1}` : `${b.min.toFixed(2)}\u2013${b.max.toFixed(2)}`,
   }));
 }
 

@@ -1,8 +1,9 @@
-import { Component, HostListener, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { ApiClientService } from '../../core/services/api-client.service';
 import { TaxonomyService } from '../../core/services/taxonomy.service';
+import { HazardRankService } from '../../core/services/hazard-rank.service';
 import { withViewTimeout } from '../../core/services/view-request';
 import { ApiError } from '../../core/models/api-error.model';
 import { DsDivisionProperties } from '../../core/models/ds-division.model';
@@ -32,6 +33,7 @@ import { LAYER_LABEL, MAP_LAYERS, MapLayer, unitForLayer } from '../../core/mode
 export class MapPageComponent {
   private readonly api = inject(ApiClientService);
   private readonly taxonomyService = inject(TaxonomyService);
+  private readonly hazardRanks = inject(HazardRankService);
 
   readonly query = signal<VulnerabilityQuery>({});
   readonly unitsByCode = signal<ReadonlyMap<string, VulnerabilityUnit>>(new Map());
@@ -42,8 +44,44 @@ export class MapPageComponent {
   readonly layer = signal<MapLayer>('vulnerability');
   readonly layers = MAP_LAYERS;
   readonly layerLabel = LAYER_LABEL;
+  /**
+   * Overall hazard (client request, 26 Oct 2026): when the layer is "Overall
+   * hazard" the map shows the provincial hazard rank (1-4) of the HAZARD picked
+   * in the filter bar - drought, flood or landslide - straight from the client's
+   * shapefiles, whatever sector is selected. Rank 0 means no hazard of that
+   * kind, so it is drawn as "not applicable", never as the lowest rank. A
+   * province with no rows (Sabaragamuwa until its layer arrives) is empty, i.e.
+   * unassessed, not rank 0.
+   */
+  readonly hazardUnits = computed<ReadonlyMap<string, VulnerabilityUnit>>(() => {
+    const out = new Map<string, VulnerabilityUnit>();
+    const ranks = this.hazardRanks.ranks();
+    const province = this.provinceName();
+    const q = this.query();
+    if (!ranks || !province) return out;
+    const key = ({ drought: 'dr', flood: 'fl', landslide: 'ls' } as const)[
+      (q.hazard ?? '') as 'drought' | 'flood' | 'landslide'];
+    if (!key) return out;
+    for (const [code, row] of Object.entries(ranks)) {
+      if (row.p !== province) continue;
+      const rank = row[key];
+      const band = rank >= 1 && rank <= 4 ? (rank as 1 | 2 | 3 | 4) : null;
+      out.set(code, {
+        dsCode: code, dsDivision: '', district: '', province: row.p,
+        sector: '', subsector: null, hazard: q.hazard as VulnerabilityUnit['hazard'],
+        track: 'data', period: q.period ?? '', indexScope: 'provincial',
+        state: band ? 'assessed' : 'not_applicable', value: band, band, profileVersion: null,
+      });
+    }
+    return out;
+  });
+  /** True when the Overall hazard layer is chosen but the province has no rows. */
+  readonly hazardLayerMissing = computed(() =>
+    this.layer() === 'hazard' && this.hazardRanks.ranks() !== null && this.hazardUnits().size === 0);
+
   readonly displayUnits = computed<ReadonlyMap<string, VulnerabilityUnit>>(() => {
     const layer = this.layer();
+    if (layer === 'hazard') return this.hazardUnits();
     const out = new Map<string, VulnerabilityUnit>();
     for (const [k, u] of this.unitsByCode()) out.set(k, unitForLayer(u, layer));
     return out;
@@ -57,9 +95,24 @@ export class MapPageComponent {
     vulnerability: true, hazard: true, exposure: true,
   });
 
+  constructor() {
+    this.hazardRanks.load();
+    // The hazard ranks arrive (or the hazard/province changes) after the
+    // layer is chosen, so coverage has to follow `displayUnits`, not events.
+    effect(() => {
+      this.displayUnits();
+      this.recomputeCoverage();
+    });
+  }
+
   onLayerChange(layer: MapLayer): void {
+    const wasHazard = this.layer() === 'hazard';
     this.layer.set(layer);
+    this.selectedDivision.set(null);
     this.recomputeCoverage();
+    // Leaving Overall hazard: the sector results were not requested while it
+    // was on (the hazard picked may not exist for the sector), so fetch now.
+    if (wasHazard && layer !== 'hazard' && this.query().sector) this.refresh(this.query());
   }
 
   toggleExportLayer(layer: MapLayer, on: boolean): void {
@@ -180,6 +233,12 @@ export class MapPageComponent {
   onQueryChange(query: VulnerabilityQuery): void {
     this.query.set(query);
     this.selectedDivision.set(null);
+    // Overall hazard does not depend on the sector results, and the hazard
+    // chosen may have no profile for the selected sector (a 404 banner).
+    if (this.layer() === 'hazard') {
+      this.resultsError.set(null);
+      return;
+    }
     this.refresh(query);
   }
 

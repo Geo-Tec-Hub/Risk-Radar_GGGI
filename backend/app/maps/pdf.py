@@ -40,7 +40,7 @@ EDGE = HexColor("#495057")
 UNASSESSED = HexColor("#e4e3df")
 PENDING = HexColor("#c9c8c2")
 NOT_PRESENT = HexColor("#f2f1ee")
-FILL_ALPHA = 0.65   # same wash as the on-screen map, flattened onto white
+FILL_ALPHA = 1.0  # client request 26 Oct 2026: no transparency
 
 TRACK_LABEL = {"data": "Official", "expert": "Expert", "community": "Community"}
 

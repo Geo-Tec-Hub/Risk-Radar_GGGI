@@ -17,7 +17,7 @@
 
   <label class="filter-bar__field">
     <span>Sector</span>
-    <select [ngModel]="sector()" name="sector" (ngModelChange)="onSectorChange($event)">
+    <select [ngModel]="sector()" name="sector" [disabled]="layer() === 'hazard'" (ngModelChange)="onSectorChange($event)">
       @for (s of sectors(); track s.code) {
         <option [ngValue]="s.code">{{ s.name }}</option>
       }
@@ -29,7 +29,7 @@
     <select
       [ngModel]="subsector()"
       name="subsector"
-      [disabled]="subsectorOptions().length === 0"
+      [disabled]="subsectorOptions().length === 0 || layer() === 'hazard'"
       (ngModelChange)="onSubsectorChange($event)"
     >
       @for (s of subsectorOptions(); track s.code) {
@@ -41,7 +41,7 @@
   <label class="filter-bar__field">
     <span>Hazard</span>
     <select [ngModel]="hazard()" name="hazard" (ngModelChange)="hazard.set($event); onFieldChange()">
-      @for (h of hazards(); track h.code) {
+      @for (h of hazardOptions(); track h.code) {
         <option [ngValue]="h.code">{{ h.name }}</option>
       }
     </select>

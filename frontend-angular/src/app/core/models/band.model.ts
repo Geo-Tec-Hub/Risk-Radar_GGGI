@@ -75,10 +75,10 @@ export interface BandSpec {
  * minimum, not smaller, so no re-validation was needed.
  */
 export const BANDS: readonly BandSpec[] = [
-  { band: 'very_low', min: 0.0,  max: 0.25, label: 'Very low', light: '#eb827b', dark: '#971a20' },
-  { band: 'low',      min: 0.25, max: 0.5,  label: 'Low',      light: '#d36963', dark: '#b03e3b' },
-  { band: 'moderate', min: 0.5,  max: 0.75, label: 'Moderate', light: '#bc504c', dark: '#c95d57' },
-  { band: 'high',     min: 0.75, max: 1.0,  label: 'High',     light: '#8d1a1e', dark: '#fb9890' },
+  { band: 'very_low', min: 0.0,  max: 0.25, label: 'Very low', light: '#ffffb0', dark: '#971a20' },
+  { band: 'low',      min: 0.25, max: 0.5,  label: 'Low',      light: '#f7c348', dark: '#b03e3b' },
+  { band: 'moderate', min: 0.5,  max: 0.75, label: 'Moderate', light: '#c46d1b', dark: '#c95d57' },
+  { band: 'high',     min: 0.75, max: 1.0,  label: 'High',     light: '#6b0601', dark: '#fb9890' },
 ];
 
 /**

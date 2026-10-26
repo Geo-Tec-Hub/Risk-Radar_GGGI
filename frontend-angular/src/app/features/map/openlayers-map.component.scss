@@ -31,3 +31,48 @@
   color: #c92a2a;
   border: 1px solid #ffc9c9;
 }
+
+// Base-layer tick boxes (client request 26 Oct 2026). Sits under OpenLayers'
+// zoom buttons; the legend is bottom-left and the export buttons top-right.
+.map-layers {
+  position: absolute;
+  top: 5.2rem;
+  left: 0.5rem;
+  z-index: 4;
+  min-width: 11.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  font-size: 0.8rem;
+  color: #343a40;
+
+  &__head {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0.6rem;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0 0.6rem 0.5rem;
+    label { display: flex; align-items: center; gap: 0.35rem; cursor: pointer; }
+  }
+  &__title { margin: 0.3rem 0 0.1rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; color: #868e96; }
+  &__swatch {
+    display: inline-block;
+    width: 0.9rem;
+    height: 0.55rem;
+    border: 2px solid;
+    border-radius: 1px;
+    &--point { width: 0.6rem; height: 0.6rem; border-radius: 50%; border-width: 1px; }
+  }
+  &__error { margin: 0.2rem 0 0; color: #c92a2a; }
+}

@@ -10,6 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import GeoJSON from 'ol/format/GeoJSON';
 import Feature from 'ol/Feature';
 import { Geometry } from 'ol/geom';
@@ -18,6 +19,7 @@ import VectorLayer from 'ol/layer/Vector';
 import TileLayer from 'ol/layer/Tile';
 import { fromLonLat } from 'ol/proj';
 import OSM from 'ol/source/OSM';
+import XYZ from 'ol/source/XYZ';
 import VectorSource from 'ol/source/Vector';
 import View from 'ol/View';
 
@@ -26,6 +28,9 @@ import { DsDivisionProperties } from '../../core/models/ds-division.model';
 import { VulnerabilityUnit } from '../../core/models/vulnerability.model';
 import { styleForState } from './coverage-style';
 import { MapLayer } from '../../core/models/map-layer.model';
+import {
+  BasemapKey, OVERLAY_LIST, OverlayKey, SATELLITE_ATTRIBUTION, SATELLITE_URL, overlayStyle,
+} from './base-layers';
 
 const SRI_LANKA_CENTER = fromLonLat([80.7, 7.85]);
 
@@ -61,6 +66,21 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
   private readonly mapEl = viewChild.required<ElementRef<HTMLDivElement>>('mapEl');
   private readonly boundaryService = inject(BoundaryService);
 
+  // ---- reference layers (tick boxes) ----------------------------------
+  readonly overlayList = OVERLAY_LIST;
+  readonly overlayOn = signal<Record<OverlayKey, boolean>>({
+    province: false, district: false, gnd: false, schools: false, hospitals: false,
+  });
+  readonly basemap = signal<BasemapKey | null>('osm');
+  readonly layersOpen = signal(true);
+  readonly overlayError = signal<string | null>(null);
+  private readonly http = inject(HttpClient);
+  private readonly overlays = new Map<OverlayKey, VectorLayer<VectorSource>>();
+  private readonly overlayLoaded = new Set<string>();
+  private osmLayer?: TileLayer<OSM>;
+  private satLayer?: TileLayer<XYZ>;
+  private divisionLayer?: VectorLayer<VectorSource<Feature<Geometry>>>;
+
   private map?: OlMap;
   private allFeatures: Feature<Geometry>[] = [];
   private vectorSource = new VectorSource<Feature<Geometry>>();
@@ -81,6 +101,14 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
       this.provinceName();
       this.applyProvinceFilter();
     });
+
+    // GN divisions come one province at a time: reload when the province or the
+    // tick box changes.
+    effect(() => {
+      this.provinceName();
+      this.overlayOn();
+      this.syncOverlays();
+    });
   }
 
   ngAfterViewInit(): void {
@@ -88,15 +116,22 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
       source: this.vectorSource,
       style: (feature) => this.styleFeature(feature as Feature<Geometry>),
     });
+    this.divisionLayer = vectorLayer;
+    this.osmLayer = new TileLayer({ source: new OSM(), visible: this.basemap() === 'osm' });
+    this.satLayer = new TileLayer({
+      source: new XYZ({ url: SATELLITE_URL, attributions: SATELLITE_ATTRIBUTION, maxZoom: 18 }),
+      visible: this.basemap() === 'satellite',
+    });
 
     this.map = new OlMap({
       target: this.mapEl().nativeElement,
-      layers: [new TileLayer({ source: new OSM() }), vectorLayer],
+      layers: [this.osmLayer, this.satLayer, vectorLayer],
       view: new View({ center: SRI_LANKA_CENTER, zoom: 7, minZoom: 6, maxZoom: 14 }),
     });
 
     this.map.on('singleclick', (evt) => {
-      const feature = this.map!.forEachFeatureAtPixel(evt.pixel, (f) => f as Feature<Geometry>);
+      const feature = this.map!.forEachFeatureAtPixel(evt.pixel, (f) => f as Feature<Geometry>,
+        { layerFilter: (l) => l === this.divisionLayer });
       // A division where the sector is not present carries no score, so there
       // is nothing for the detail panel to show. Opening an empty panel would
       // imply the data is missing; it is not, the question does not arise.
@@ -106,7 +141,8 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
     });
 
     this.map.on('pointermove', (evt) => {
-      const feature = this.map!.forEachFeatureAtPixel(evt.pixel, (f) => f as Feature<Geometry>);
+      const feature = this.map!.forEachFeatureAtPixel(evt.pixel, (f) => f as Feature<Geometry>,
+        { layerFilter: (l) => l === this.divisionLayer });
       this.map!.getTargetElement().style.cursor =
         feature && this.isSelectable(feature) ? 'pointer' : '';
     });
@@ -166,7 +202,84 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // ---- reference layers --------------------------------------------------
+  setBasemap(key: BasemapKey, on: boolean): void {
+    this.basemap.set(on ? key : (this.basemap() === key ? null : this.basemap()));
+    this.osmLayer?.setVisible(this.basemap() === 'osm');
+    this.satLayer?.setVisible(this.basemap() === 'satellite');
+  }
+
+  setOverlay(key: OverlayKey, on: boolean): void {
+    this.overlayOn.update((m) => ({ ...m, [key]: on }));
+  }
+
+  private overlayUrl(key: OverlayKey): string | null {
+    const base = '/data/geo/';
+    switch (key) {
+      case 'province': return base + 'province.geojson';
+      case 'district': return base + 'district.geojson';
+      case 'schools': return base + 'schools.geojson';
+      case 'hospitals': return base + 'hospitals.geojson';
+      case 'gnd': {
+        const p = this.provinceName();
+        return p ? `${base}gnd/${p.replace(/ /g, '_')}.geojson` : null;
+      }
+    }
+  }
+
+  /** Create/load/show/hide each reference layer to match the tick boxes. */
+  private syncOverlays(): void {
+    if (!this.map) return;
+    const on = this.overlayOn();
+    for (const { key } of OVERLAY_LIST) {
+      let layer = this.overlays.get(key);
+      if (!layer) {
+        layer = new VectorLayer({
+          source: new VectorSource(),
+          style: overlayStyle(key),
+          // Outlines sit above the division colours; points above those.
+          zIndex: key === 'schools' || key === 'hospitals' ? 20 : 10,
+          visible: false,
+        });
+        this.overlays.set(key, layer);
+        this.map.addLayer(layer);
+      }
+      layer.setVisible(on[key]);
+      const url = this.overlayUrl(key);
+      if (!on[key] || !url || this.overlayLoaded.has(url)) {
+        // GND shows one province at a time: clear it when the file changes.
+        if (key === 'gnd' && on[key] && url && this.overlayLoaded.has(url) && !this.gndShowing(url)) this.loadOverlay(key, url);
+        continue;
+      }
+      this.loadOverlay(key, url);
+    }
+  }
+
+  private gndUrlShown?: string;
+  private gndShowing(url: string): boolean { return this.gndUrlShown === url; }
+
+  private loadOverlay(key: OverlayKey, url: string): void {
+    const layer = this.overlays.get(key)!;
+    this.http.get(url).subscribe({
+      next: (fc) => {
+        const feats = new GeoJSON().readFeatures(fc, {
+          dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857',
+        });
+        const src = layer.getSource()!;
+        src.clear();
+        src.addFeatures(feats);
+        this.overlayLoaded.add(url);
+        if (key === 'gnd') this.gndUrlShown = url;
+        this.overlayError.set(null);
+      },
+      error: () => this.overlayError.set('A reference layer could not be loaded.'),
+    });
+  }
+
   private isSelectable(feature: Feature<Geometry>): boolean {
+    // Overall hazard is a province-wide reference map, not a scored profile:
+    // there is no division panel to open for it.
+    if (this.layer() === 'hazard') return false;
     const unit = this.unitsByCode().get(feature.get('ds_code') as string);
     return unit?.state !== 'not_applicable';
   }

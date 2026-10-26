@@ -19,11 +19,11 @@
       </p>
 
       <dl class="panel__composition">
-        <dt>Vulnerability</dt>
+        <dt>Potential exposure</dt>
         <dd>{{ c.value === null ? (c.state === 'not_applicable' ? 'sector not present' : c.state === 'pending' ? 'awaiting recomputation' : 'unassessed') : (c.value | number: '1.0-4') }}</dd>
         <dt>Hazard index</dt>
         <dd>{{ (c.hazardIndex | number: '1.0-4') ?? 'unassessed' }}</dd>
-        <dt>Exposure index</dt>
+        <dt>Sector index</dt>
         <dd>{{ (c.exposureIndex | number: '1.0-4') ?? 'unassessed' }}</dd>
         <dt>Raw index (H × E)</dt>
         <dd>{{ (c.rawIndex | number: '1.0-4') ?? 'unassessed' }}</dd>

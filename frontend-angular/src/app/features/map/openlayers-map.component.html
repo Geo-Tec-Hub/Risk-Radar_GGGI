@@ -1,6 +1,34 @@
 <div class="map-shell">
   <div #mapEl class="map-canvas"></div>
 
+  <div class="map-layers" role="group" aria-label="Map layers">
+    <button type="button" class="map-layers__head" (click)="layersOpen.set(!layersOpen())"
+            [attr.aria-expanded]="layersOpen()">
+      Map layers <span aria-hidden="true">{{ layersOpen() ? '▾' : '▸' }}</span>
+    </button>
+    @if (layersOpen()) {
+      <div class="map-layers__body">
+        <p class="map-layers__title">Base map</p>
+        <label><input type="checkbox" [checked]="basemap() === 'osm'"
+                      (change)="setBasemap('osm', $any($event.target).checked)" /> OpenStreetMap</label>
+        <label><input type="checkbox" [checked]="basemap() === 'satellite'"
+                      (change)="setBasemap('satellite', $any($event.target).checked)" /> Satellite image</label>
+        <p class="map-layers__title">Reference layers</p>
+        @for (o of overlayList; track o.key) {
+          <label>
+            <input type="checkbox" [checked]="overlayOn()[o.key]"
+                   (change)="setOverlay(o.key, $any($event.target).checked)" />
+            <span class="map-layers__swatch" [class.map-layers__swatch--point]="o.kind === 'point'"
+                  [style.background]="o.kind === 'point' ? o.swatch : 'transparent'"
+                  [style.borderColor]="o.swatch"></span>
+            {{ o.label }}
+          </label>
+        }
+        @if (overlayError(); as m) { <p class="map-layers__error" role="alert">{{ m }}</p> }
+      </div>
+    }
+  </div>
+
   @if (loading()) {
     <div class="map-overlay map-overlay--loading" role="status">Loading boundaries…</div>
   }
