@@ -1,6 +1,10 @@
 <div class="map-shell">
   <div #mapEl class="map-canvas"></div>
 
+  @if (refLabel(); as l) {
+    <div class="map-ref-label" [style.left.px]="l.x + 12" [style.top.px]="l.y - 10" role="tooltip">{{ l.text }}</div>
+  }
+
   <div class="map-layers" role="group" aria-label="Map layers">
     <button type="button" class="map-layers__head" (click)="layersOpen.set(!layersOpen())"
             [attr.aria-expanded]="layersOpen()">

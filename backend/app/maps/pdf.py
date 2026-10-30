@@ -265,13 +265,16 @@ def _legend(c, spec: PageSpec):
         c.setFont("Helvetica", 8.5)
         c.drawString(x + 24, y + 1, BAND_LABELS[i])
         c.setFillColor(MUTED)
-        c.drawString(x + 82, y + 1, "%.2f-%.2f" % (edges[i], edges[i + 1]))
+        c.drawString(x + 82, y + 1, ("Rank %d" % (i + 1)) if spec.layer == "hazard"
+                     else "%.2f-%.2f" % (edges[i], edges[i + 1]))
         c.drawRightString(x + 196, y + 1, "%d" % counts[i])
         y -= 16
     c.setFont("Helvetica", 7)
     c.setFillColor(MUTED)
-    for line in _wrap(LEGEND_TEXT[spec.layer] + " Band thresholds are fixed, not derived "
-                      "from the data.", 50):
+    note = LEGEND_TEXT[spec.layer]
+    if spec.layer != "hazard":
+        note += " Band thresholds are fixed, not derived from the data."
+    for line in _wrap(note, 50):
         c.drawString(x, y, line)
         y -= 9
 
@@ -285,7 +288,8 @@ def _legend(c, spec: PageSpec):
         tally[state] = tally.get(state, 0) + 1
     rows = [("pending", "Pending - awaiting recomputation"),
             ("unassessed", "Unassessed - a value is missing"),
-            ("not_applicable", "Sector not present")]
+            ("not_applicable", "No hazard (rank 0)" if spec.layer == "hazard"
+             else "Sector not present")]
     for key, label in rows:
         if not tally.get(key):
             continue
@@ -328,6 +332,8 @@ def _legend(c, spec: PageSpec):
         c.drawString(x, y, line)
         y -= 10
 
+    if spec.layer == "hazard":
+        return
     y -= 8
     c.setFillColor(MUTED)
     c.setFont("Helvetica", 7)

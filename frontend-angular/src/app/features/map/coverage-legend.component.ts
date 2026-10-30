@@ -42,15 +42,23 @@ export class CoverageLegendComponent {
    */
   readonly visibleStates = computed(() => {
     const c = this.coverage();
-    if (!c) return this.legend;
+    if (!c) return this.relabelled();
     const counts: Record<string, number> = {
       assessed: c.assessed,
       pending: c.pending,
       unassessed: c.unassessed,
       not_applicable: c.notApplicable,
     };
-    return this.legend.filter((item) => (counts[item.state] ?? 0) > 0);
+    return this.relabelled().filter((item) => (counts[item.state] ?? 0) > 0);
   });
+
+  /** On the hazard layer a dotted division is rank 0 -- no hazard of that kind --
+   * not "sector not present" (the hazard map is the same for every sector). */
+  private relabelled() {
+    if (this.layer() !== 'hazard') return this.legend;
+    return this.legend.map((item) => item.state === 'not_applicable'
+      ? { ...item, label: 'No hazard', hint: 'dotted — rank 0 in the hazard map' } : item);
+  }
 
   /**
    * The one-sentence coverage statement, built here so the percentages can be

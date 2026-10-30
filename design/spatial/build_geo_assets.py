@@ -6,6 +6,7 @@ Output : frontend-angular/public/data/geo/
   gnd/<Province>.geojson               GN divisions, one file per province, loaded on demand
   schools.geojson, hospitals.geojson   points, slim attributes
   hazard_ranks.json                    {ds_code: {p, dr, fl, ls}}  rank 1-4, 0 = no hazard
+                                       (also copied to backend/app/maps/ for the PDF export)
 
 Run:  PYTHONPATH=<dir with pyshp+shapely> python3 design/spatial/build_geo_assets.py
 """
@@ -18,8 +19,14 @@ SHP = os.path.join(ROOT, 'SHP')
 OUT = os.path.join(ROOT, 'frontend-angular', 'public', 'data', 'geo')
 os.makedirs(os.path.join(OUT, 'gnd'), exist_ok=True)
 
-def title(s):  # "NORTH WESTERN" -> "North Western" (matches the register's province names)
-    return ' '.join(w.capitalize() for w in s.split())
+# The client shapefiles spell one province differently from the register /
+# taxonomy ("NORTH WESTERN" vs "Northwestern"). The map joins on the register's
+# name, so a mismatch silently hid that province's hazard and GN layers (NOTED-10).
+PROVINCE_ALIAS = {'North Western': 'Northwestern'}
+
+def title(s):  # "NORTH WESTERN" -> "Northwestern" (the register's province names)
+    t = ' '.join(w.capitalize() for w in s.split())
+    return PROVINCE_ALIAS.get(t, t)
 
 def rnd(o, nd=5):
     if isinstance(o, (list, tuple)):
@@ -80,6 +87,8 @@ for f in sorted(glob.glob(os.path.join(SHP, 'Hazard', '*.shp'))):
         code = reg.get((prov, rec['DS_Code']))
         if code:
             ranks[code] = {'p': title(prov), 'dr': rec['DR_Rank'], 'fl': rec['FL_Rank'], 'ls': rec['LS_Rank']}
-with open(f'{OUT}/hazard_ranks.json', 'w') as fh:
-    json.dump(ranks, fh, separators=(',', ':'))
+for path in (f'{OUT}/hazard_ranks.json',
+             os.path.join(ROOT, 'backend', 'app', 'maps', 'hazard_ranks.json')):  # PDF export
+    with open(path, 'w') as fh:
+        json.dump(ranks, fh, separators=(',', ':'))
 print('hazard_ranks.json', len(ranks), 'divisions')

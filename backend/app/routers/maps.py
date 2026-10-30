@@ -25,7 +25,7 @@ import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 
 from app.deps import db
-from app.maps.layers import LAYERS, TITLES, layer_value
+from app.maps.layers import LAYERS, TITLES, hazard_rank_states, layer_value
 from app.routers.vulnerability import results as vulnerability_results
 
 router = APIRouter(prefix="/maps", tags=["maps"])
@@ -81,15 +81,57 @@ async def maps_pdf(
             """, prov["id"], sector.upper() if single else None,
             subsector.upper() if single and subsector else None,
             hazard.lower() if single else None)
-        if not profiles:
+        hazard_only = wanted == ["hazard"] and bool(hazard)
+        hz_row = None
+        if hazard_only:
+            # The hazard map does not depend on a sector profile (NOTED-10).
+            hz_row = await conn.fetchrow("SELECT code, name FROM hazard_type WHERE code = $1",
+                                         hazard.lower())
+            if hz_row is None:
+                raise HTTPException(404, "no hazard %r" % hazard)
+        elif not profiles:
             raise HTTPException(404, "no active profile for that selection")
         divisions = await load_divisions(conn, prov["id"])
 
     pages: list[PageSpec] = []
     contents: list[tuple[str, int]] = []
     excluded: list[str] = []
-    next_page = 2
+    next_page = 1 if single else 2
+    track_line = "%s Province  |  %s  |  %s track" % (prov["name"], period,
+                                                    TRACK_LABEL.get(track, track))
+
+    # HAZARD pages (client NOTED-10): the hazard map is the province's own
+    # hazard rank map -- the same for every sector -- so it carries no sector in
+    # its title and the atlas prints it ONCE per hazard, not once per profile.
+    hazard_names: dict[str, str] = {}
+    if hz_row is not None:
+        hazard_names[hz_row["code"]] = hz_row["name"]
+        profiles = []
     for p in profiles:
+        hazard_names.setdefault(p["hazard_code"], p["hazard"])
+    if "hazard" in wanted:
+        codes = [d.code for d in divisions]
+        for hz, hz_name in hazard_names.items():
+            spec = PageSpec(
+                layer="hazard",
+                title="Hazard - %s" % hz_name,
+                subtitle="%s Province  |  hazard map supplied for the province" % prov["name"],
+                profile_line="Overall %s hazard rank of each DS division, 1 (lowest) to 4 "
+                             "(highest). Not sector-specific." % hz_name.lower(),
+                province=prov["name"])
+            spec.states = hazard_rank_states(codes, hz)
+            if not any(s == "assessed" for s, _ in spec.states.values()):
+                excluded.append("hazard map - %s" % hz_name)
+                continue
+            if single and len(wanted) == 1:
+                pages.append(spec)
+                break
+            contents.append(("Hazard - %s" % hz_name, "H %d" % next_page))
+            pages.append(spec)
+            next_page += 1
+    profile_layers = [l for l in wanted if l != "hazard"]
+
+    for p in profiles if profile_layers else []:
         units = await vulnerability_results(
             province=prov["code"], sector=p["sector_code"], hazard=p["hazard_code"],
             period=period, subsector=p["subsector_code"], indexScope="provincial",
@@ -102,13 +144,12 @@ async def maps_pdf(
         # line per page ran 99 lines for Central and overflowed the cover.
         contents.append(("%s - %s" % (what, p["hazard"]),
                          "  ".join("%s %d" % (TITLES[l][0], next_page + i)
-                                   for i, l in enumerate(wanted))))
-        for layer in wanted:
+                                   for i, l in enumerate(profile_layers))))
+        for layer in profile_layers:
             spec = PageSpec(
                 layer=layer,
                 title="%s - %s - %s" % (TITLES[layer], what, p["hazard"]),
-                subtitle="%s Province  |  %s  |  %s track"
-                         % (prov["name"], period, TRACK_LABEL.get(track, track)),
+                subtitle=track_line,
                 profile_line="Profile %s (version %d)  |  %s index of each DS division"
                              % (p["code"], p["version"], TITLES[layer].lower()),
                 province=prov["name"])
@@ -118,27 +159,32 @@ async def maps_pdf(
             pages.append(spec)
             next_page += 1
 
+    if not pages and wanted == ["hazard"]:
+        raise HTTPException(404, "no hazard map has been supplied for %s yet" % prov["name"])
     if not pages:
         raise HTTPException(404, "no profile of %s has scores for %s yet - recompute "
                                  "the province first" % (prov["name"], period))
 
     cover = None
-    if not single:
+    if not single and not hazard_only:
         cover = dict(
             title="Risk Radar map atlas - %s Province" % prov["name"],
             lines=["Period %s  |  %s track  |  layers: %s"
                    % (period, TRACK_LABEL.get(track, track),
                       ", ".join(TITLES[x] for x in wanted)),
-                   "%d profile(s), %d map page(s). Each page is one sector profile "
-                   "and one layer." % (len(pages) // len(wanted), len(pages)),
+                   "%d map page(s). Hazard maps are printed once per hazard (they "
+                   "are the same for every sector); every other page is one sector "
+                   "profile and one layer." % len(pages),
                    "Scores are provincial indexes: relative to %s Province, not "
                    "comparable across provinces." % prov["name"],
-                   "Contents give the page of each layer: V = vulnerability, "
-                   "H = hazard, E = exposure."],
+                   "Contents give the page of each layer: P = present exposure, "
+                   "H = hazard, S = sector index."],
             contents=contents, excluded=excluded)
     body = render(pages, divisions, cover=cover)
 
-    if single:
+    if hz_row is not None:
+        name = "RiskRadar_hazard_%s_%s.pdf" % (hz_row["code"], prov["code"])
+    elif single:
         p = profiles[0]
         name = "RiskRadar_%s_%s_%s.pdf" % (p["code"], "-".join(wanted), period)
     else:

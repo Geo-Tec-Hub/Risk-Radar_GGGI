@@ -318,7 +318,7 @@ async def save(
             top = body.indexScale
             if body.hazardIndex is None or body.exposureIndex is None:
                 raise HTTPException(400, "index entry needs both a Hazard index and a "
-                                         "Potential Exposure index, each between 0 and %d" % top)
+                                         "Present Exposure index, each between 0 and %d" % top)
             if body.hazardIndex > top or body.exposureIndex > top:
                 raise HTTPException(400, "on the 0-%d scale an index cannot be above %d"
                                     % (top, top))

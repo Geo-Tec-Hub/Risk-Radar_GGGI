@@ -34,28 +34,65 @@ a printed hazard page can never be mistaken for a vulnerability page.
 
 from __future__ import annotations
 
+import json
+import os
+from functools import lru_cache
 from typing import Optional
 
 LAYERS = ("vulnerability", "hazard", "exposure")
 
 RAMPS = {
     "vulnerability": ("#ffffb0", "#f7c348", "#c46d1b", "#6b0601"),
-    "hazard":        ("#ffffb0", "#f7c348", "#c46d1b", "#6b0601"),
+    "hazard":        ("#ffebcc", "#ffc187", "#fc9d49", "#f07605"),  # client colours, NOTED-10
     "exposure":      ("#ffffb0", "#f7c348", "#c46d1b", "#6b0601"),
 }
 BAND_LABELS = ("Very low", "Low", "Moderate", "High")
 BAND_EDGES = (0.25, 0.5, 0.75)
 
 TITLES = {
-    "vulnerability": "Potential exposure",
+    "vulnerability": "Present exposure",
     "hazard": "Hazard",
     "exposure": "Sector index",
 }
 LEGEND_TEXT = {
-    "vulnerability": "Potential exposure index: hazard x sector index, rescaled 0-1 within the province.",
-    "hazard": "Hazard index: this sector profile's weighted, province-normalised hazard variables (0-1).",
+    "vulnerability": "Present exposure index: hazard x sector index, rescaled 0-1 within the province.",
+    "hazard": "Hazard rank of each DS division for this hazard, 1 (lowest) to 4 (highest), from the province's hazard maps. The same for every sector.",
     "exposure": "Sector index: this sector's weighted, province-normalised exposure variables (0-1).",
 }
+
+
+RANK_KEY = {"drought": "dr", "flood": "fl", "landslide": "ls"}
+
+
+@lru_cache(maxsize=1)
+def _hazard_ranks() -> dict:
+    """{ds_code: {p, dr, fl, ls}} -- the client's hazard maps, the same file the
+    web map reads (built by design/spatial/build_geo_assets.py)."""
+    path = os.path.join(os.path.dirname(__file__), "hazard_ranks.json")
+    try:
+        with open(path) as fh:
+            return json.load(fh)
+    except FileNotFoundError:
+        return {}
+
+
+def hazard_rank_states(codes, hazard: str) -> dict[str, tuple[str, Optional[float]]]:
+    """(state, value) per division for the HAZARD layer (NOTED-10): the overall
+    hazard rank 1-4 from the province's hazard map, identical to the screen and
+    the same for every sector. Rank 0 = no hazard of that kind (drawn like
+    'not applicable'); a division with no row is unassessed. The value is the
+    middle of the rank's band so band_of() returns the rank itself."""
+    key = RANK_KEY.get(hazard)
+    ranks = _hazard_ranks()
+    out = {}
+    for code in codes:
+        row = ranks.get(code)
+        if row is None or key is None:
+            out[code] = ("unassessed", None)
+            continue
+        r = int(row.get(key) or 0)
+        out[code] = ("assessed", (r - 0.5) / 4.0) if 1 <= r <= 4 else ("not_applicable", None)
+    return out
 
 
 def band_of(value: Optional[float]) -> Optional[int]:

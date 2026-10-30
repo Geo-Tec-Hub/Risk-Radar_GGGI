@@ -70,10 +70,10 @@
               </td>
             </tr>
             <tr>
-              <td><span class="af__name">Potential Exposure index</span><span class="af__hint">0 to {{ indexScale() }}</span></td>
+              <td><span class="af__name">Present Exposure index</span><span class="af__hint">0 to {{ indexScale() }}</span></td>
               <td>
                 <input class="af__input" type="number" [attr.step]="indexScale() === 4 ? 0.1 : 0.01" min="0" [attr.max]="indexScale()"
-                       aria-label="Potential Exposure index" [disabled]="!f.canSubmit"
+                       aria-label="Present Exposure index" [disabled]="!f.canSubmit"
                        [ngModel]="exposureIndex()" (ngModelChange)="setIndex('exposure', $event)" />
               </td>
               <td class="af__conv">

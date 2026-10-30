@@ -25,8 +25,8 @@ export type MapLayer = 'vulnerability' | 'hazard' | 'exposure';
 export const MAP_LAYERS: readonly MapLayer[] = ['vulnerability', 'hazard', 'exposure'];
 
 export const LAYER_LABEL: Record<MapLayer, string> = {
-  vulnerability: 'Potential exposure',
-  hazard: 'Overall hazard',
+  vulnerability: 'Present exposure',
+  hazard: 'Hazard',
   exposure: 'Sector index',
 };
 
@@ -37,15 +37,17 @@ export const LAYER_LABEL: Record<MapLayer, string> = {
  * never be mistaken for a vulnerability map. Vulnerability stays band.model.ts.
  */
 export const LAYER_RAMPS: Record<Exclude<MapLayer, 'vulnerability'>, readonly [string, string, string, string]> = {
-  hazard: ['#ffffb0', '#f7c348', '#c46d1b', '#6b0601'],
+  // Client colours (NOTED-10): Very low 255,235,204 / Low 255,193,135 /
+  // Moderate 252,157,73 / High 240,118,5.
+  hazard: ['#ffebcc', '#ffc187', '#fc9d49', '#f07605'],
   exposure: ['#ffffb0', '#f7c348', '#c46d1b', '#6b0601'],
 };
 
 export const LAYER_NOTE: Record<MapLayer, string> = {
   vulnerability:
-    'Potential exposure index: hazard × sector index, rescaled 0–1 within the province.',
+    'Present exposure index: hazard × sector index, rescaled 0–1 within the province.',
   hazard:
-    'Overall hazard rank for the selected hazard: 1 (lowest) to 4 (highest), by DS division. Not sector-specific.',
+    'Hazard rank for the selected hazard: 1 (lowest) to 4 (highest), by DS division. Not sector-specific.',
   exposure:
     "Sector index: this sector's weighted, province-normalised exposure variables (0–1).",
 };

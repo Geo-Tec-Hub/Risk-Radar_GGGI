@@ -145,7 +145,9 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
         { layerFilter: (l) => l === this.divisionLayer });
       this.map!.getTargetElement().style.cursor =
         feature && this.isSelectable(feature) ? 'pointer' : '';
+      this.updateRefLabel(evt.pixel, evt.dragging);
     });
+    this.map.getViewport().addEventListener('mouseleave', () => this.refLabel.set(null));
 
     // The map is created inside a flex layout whose size isn't resolved
     // until after this view-child hook runs, so OL's own construction-time
@@ -274,6 +276,32 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
       },
       error: () => this.overlayError.set('A reference layer could not be loaded.'),
     });
+  }
+
+  /**
+   * Reference-layer labels (client NOTED-10): a name appears only when the
+   * cursor comes close to a school, hospital or boundary line, never as a
+   * permanent label -- printed labels for hundreds of points would bury the map.
+   * Points win over outlines; within 8 px counts as close.
+   */
+  readonly refLabel = signal<{ text: string; x: number; y: number } | null>(null);
+
+  private updateRefLabel(pixel: number[], dragging: boolean): void {
+    if (!this.map || dragging) { this.refLabel.set(null); return; }
+    let best: { text: string; rank: number } | null = null;
+    const rank: Record<OverlayKey, number> = { hospitals: 0, schools: 1, gnd: 2, district: 3, province: 4 };
+    for (const [key, layer] of this.overlays) {
+      if (!layer.getVisible()) continue;
+      if (best && best.rank <= rank[key]) continue;
+      const f = this.map.forEachFeatureAtPixel(pixel, (x) => x as Feature<Geometry>,
+        { layerFilter: (l) => l === layer, hitTolerance: 8 });
+      const name = f?.get('name') as string | undefined;
+      if (!name) continue;
+      const kind = key === 'gnd' ? 'GN division' : key === 'district' ? 'District'
+        : key === 'province' ? 'Province' : key === 'schools' ? 'School' : 'Hospital';
+      best = { text: `${name} (${kind})`, rank: rank[key] };
+    }
+    this.refLabel.set(best ? { text: best.text, x: pixel[0], y: pixel[1] } : null);
   }
 
   private isSelectable(feature: Feature<Geometry>): boolean {

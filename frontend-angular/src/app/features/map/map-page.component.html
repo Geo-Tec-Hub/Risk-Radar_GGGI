@@ -4,7 +4,7 @@
 
   @if (hazardLayerMissing()) {
     <div class="map-page__banner map-page__banner--notice" role="status">
-      The overall hazard layer for {{ provinceName() }} Province has not been supplied yet, so no hazard ranks are shown.
+      The hazard layer for {{ provinceName() }} Province has not been supplied yet, so no hazard ranks are shown.
     </div>
   } @else if (resultsError(); as message) {
     <div class="map-page__banner" role="alert">

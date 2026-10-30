@@ -76,3 +76,17 @@
   }
   &__error { margin: 0.2rem 0 0; color: #c92a2a; }
 }
+
+/* Reference-layer name shown near the cursor (NOTED-10). */
+.map-ref-label {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  background: rgba(33, 37, 41, 0.88);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.3;
+  padding: 3px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
