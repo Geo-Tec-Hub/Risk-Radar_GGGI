@@ -17,11 +17,11 @@ contributed figure if it falls outside it:
     norm    = (value - lo) / (hi - lo)          (inverted where higher is better)
     H, E    = weighted sums, weights from the active profile, /100
     V_raw   = H x E
-    V       = V_raw rescaled with the data track's published product bounds for
-              the same profile and period (again widened to include V_raw)
+    V       = V_raw min-max rescaled across this track's own divisions in the
+              province (client NOTED-13, Nov 2026 -- see rescale_track_profile)
 
-So an expert score is directly comparable with the published data-track score
-of the same division: same weights, same variable ranges, same product bounds.
+Variables are still scaled on the official ranges, so H and E stay comparable
+with the official track; only the final present-exposure rescale is per track.
 
 WHEN THERE IS NO OFFICIAL BASELINE. A province with no loaded data has no range
 to scale against. The range then comes from the track's own contributions
@@ -305,21 +305,18 @@ async def rescale_track_profile(conn, profile_id: int, track: str,
                                 year_start: int, year_end: int):
     """Put every division of one profile/period/track on the SAME scale.
 
-    Bounds = the official (data-track) product bounds, widened to include the
-    raw product H x E of every division scored on this track -- the same rule
-    as before, but applied once for the whole province instead of once per
-    division. Returns (lo, hi), or None where there is no official baseline
-    (those results stay the raw product, as before).
+    OWN-TRACK NORMALISATION (client NOTED-13, Nov 2026). The present exposure
+    index of a track is H x E min-max rescaled across THAT TRACK'S OWN divisions
+    in the province: the lowest expert product reads 0, the highest 1. It used
+    to take the official track's product bounds and only widen them, so the
+    expert map inherited the official minimum (almost always 0) and maximum --
+    on drought profiles no division reached 0, and where the official maximum
+    was higher no division reached 1 (Uva irrigation and goat flood).
 
-    With no official baseline the scale is the range of this track's own
-    divisions in the province (see the comment below)."""
-    base = await conn.fetchrow(
-        """SELECT min(bound_min) AS lo, max(bound_max) AS hi
-             FROM vulnerability_result
-            WHERE profile_id = $1 AND source = 'data' AND index_scope = 'provincial'
-              AND year_start = $2 AND year_end = $3""",
-        profile_id, year_start, year_end)
-    no_official = base is None or base["lo"] is None
+    Fallback: fewer than two different products cannot define a range, so the
+    official bounds widened by this track's products are used, as before; with
+    no official bounds either, the results stay the raw product (None).
+    Returns (lo, hi) or None."""
     ext = await conn.fetchrow(
         """SELECT min(hazard_index * exposure_index)::float8 AS lo,
                   max(hazard_index * exposure_index)::float8 AS hi
@@ -331,18 +328,18 @@ async def rescale_track_profile(conn, profile_id: int, track: str,
               -- rule as engine.vulnerability.product_bounds)
               AND COALESCE((method->>'sector_absent')::boolean, false) = false""",
         profile_id, track, year_start, year_end)
-    if no_official:
-        # NO OFFICIAL DATA YET (Northwestern, 19 Oct 2026): there are no official
-        # product bounds, so the scores used to stay as the raw product H x E
-        # and the map was never put on the 0-1 scale. Scale them across the
-        # divisions assessed on this track in this province instead. Needs at
-        # least two different products, or the scale would be meaningless (one
-        # division would read 0.5). When official data arrive the next
-        # recompute switches back to the official bounds.
-        if ext is None or ext["lo"] is None or ext["hi"] is None or ext["hi"] <= ext["lo"]:
-            return None
+    if ext is not None and ext["lo"] is not None and ext["hi"] is not None \
+            and ext["hi"] > ext["lo"]:
         lo, hi = float(ext["lo"]), float(ext["hi"])
     else:
+        base = await conn.fetchrow(
+            """SELECT min(bound_min) AS lo, max(bound_max) AS hi
+                 FROM vulnerability_result
+                WHERE profile_id = $1 AND source = 'data' AND index_scope = 'provincial'
+                  AND year_start = $2 AND year_end = $3""",
+            profile_id, year_start, year_end)
+        if base is None or base["lo"] is None:
+            return None
         lo, hi = float(base["lo"]), float(base["hi"])
         if ext is not None and ext["lo"] is not None:
             lo, hi = min(lo, ext["lo"]), max(hi, ext["hi"])

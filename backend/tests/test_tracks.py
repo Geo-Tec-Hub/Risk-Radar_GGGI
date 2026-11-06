@@ -4,6 +4,8 @@ Three guarantees, each of which failed silently before:
 
 1. An expert who enters the OFFICIAL figures for a division gets exactly the
    official score back -- the one-division engine and the province engine agree.
+   (True while it is the only expert division: from the second one on, the
+   track is rescaled on its own range -- NOTED-13, see test_track_rescale.py.)
 2. Expert figures never reach the official score, and a data recompute never
    deletes expert results.
 3. A division is not scored on a track until every weighted variable has a

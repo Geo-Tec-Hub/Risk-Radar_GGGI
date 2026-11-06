@@ -152,6 +152,10 @@ async def run(
         for prof in profiles:
             result = await compute_profile(conn, prof["id"], y0, y1)
             if isinstance(result, Refusal):
+                # The expert/community tracks do not depend on the official
+                # score, so they are still re-scored (and rescaled) here.
+                async with conn.transaction():
+                    await recompute_track_province(conn, prof["id"], pid, y0, y1)
                 # A refusal is a profile that CANNOT be scored -- missing
                 # weights, no values. It is reported per profile rather than
                 # failing the whole run, because one unscoreable profile must
