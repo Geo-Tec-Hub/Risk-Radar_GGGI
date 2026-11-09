@@ -146,9 +146,18 @@ export class FilterBarComponent implements OnInit {
    * pretending to compute a number (QA 26 Sep). State the honest reason and say
    * less rather than a number we are not tracking.
    */
-  readonly nationalScopeDisabledReason = signal(
-    'National index unavailable: it requires a value for every registered DS division, and collection is still under way.',
-  );
+  readonly nationalScopeNote =
+    'Provincial: scaled within the province (the published score). National: every variable and the ' +
+    'final score scaled across the whole country, so divisions in different provinces can be compared. ' +
+    'The national map shows all provinces and is computed for the official track only.';
+
+  /** National is official-track only (engine/national.py), so choosing it
+   * switches the track to Official rather than answering with an error. */
+  onScopeChange(scope: IndexScope): void {
+    this.indexScope.set(scope);
+    if (scope === 'national' && this.track() !== 'data') this.track.set('data');
+    this.onFieldChange();
+  }
 
   readonly subsectorOptions = computed(() => {
     const province = this.province();

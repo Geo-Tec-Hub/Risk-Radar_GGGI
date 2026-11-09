@@ -86,6 +86,16 @@ export class ApiClientService {
     return this.http.post<AssessmentResult>(`${this.base}/assessments`, payload, WITH_CREDENTIALS);
   }
 
+  /** POST /assessments/remove -- take one division's assessment (or, admin, the
+   * whole sector/hazard dataset when dsCode is null) off the track (NOTED-14). */
+  removeAssessment(payload: {
+    province: string; sector: string; subsector: string | null; hazard: string;
+    period: string; track: string; dsCode: string | null;
+  }): Observable<{ removed: number; figuresDeleted: number; indexEntriesDeleted: number; sharedKept: string[] }> {
+    return this.http.post<{ removed: number; figuresDeleted: number; indexEntriesDeleted: number; sharedKept: string[] }>(
+      `${this.base}/assessments/remove`, payload, WITH_CREDENTIALS);
+  }
+
   /** GET /import/profile -- which profile version an import with these pickers lands in. */
   getImportProfile(scope: ImportScopeNames): Observable<{ profileCode: string; version: number; variables: number }> {
     return this.http.get<{ profileCode: string; version: number; variables: number }>(

@@ -122,6 +122,22 @@ export interface RecomputeReport {
   refused: number;
   resultRows: number;
   profiles: ProfileOutcome[];
+  /** National index of every scope this province takes part in (NOTED-14). */
+  national?: NationalOutcome[];
+}
+
+export interface NationalOutcome {
+  scope: string;
+  ok: boolean;
+  rows: number;
+  refusal: string | null;
+}
+
+export interface NationalReport {
+  period: string;
+  computed: number;
+  refused: number;
+  scopes: NationalOutcome[];
 }
 
 export interface StalenessReport {
@@ -272,6 +288,9 @@ export class ImportPageComponent implements OnInit {
   readonly recomputing = signal(false);
   readonly recomputeReport = signal<RecomputeReport | null>(null);
   readonly recomputeError = signal<string | null>(null);
+  readonly nationalBusy = signal(false);
+  readonly nationalReport = signal<NationalReport | null>(null);
+  readonly nationalError = signal<string | null>(null);
   readonly failure = signal<string | null>(null);
   readonly batches = signal<BatchRow[]>([]);
 
@@ -802,6 +821,31 @@ export class ImportPageComponent implements OnInit {
             err?.error?.detail ?? err?.message ?? 'The recompute could not be completed.',
           );
           this.recomputing.set(false);
+        },
+      });
+  }
+
+  countOk(list: readonly NationalOutcome[]): number {
+    return list.filter((x) => x.ok).length;
+  }
+
+  /** National index of every sector/hazard, all provinces at once (admin). */
+  computeNational(): void {
+    const period = this.period() ?? this.periods()[0];
+    if (!period) return;
+    this.nationalBusy.set(true);
+    this.nationalError.set(null);
+    this.nationalReport.set(null);
+    this.http
+      .post<NationalReport>(`${this.base}/compute/national`, { period }, { withCredentials: true })
+      .subscribe({
+        next: (r) => {
+          this.nationalReport.set(r);
+          this.nationalBusy.set(false);
+        },
+        error: (err) => {
+          this.nationalError.set(err?.error?.detail ?? err?.message ?? 'The national index could not be computed.');
+          this.nationalBusy.set(false);
         },
       });
   }

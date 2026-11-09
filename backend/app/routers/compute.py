@@ -1,7 +1,9 @@
 """
 Recompute published scores -- the web equivalent of `compute_all.py`.
 
-    POST /api/compute/run       re-derive one province's results
+    POST /api/compute/run       re-derive one province's results (and then the
+                                national index of every scope it takes part in)
+    POST /api/compute/national  re-derive the national index of every scope (admin)
     GET  /api/compute/status    are the published results older than the data?
 
 WHY A BUTTON AT ALL.  Importing values changes nothing a person can see. The
@@ -30,7 +32,9 @@ import asyncpg
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from app.deps import CurrentUser, db, get_current_user
+from app.deps import CurrentUser, db, get_current_user, require_admin
+from app.engine.national import (NationalRefusal, clear_national, compute_national,
+                                 national_scopes)
 from app.engine.track import recompute_track_province
 from app.engine.vulnerability import Refusal, compute_profile, store
 
@@ -54,6 +58,7 @@ class RecomputeReport(BaseModel):
     refused: int
     resultRows: int
     profiles: list[ProfileOutcome]
+    national: list["NationalOutcome"] = []
 
 
 class StalenessReport(BaseModel):
@@ -62,6 +67,51 @@ class StalenessReport(BaseModel):
     lastComputed: Optional[str]
     stale: bool
     reason: str
+
+
+class NationalOutcome(BaseModel):
+    scope: str
+    ok: bool
+    rows: int = 0
+    refusal: Optional[str] = None
+
+
+RecomputeReport.model_rebuild()
+
+
+class NationalReport(BaseModel):
+    period: str
+    computed: int
+    refused: int
+    scopes: list[NationalOutcome]
+
+
+class NationalRequest(BaseModel):
+    period: str = Field(pattern=r"^\d{4}-\d{4}$")
+
+
+async def run_national(conn, y0: int, y1: int, province_id: Optional[int] = None
+                       ) -> list[NationalOutcome]:
+    """National index for every scope -- or only the scopes a province takes
+    part in, after that province is recomputed (its values move the national
+    bounds of exactly those scopes). Each scope is recomputed WHOLE, all
+    provinces at once (FR-4.3b)."""
+    scopes = await national_scopes(conn)
+    if province_id is not None:
+        mine = {(r["sector_id"], r["subsector_id"], r["hazard_type_id"]) for r in await conn.fetch(
+            "SELECT sector_id, subsector_id, hazard_type_id FROM vulnerability_profile "
+            "WHERE is_active AND province_id = $1", province_id)}
+        scopes = [s for s in scopes
+                  if (s["sector_id"], s["subsector_id"], s["hazard_type_id"]) in mine]
+    out = []
+    for sc in scopes:
+        r = await compute_national(conn, sc, y0, y1)
+        if isinstance(r, NationalRefusal):
+            await clear_national(conn, sc, y0, y1)
+            out.append(NationalOutcome(scope=r.scope, ok=False, refusal=str(r)))
+        else:
+            out.append(NationalOutcome(scope=r.scope, ok=True, rows=r.rows))
+    return out
 
 
 class RecomputeRequest(BaseModel):
@@ -176,8 +226,31 @@ async def run(
                 profileCode=result.profile_code, ok=True, scored=result.scored,
                 unassessed=list(result.unassessed)))
 
-    log.info("recompute %s %s by user %s: %d computed, %d refused, %d rows",
-             body.province, body.period, user.id, computed, refused, rows)
+        # The province's new values move the national bounds of every scope it
+        # takes part in, so those national maps are re-derived too.
+        national = await run_national(conn, y0, y1, pid)
+
+    log.info("recompute %s %s by user %s: %d computed, %d refused, %d rows; "
+             "national %d/%d scopes",
+             body.province, body.period, user.id, computed, refused, rows,
+             sum(n.ok for n in national), len(national))
     return RecomputeReport(province=body.province, period=body.period,
                            computed=computed, refused=refused, resultRows=rows,
-                           profiles=outcomes)
+                           profiles=outcomes, national=national)
+
+
+@router.post("/national", response_model=NationalReport)
+async def national(
+    body: NationalRequest,
+    pool: asyncpg.Pool = Depends(db),
+    user: CurrentUser = Depends(require_admin),
+) -> NationalReport:
+    """Re-derive the national index of every scope (SRS 2.2, FR-4.3b)."""
+    y0, y1 = (int(x) for x in body.period.split("-"))
+    async with pool.acquire() as conn:
+        outcomes = await run_national(conn, y0, y1)
+    ok = sum(o.ok for o in outcomes)
+    log.info("national %s by user %s: %d computed, %d refused",
+             body.period, user.id, ok, len(outcomes) - ok)
+    return NationalReport(period=body.period, computed=ok, refused=len(outcomes) - ok,
+                          scopes=outcomes)

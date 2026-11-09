@@ -163,6 +163,41 @@
         </div>
       }
 
+      @if (f.canSubmit && (f.contributors > 0 || isAdmin())) {
+        <div class="af__remove">
+          @if (confirmRemove() === null) {
+            @if (f.contributors > 0) {
+              <button type="button" class="af__btn af__btn--danger" [disabled]="removing()" (click)="confirmRemove.set('one')">
+                Remove this assessment
+              </button>
+            }
+            @if (isAdmin()) {
+              <button type="button" class="af__btn af__btn--ghost-danger" [disabled]="removing()" (click)="confirmRemove.set('all')">
+                Remove whole dataset…
+              </button>
+            }
+          } @else {
+            <p class="af__note af__note--warn">
+              @if (confirmRemove() === 'one') {
+                Remove the {{ track() }} assessment of {{ f.dsDivision }} for this sector and hazard? It disappears
+                from the {{ track() }} map and the other divisions are rescaled.
+              } @else {
+                Remove the {{ track() }} assessments of EVERY division of {{ f.province }} for this sector and
+                hazard? The {{ track() }} map for it becomes empty.
+              }
+              Figures that other sectors also use are kept for them.
+            </p>
+            <button type="button" class="af__btn af__btn--danger" [disabled]="removing()" (click)="remove(confirmRemove()!)">
+              {{ removing() ? 'Removing…' : 'Yes, remove' }}
+            </button>
+            <button type="button" class="af__btn af__btn--ghost" [disabled]="removing()" (click)="confirmRemove.set(null)">Cancel</button>
+          }
+        </div>
+      }
+      @if (removeMsg(); as m) {
+        <p class="af__note" role="status">{{ m }}</p>
+      }
+
       @if (saveError(); as message) {
         <p class="af__note af__note--error" role="alert">Not saved: {{ message }}</p>
       }

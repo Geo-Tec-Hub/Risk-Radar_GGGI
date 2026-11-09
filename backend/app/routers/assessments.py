@@ -4,6 +4,8 @@ Expert and community assessments -- the map entry form (QA 26 Sep 2026).
     GET  /api/assessments/form?province=CEN&sector=AGRICULTURE&subsector=PADDY
                               &hazard=flood&period=2021-2025&track=expert&ds=KA8
     POST /api/assessments       save my figures for one division, score it
+    POST /api/assessments/remove  remove a division's assessment from the track
+                                  (or, admin, the whole sector/hazard dataset)
 
 WHY NOT THE WORKBOOK. The import tab is for the official data track: a data
 officer loads a whole province from the Survey/Department workbooks. An external
@@ -40,7 +42,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from app.deps import CurrentUser, db, get_current_user, get_optional_user
-from app.engine.track import compute_track_division, contributors, index_entries
+from app.engine.track import (compute_track_division, contributors, index_entries,
+                               rescale_track_profile)
 from app.importer.load_template import AGG_HINT
 
 router = APIRouter(prefix="/assessments", tags=["assessments"])
@@ -353,6 +356,7 @@ async def save(
                     """, div["id"], prof["sector_id"], prof["subsector_id"],
                     prof["hazard_type_id"], body.track, user.id, y0, y1,
                     h01, e01, note, top, body.hazardIndex, body.exposureIndex)
+                await _unwithdraw(conn, prof, div["id"], body.track, y0, y1)
                 result = await compute_track_division(conn, prof["id"], div["id"],
                                                       body.track, y0, y1)
             return AssessmentOut(saved=2, **{
@@ -419,6 +423,7 @@ async def save(
                 """,
                 [(members[v.code]["id"], div["id"], body.track, user.id, y0, y1,
                   v.value, user.full_name or user.email, note) for v in body.values])
+            await _unwithdraw(conn, prof, div["id"], body.track, y0, y1)
             result = await compute_track_division(conn, prof["id"], div["id"],
                                                   body.track, y0, y1)
     return AssessmentOut(saved=len(body.values), **{
@@ -426,3 +431,138 @@ async def save(
                                    "rawIndex", "vulnerabilityIndex", "baseline",
                                    "entry")},
         missing=result.get("missing", []), contributors=result.get("contributors", 0))
+
+
+# ---- removing an assessment (client NOTED-14) ------------------------------
+
+async def _unwithdraw(conn, prof, division_id: int, track: str, y0: int, y1: int) -> None:
+    """A new save for a withdrawn scope puts it back on the map."""
+    await conn.execute(
+        """DELETE FROM track_withdrawal
+            WHERE ds_division_id = $1 AND sector_id = $2
+              AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
+              AND source = $5::source_type AND year_start = $6 AND year_end = $7""",
+        division_id, prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"],
+        track, y0, y1)
+
+
+class RemoveIn(BaseModel):
+    province: str
+    sector: str
+    subsector: Optional[str] = None
+    hazard: str
+    period: str = Field(pattern=r"^\d{4}-\d{4}$")
+    track: Track
+    # One division; omitted = every division of the province (admin only).
+    dsCode: Optional[str] = None
+    note: Optional[str] = Field(default=None, max_length=1000)
+
+
+class RemoveOut(BaseModel):
+    removed: int          # divisions withdrawn
+    figuresDeleted: int   # parameter figures that belonged to this profile only
+    indexEntriesDeleted: int
+    sharedKept: list[str] # variables kept because other profiles use them
+
+
+@router.post("/remove", response_model=RemoveOut)
+async def remove(
+    body: RemoveIn,
+    pool: asyncpg.Pool = Depends(db),
+    user: CurrentUser = Depends(get_current_user),
+) -> RemoveOut:
+    """Take an expert/community assessment off the map.
+
+    WHAT IS DELETED. Index entries (they belong to this sector/hazard alone) and
+    parameter figures for variables NO other active profile of the province
+    uses. Shared figures -- a drought variable, a cattle exposure variable used
+    by cattle-drought and cattle-flood -- are KEPT for the profiles still using
+    them, and a track_withdrawal row stops this scope being re-scored from them.
+    The remaining divisions of the track are then rescaled, since the lowest or
+    highest may just have been removed.
+
+    WHO. One division: anyone who may write that track there (the expert of the
+    province, or an admin). A whole dataset (no dsCode): admin only."""
+    y0, y1 = _years(body.period)
+    async with pool.acquire() as conn:
+        prof = await _profile(conn, body.province, body.sector, body.subsector, body.hazard)
+        allowed, reason = may_write_track(user, body.track, prof["province_id"])
+        if not allowed:
+            raise HTTPException(403, reason)
+        if body.dsCode:
+            div_ids = [(await _division(conn, prof["province_id"], body.dsCode))["id"]]
+        else:
+            if not user.has_role("admin"):
+                raise HTTPException(403, "only an administrator may remove a whole dataset; "
+                                         "remove divisions one at a time instead")
+            div_ids = [r["id"] for r in await conn.fetch(
+                "SELECT id FROM ds_division WHERE province_id = $1", prof["province_id"])]
+
+        members = await conn.fetch(
+            """SELECT pi.indicator_id, ic.code,
+                      EXISTS (SELECT 1 FROM profile_indicator o
+                                JOIN vulnerability_profile ov ON ov.id = o.profile_id
+                               WHERE o.indicator_id = pi.indicator_id AND ov.is_active
+                                 AND ov.province_id = $2
+                                 AND NOT (ov.sector_id = $3
+                                          AND ov.subsector_id IS NOT DISTINCT FROM $4
+                                          AND ov.hazard_type_id = $5)) AS shared
+                 FROM profile_indicator pi
+                 JOIN indicator_catalog ic ON ic.id = pi.indicator_id
+                WHERE pi.profile_id = $1""",
+            prof["id"], prof["province_id"], prof["sector_id"], prof["subsector_id"],
+            prof["hazard_type_id"])
+        own = [m["indicator_id"] for m in members if not m["shared"]]
+        shared = sorted(m["code"] for m in members if m["shared"])
+        note = "removed by %s%s" % (user.full_name or user.email,
+                                    (": " + body.note.strip()) if body.note else "")
+
+        async with conn.transaction():
+            # Only divisions that actually hold something on this track are
+            # withdrawn, so "remove dataset" leaves no rows for empty divisions.
+            had = {r["ds_division_id"] for r in await conn.fetch(
+                """SELECT ds_division_id FROM vulnerability_result
+                    WHERE profile_id = $1 AND source = $2::source_type
+                      AND ds_division_id = ANY($3::bigint[])
+                      AND year_start = $4 AND year_end = $5
+                   UNION
+                   SELECT ds_division_id FROM track_index_entry
+                    WHERE sector_id = $6 AND subsector_id IS NOT DISTINCT FROM $7
+                      AND hazard_type_id = $8 AND source = $2::source_type
+                      AND ds_division_id = ANY($3::bigint[])
+                      AND year_start = $4 AND year_end = $5""",
+                prof["id"], body.track, div_ids, y0, y1,
+                prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"])}
+            if body.dsCode:
+                had |= set(div_ids)
+            targets = sorted(had)
+            if targets:
+                await conn.executemany(
+                    """INSERT INTO track_withdrawal
+                           (ds_division_id, sector_id, subsector_id, hazard_type_id, source,
+                            year_start, year_end, withdrawn_by, note)
+                       VALUES ($1, $2, $3, $4, $5::source_type, $6, $7, $8, $9)
+                       ON CONFLICT DO NOTHING""",
+                    [(d, prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"],
+                      body.track, y0, y1, user.id, note) for d in targets])
+            n_idx = int((await conn.execute(
+                """DELETE FROM track_index_entry
+                    WHERE ds_division_id = ANY($1::bigint[]) AND sector_id = $2
+                      AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
+                      AND source = $5::source_type AND year_start = $6 AND year_end = $7""",
+                targets, prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"],
+                body.track, y0, y1)).split()[-1])
+            n_fig = 0
+            if own:
+                n_fig = int((await conn.execute(
+                    """DELETE FROM indicator_value
+                        WHERE ds_division_id = ANY($1::bigint[]) AND source = $2::source_type
+                          AND indicator_id = ANY($3::bigint[])
+                          AND year_start = $4 AND year_end = $5""",
+                    targets, body.track, own, y0, y1)).split()[-1])
+            for d in targets:
+                await compute_track_division(conn, prof["id"], d, body.track, y0, y1)
+            await rescale_track_profile(conn, prof["id"], body.track, y0, y1)
+
+    return RemoveOut(removed=len(targets), figuresDeleted=n_fig,
+                     indexEntriesDeleted=n_idx, sharedKept=shared)

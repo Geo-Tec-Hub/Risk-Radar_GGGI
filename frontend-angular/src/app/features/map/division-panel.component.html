@@ -51,7 +51,7 @@
               <th>Variable</th>
               <th>Weight</th>
               <th>Raw</th>
-              <th>Normalised<sup title="Normalised within the province, not nationally">†</sup></th>
+              <th>Normalised<sup [title]="query().indexScope === 'national' ? 'Normalised across the whole country' : 'Normalised within the province, not nationally'">†</sup></th>
             </tr>
           </thead>
           <tbody>
@@ -80,7 +80,7 @@
               <th>Variable</th>
               <th>Weight</th>
               <th>Raw</th>
-              <th>Normalised<sup title="Normalised within the province, not nationally">†</sup></th>
+              <th>Normalised<sup [title]="query().indexScope === 'national' ? 'Normalised across the whole country' : 'Normalised within the province, not nationally'">†</sup></th>
             </tr>
           </thead>
           <tbody>
@@ -122,8 +122,13 @@
       }
 
       <p class="panel__footnote">
-        † Normalised within {{ d.province }} Province — never compare this
-        column across divisions in different provinces.
+        @if (query().indexScope === 'national') {
+          † National index — normalised across every division in Sri Lanka, so it
+          can be compared across provinces.
+        } @else {
+          † Normalised within {{ d.province }} Province — never compare this
+          column across divisions in different provinces.
+        }
       </p>
 
       @if (query().track === 'data' && canContribute(); as t) {

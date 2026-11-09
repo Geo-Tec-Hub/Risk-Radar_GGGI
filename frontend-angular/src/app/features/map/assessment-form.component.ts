@@ -187,6 +187,44 @@ export class AssessmentFormComponent {
     });
   }
 
+  // ---- remove (client NOTED-14) ------------------------------------------
+  /** Which removal is waiting for its confirm click: this division, or (admin)
+   * the whole sector/hazard dataset of the province. */
+  readonly confirmRemove = signal<'one' | 'all' | null>(null);
+  readonly removing = signal(false);
+  readonly removeMsg = signal<string | null>(null);
+  readonly isAdmin = computed(() => this.auth.hasRole('admin'));
+
+  remove(which: 'one' | 'all'): void {
+    const f = this.form();
+    const q = this.query();
+    if (!f || !q.province || !q.sector || !q.hazard || !q.period) return;
+    this.removing.set(true);
+    this.removeMsg.set(null);
+    this.api.removeAssessment({
+      province: q.province, sector: q.sector, subsector: q.subsector ?? null, hazard: q.hazard,
+      period: q.period, track: f.track, dsCode: which === 'one' ? f.dsCode : null,
+    }).subscribe({
+      next: (r) => {
+        this.removing.set(false);
+        this.confirmRemove.set(null);
+        this.result.set(null);
+        this.removeMsg.set(which === 'one'
+          ? `Removed from the ${f.track} track for ${f.dsDivision}.`
+          : `Removed from the ${f.track} track for ${r.removed} division(s) of this province.`);
+        // Same refresh path as a save: the panel and the map re-read.
+        this.saved.emit({ ok: false, saved: 0, reason: 'removed', missing: [], hazardIndex: null,
+          exposureIndex: null, rawIndex: null, vulnerabilityIndex: null, baseline: null,
+          contributors: 0 } as unknown as AssessmentResult);
+        this.load(this.dsCode(), q);
+      },
+      error: (err: ApiError) => {
+        this.removing.set(false);
+        this.removeMsg.set('Not removed: ' + err.message);
+      },
+    });
+  }
+
   submit(): void {
     const f = this.form();
     const q = this.query();

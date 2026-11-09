@@ -58,12 +58,13 @@ export class MapPageComponent {
     const ranks = this.hazardRanks.ranks();
     const province = this.provinceName();
     const q = this.query();
-    if (!ranks || !province) return out;
+    const national = q.indexScope === 'national';
+    if (!ranks || (!province && !national)) return out;
     const key = ({ drought: 'dr', flood: 'fl', landslide: 'ls' } as const)[
       (q.hazard ?? '') as 'drought' | 'flood' | 'landslide'];
     if (!key) return out;
     for (const [code, row] of Object.entries(ranks)) {
-      if (row.p !== province) continue;
+      if (!national && row.p !== province) continue;
       const rank = row[key];
       const band = rank >= 1 && rank <= 4 ? (rank as 1 | 2 | 3 | 4) : null;
       out.set(code, {
@@ -313,10 +314,22 @@ export class MapPageComponent {
     }
   }
 
+  /** The national index is one map of the whole country (NOTED-14). */
+  readonly isNational = computed(() => this.query().indexScope === 'national');
+
+  /** What the map draws: one province, or every division on the national index. */
+  readonly mapProvince = computed(() => (this.isNational() ? null : this.provinceName()));
+
+  /** The panel asks for one division; on the national map the API finds the
+   * division's own province from its code. */
+  readonly panelQuery = computed<VulnerabilityQuery>(() =>
+    this.isNational() ? { ...this.query(), province: 'ALL' } : this.query());
+
   private refresh(query: VulnerabilityQuery): void {
     this.resultsRequest?.unsubscribe();
     this.resultsLoading.set(true);
     this.resultsError.set(null);
+    if (query.indexScope === 'national') query = { ...query, province: 'ALL' };
 
     this.resultsRequest = this.api.getVulnerability(query).pipe(withViewTimeout()).subscribe({
       next: (units) => {

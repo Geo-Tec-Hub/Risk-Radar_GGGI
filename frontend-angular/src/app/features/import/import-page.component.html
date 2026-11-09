@@ -267,7 +267,32 @@
       <button type="button" [disabled]="recomputing() || !province()" (click)="recompute()">
         {{ recomputing() ? 'Recomputing…' : 'Recompute this province' }}
       </button>
+      @if (auth.hasRole('admin')) {
+        <button type="button" [disabled]="nationalBusy()" (click)="computeNational()"
+                title="Every sector and hazard, all provinces at once. Recomputing a province also refreshes it.">
+          {{ nationalBusy() ? 'Computing national index…' : 'Compute national index' }}
+        </button>
+      }
     </div>
+
+    @if (nationalError(); as m) {
+      <p class="import__banner import__banner--error" role="alert">{{ m }}</p>
+    }
+    @if (nationalReport(); as nr) {
+      <p class="recompute__done">
+        National index: {{ nr.computed }} sector/hazard map(s) computed, {{ nr.refused }} not yet possible ({{ nr.period }}).
+      </p>
+      @if (nr.refused) {
+        <details class="import__warnings">
+          <summary>{{ nr.refused }} national map(s) could not be computed</summary>
+          <ul>
+            @for (s of nr.scopes; track s.scope) {
+              @if (!s.ok) { <li>{{ s.refusal }}</li> }
+            }
+          </ul>
+        </details>
+      }
+    }
 
     @if (recomputeError(); as m) {
       <p class="import__banner import__banner--error" role="alert">{{ m }}</p>
@@ -276,6 +301,9 @@
       <p class="recompute__done">
         {{ rr.computed }} profile(s) computed, {{ rr.refused }} refused, {{ rr.resultRows }} result
         rows for {{ rr.province }} {{ rr.period }}.
+        @if (rr.national?.length) {
+          National index refreshed for {{ countOk(rr.national!) }} of {{ rr.national!.length }} sector/hazard map(s).
+        }
       </p>
       @if (rr.refused) {
         <details class="import__warnings">

@@ -140,6 +140,17 @@ async def _track_range(conn, indicator_id: int, province_id: int, track: str,
     return row["lo"], row["hi"]
 
 
+async def is_withdrawn(conn, prof, division_id: int, track: str,
+                       year_start: int, year_end: int) -> bool:
+    return bool(await conn.fetchval(
+        """SELECT 1 FROM track_withdrawal
+            WHERE ds_division_id = $1 AND sector_id = $2
+              AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
+              AND source = $5::source_type AND year_start = $6 AND year_end = $7""",
+        division_id, prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"],
+        track, year_start, year_end))
+
+
 async def index_entries(conn, prof, division_id: int, track: str,
                         year_start: int) -> list[dict]:
     """Each contributor's latest index entry (H, E) for this profile's scope."""
@@ -179,6 +190,14 @@ async def compute_track_division(conn, profile_id: int, division_id: int,
                   AND year_start IS NOT DISTINCT FROM $4
                   AND year_end IS NOT DISTINCT FROM $5""",
             division_id, profile_id, track, year_start, year_end)
+
+    # Withdrawn from the map (NOTED-14, schema_track_withdrawal_addendum.sql):
+    # shared figures may remain for other profiles, so the scope is refused here
+    # rather than re-scored from them.
+    if await is_withdrawn(conn, prof, division_id, track, year_start, year_end):
+        await _clear()
+        return {"ok": False, "reason": "this assessment was removed from the %s track"
+                % track, "withdrawn": True}
 
     idx = await index_entries(conn, prof, division_id, track, year_start)
 

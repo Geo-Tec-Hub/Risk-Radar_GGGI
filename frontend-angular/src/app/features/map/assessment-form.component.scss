@@ -34,3 +34,8 @@
 .af__unit { color: #495057; white-space: nowrap; }
 .af__scale { margin-left: 0.4rem; font: inherit; }
 .af__conv { color: #495057; white-space: nowrap; font-size: 0.75rem; }
+
+/* Remove (NOTED-14) */
+.af__remove { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.af__btn--danger { background: #c92a2a; border-color: #c92a2a; color: #fff; }
+.af__btn--ghost-danger { background: transparent; border: 1px solid #c92a2a; color: #c92a2a; }

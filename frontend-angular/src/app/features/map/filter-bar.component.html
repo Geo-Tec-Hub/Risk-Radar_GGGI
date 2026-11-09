@@ -74,7 +74,7 @@
     </select>
   </label>
 
-  <label class="filter-bar__field" [title]="'Provincial is the published score. ' + nationalScopeDisabledReason()">
+  <label class="filter-bar__field" [title]="nationalScopeNote">
     <!-- The full explanation used to sit under the select in red and took a
          lot of room. It now lives in a tooltip on the small (i) beside the
          label, with a short grey hint, so the disabled National option is
@@ -82,11 +82,10 @@
     <span class="filter-bar__label-row">
       Index scope
       <span class="filter-bar__info" aria-label="About index scope">ⓘ</span>
-      <span class="filter-bar__inline-note">national pending</span>
     </span>
-    <select [ngModel]="indexScope()" name="indexScope" (ngModelChange)="indexScope.set($event); onFieldChange()">
+    <select [ngModel]="indexScope()" name="indexScope" (ngModelChange)="onScopeChange($event)">
       <option [ngValue]="'provincial'">Provincial (published score)</option>
-      <option [ngValue]="'national'" disabled>National (unavailable)</option>
+      <option [ngValue]="'national'">National (whole country, official track)</option>
     </select>
   </label>
 </form>
