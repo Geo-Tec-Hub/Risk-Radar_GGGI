@@ -13,7 +13,7 @@ export type BasemapKey = 'osm' | 'satellite';
 
 export const OVERLAY_LIST: readonly { key: OverlayKey; label: string; swatch: string; kind: 'outline' | 'point' }[] = [
   { key: 'province', label: 'Province boundary', swatch: '#111111', kind: 'outline' },
-  { key: 'district', label: 'District boundary', swatch: '#1c7ed6', kind: 'outline' },
+  { key: 'district', label: 'District boundary', swatch: '#c80000', kind: 'outline' },
   { key: 'gnd', label: 'GN division boundary', swatch: '#868e96', kind: 'outline' },
   { key: 'schools', label: 'Schools', swatch: '#2f9e44', kind: 'point' },
   { key: 'hospitals', label: 'Hospitals', swatch: '#e03131', kind: 'point' },
@@ -29,7 +29,8 @@ export function overlayStyle(key: OverlayKey): Style {
     case 'province':
       return new Style({ stroke: new Stroke({ color: '#111111', width: 2.6 }) });
     case 'district':
-      return new Style({ stroke: new Stroke({ color: '#1c7ed6', width: 1.6, lineDash: [8, 4] }) });
+      // Red, RGB 200/0/0 (experts, NOTED-15).
+      return new Style({ stroke: new Stroke({ color: 'rgb(200, 0, 0)', width: 1.8, lineDash: [8, 4] }) });
     case 'gnd':
       return new Style({ stroke: new Stroke({ color: 'rgba(73, 80, 87, 0.8)', width: 0.6 }) });
     case 'schools':

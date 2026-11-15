@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { ApiClientService } from '../../core/services/api-client.service';
 import { TaxonomyService } from '../../core/services/taxonomy.service';
 import { HazardRankService } from '../../core/services/hazard-rank.service';
+import { AuthService } from '../../core/services/auth.service';
 import { withViewTimeout } from '../../core/services/view-request';
 import { ApiError } from '../../core/models/api-error.model';
 import { DsDivisionProperties } from '../../core/models/ds-division.model';
@@ -93,7 +94,7 @@ export class MapPageComponent {
   readonly exportError = signal<string | null>(null);
   readonly exportPanelOpen = signal(false);
   readonly exportLayers = signal<Record<MapLayer, boolean>>({
-    vulnerability: true, hazard: true, exposure: true,
+    vulnerability: true, hazard: true, exposure: false,
   });
 
   constructor() {
@@ -124,7 +125,7 @@ export class MapPageComponent {
   exportThisMap(): void {
     const q = this.query();
     this.download('one', {
-      province: q.province, period: q.period, track: q.track,
+      province: q.province, period: q.period, track: this.effectiveTrack() ?? q.track,
       sector: q.sector, subsector: q.subsector, hazard: q.hazard,
       layers: this.layer(),
     });
@@ -138,7 +139,10 @@ export class MapPageComponent {
       this.exportError.set('Choose at least one layer to export.');
       return;
     }
-    this.download('all', { province: q.province, period: q.period, track: q.track, layers: layers.join(',') });
+    // General users print the FINAL maps: expert where it exists, else official,
+    // decided per map by the API (track=final).
+    const track = this.isGeneralUser() && q.track === 'expert' ? 'final' : q.track;
+    this.download('all', { province: q.province, period: q.period, track, layers: layers.join(',') });
   }
 
   private download(kind: 'one' | 'all', params: Record<string, string | undefined>): void {
@@ -320,19 +324,44 @@ export class MapPageComponent {
   /** What the map draws: one province, or every division on the national index. */
   readonly mapProvince = computed(() => (this.isNational() ? null : this.provinceName()));
 
+  /**
+   * FINAL MAP FOR GENERAL USERS (client NOTED-15). Anyone who is not an admin
+   * or an expert opens on the Expert map; where no expert map exists yet for
+   * the selection, the Official map is shown instead and a note says so.
+   * Admins and experts see exactly the track they chose -- an expert needs the
+   * empty expert map to enter figures. Decided per whole map, never per
+   * division: mixing two tracks' scales on one map would mislead.
+   */
+  private readonly auth = inject(AuthService);
+  readonly isGeneralUser = computed(() => !this.auth.hasRole('admin') && !this.auth.hasRole('expert'));
+  /** The track actually on screen (differs from the filter only after a fallback). */
+  readonly effectiveTrack = signal<VulnerabilityQuery['track']>(undefined);
+  readonly fellBack = signal(false);
+
   /** The panel asks for one division; on the national map the API finds the
    * division's own province from its code. */
-  readonly panelQuery = computed<VulnerabilityQuery>(() =>
-    this.isNational() ? { ...this.query(), province: 'ALL' } : this.query());
+  readonly panelQuery = computed<VulnerabilityQuery>(() => {
+    const q = { ...this.query(), track: this.effectiveTrack() ?? this.query().track };
+    return this.isNational() ? { ...q, province: 'ALL' } : q;
+  });
 
   private refresh(query: VulnerabilityQuery): void {
     this.resultsRequest?.unsubscribe();
     this.resultsLoading.set(true);
     this.resultsError.set(null);
+    this.fellBack.set(false);
+    this.effectiveTrack.set(query.track);
     if (query.indexScope === 'national') query = { ...query, province: 'ALL' };
+    const fallback = this.isGeneralUser() && query.track === 'expert' && query.indexScope !== 'national';
 
     this.resultsRequest = this.api.getVulnerability(query).pipe(withViewTimeout()).subscribe({
       next: (units) => {
+        if (fallback && !units.some((u) => u.state === 'assessed' || u.state === 'not_applicable')) {
+          this.fellBack.set(true);
+          this.effectiveTrack.set('data');
+          this.refreshOfficial({ ...query, track: 'data' });
+          return;
+        }
         this.unitsByCode.set(new Map(units.map((u) => [u.dsCode, u])));
         this.resultsLoading.set(false);
         this.recomputeCoverage();
@@ -342,6 +371,23 @@ export class MapPageComponent {
         this.resultsLoading.set(false);
         // No results reachable -- every division stays unassessed, which
         // is the truthful default (NFR-10), not an empty/stale view.
+        this.unitsByCode.set(new Map());
+        this.recomputeCoverage();
+      },
+    });
+  }
+
+  /** The Official map, after a general user's Expert map turned out empty. */
+  private refreshOfficial(query: VulnerabilityQuery): void {
+    this.resultsRequest = this.api.getVulnerability(query).pipe(withViewTimeout()).subscribe({
+      next: (units) => {
+        this.unitsByCode.set(new Map(units.map((u) => [u.dsCode, u])));
+        this.resultsLoading.set(false);
+        this.recomputeCoverage();
+      },
+      error: (err: ApiError) => {
+        this.resultsError.set(err.message);
+        this.resultsLoading.set(false);
         this.unitsByCode.set(new Map());
         this.recomputeCoverage();
       },

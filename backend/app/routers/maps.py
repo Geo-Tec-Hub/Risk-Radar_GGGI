@@ -39,8 +39,10 @@ def _label(sector: str, subsector: Optional[str]) -> str:
 async def maps_pdf(
     province: str = Query(..., description="province code, e.g. CEN"),
     period: str = Query(..., pattern=r"^\d{4}-\d{4}$"),
-    track: str = Query("data", pattern="^(data|expert|community)$"),
-    layers: str = Query("vulnerability,hazard,exposure"),
+    # final = per map, the expert track where it has scores, else official
+    # (client NOTED-15: what general users see and print).
+    track: str = Query("data", pattern="^(data|expert|community|final)$"),
+    layers: str = Query("vulnerability,hazard"),
     sector: Optional[str] = None,
     subsector: Optional[str] = None,
     hazard: Optional[str] = None,
@@ -132,10 +134,17 @@ async def maps_pdf(
     profile_layers = [l for l in wanted if l != "hazard"]
 
     for p in profiles if profile_layers else []:
+        used = "expert" if track == "final" else track
         units = await vulnerability_results(
             province=prov["code"], sector=p["sector_code"], hazard=p["hazard_code"],
             period=period, subsector=p["subsector_code"], indexScope="provincial",
-            track=track, pool=pool)
+            track=used, pool=pool)
+        if track == "final" and not any(u.state in ("assessed", "not_applicable") for u in units):
+            used = "data"
+            units = await vulnerability_results(
+                province=prov["code"], sector=p["sector_code"], hazard=p["hazard_code"],
+                period=period, subsector=p["subsector_code"], indexScope="provincial",
+                track=used, pool=pool)
         if not single and not any(u.state in ("assessed", "not_applicable") for u in units):
             excluded.append(p["code"])
             continue
@@ -149,7 +158,8 @@ async def maps_pdf(
             spec = PageSpec(
                 layer=layer,
                 title="%s - %s - %s" % (TITLES[layer], what, p["hazard"]),
-                subtitle=track_line,
+                subtitle="%s Province  |  %s  |  %s track" % (
+                    prov["name"], period, TRACK_LABEL.get(used, used)),
                 profile_line="Profile %s (version %d)  |  %s index of each DS division"
                              % (p["code"], p["version"], TITLES[layer].lower()),
                 province=prov["name"])

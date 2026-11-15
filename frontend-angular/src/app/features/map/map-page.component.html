@@ -10,6 +10,10 @@
     <div class="map-page__banner" role="alert">
       Results are unavailable ({{ message }}). Every division is shown as unassessed until this recovers.
     </div>
+  } @else if (fellBack()) {
+    <div class="map-page__banner map-page__banner--notice" role="status">
+      No expert map exists yet for this selection, so the Official map is shown.
+    </div>
   } @else if (pendingCount() > 0) {
     <div class="map-page__banner map-page__banner--notice" role="status">
       {{ pendingCount() }} division{{ pendingCount() === 1 ? '' : 's' }} hold data for every
@@ -33,7 +37,7 @@
         </button>
         @if (exportPanelOpen()) {
           <span class="map-page__export-panel">
-            Every profile of this province with scores for {{ query().period }}, {{ query().track === 'data' ? 'official' : query().track }} track —
+            Every profile of this province with scores for {{ query().period }}, {{ (effectiveTrack() ?? query().track) === 'data' ? 'official' : (effectiveTrack() ?? query().track) }} track —
             @for (l of layers; track l) {
               <label class="map-page__check">
                 <input type="checkbox" [checked]="exportLayers()[l]" (change)="toggleExportLayer(l, $any($event.target).checked)" />

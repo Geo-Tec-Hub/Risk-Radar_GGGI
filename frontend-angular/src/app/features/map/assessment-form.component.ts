@@ -62,6 +62,9 @@ export class AssessmentFormComponent {
 
   readonly track = computed(() => this.query().track);
   readonly isEntryTrack = computed(() => this.track() === 'expert' || this.track() === 'community');
+  /** General users see only the final maps (NOTED-15): the entry form is for
+   * experts and admins. */
+  readonly canSeeForm = computed(() => this.auth.hasRole('expert') || this.auth.hasRole('admin'));
 
   readonly variables = computed<readonly AssessmentVariable[]>(() => {
     const f = this.form();

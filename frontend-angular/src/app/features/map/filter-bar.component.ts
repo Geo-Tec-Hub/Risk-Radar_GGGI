@@ -135,6 +135,27 @@ export class FilterBarComponent implements OnInit {
   readonly subsector = signal<string | undefined>(undefined);
   readonly hazard = signal<string | undefined>(undefined);
   readonly track = signal<string>(this.tracks[0]);
+
+  /**
+   * Which tracks a person may choose (client NOTED-15, Nov 2026):
+   *   admin          every track
+   *   expert         Expert and Official -- experts enter their figures here
+   *   everyone else  Expert (the final map) and Official; the map falls back to
+   *                  Official by itself where no expert map exists yet
+   *                  (map-page.component.ts). The community track is admin-only.
+   */
+  readonly isAdmin = computed(() => this.auth.hasRole('admin'));
+  readonly trackOptions = computed<readonly string[]>(() =>
+    this.isAdmin() ? this.tracks : ['expert', 'data']);
+
+  /** Keep the selected track one the person may use when they sign in or out. */
+  private readonly keepTrackAllowed = effect(() => {
+    const opts = this.trackOptions();
+    if (!opts.includes(this.track())) {
+      this.track.set(opts[0]);
+      if (this.sector() !== undefined) this.emit();
+    }
+  });
   readonly period = signal<string | undefined>(undefined);
   readonly indexScope = signal<IndexScope>('provincial');
 
@@ -195,7 +216,9 @@ export class FilterBarComponent implements OnInit {
       const askedLayer = qp.get('layer') as MapLayer | null;
       if (askedLayer && MAP_LAYERS.includes(askedLayer)) this.onLayerChange(askedLayer);
       const askedTrack = qp.get('track');
-      if (askedTrack && (this.tracks as readonly string[]).includes(askedTrack)) this.track.set(askedTrack);
+      // Non-admins open on the Expert (final) map; admins on Official as before.
+      if (!this.isAdmin()) this.track.set('expert');
+      if (askedTrack && this.trackOptions().includes(askedTrack)) this.track.set(askedTrack);
       const mine = this.auth.currentUser()?.province;
       const norm = (x: string) => x.replace(/\s+/g, '').toLowerCase();
       const own = mine ? t.provinces.find((p) => norm(p.name) === norm(mine))?.code : undefined;
@@ -245,6 +268,9 @@ export class FilterBarComponent implements OnInit {
    * Fishery, Eastern does not). Re-validate the whole selection, then emit. */
   /** Plain label for the track codes the API uses (FR-5.13). */
   trackLabel(t: string): string {
+    if (!this.isAdmin() && !this.auth.hasRole('expert')) {
+      return t === 'data' ? 'Official' : 'Expert (final map)';
+    }
     return t === 'data' ? 'Official' : t === 'expert' ? 'Expert' : 'Community';
   }
 

@@ -65,7 +65,7 @@ export class DivisionPanelComponent {
   /** Who could add their own figures here if they switched the Track filter. */
   canContribute(): 'expert' | 'community' | null {
     if (this.auth.hasRole('expert')) return 'expert';
-    if (this.auth.hasRole('community')) return 'community';
+    // The community track is admin-only since NOTED-15 (not offered to others).
     return null;
   }
 

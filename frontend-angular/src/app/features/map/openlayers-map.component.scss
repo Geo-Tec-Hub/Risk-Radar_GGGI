@@ -90,3 +90,7 @@
   border-radius: 3px;
   white-space: nowrap;
 }
+
+/* DSD transparency slider (NOTED-15) */
+.map-layers__slider { display: flex; flex-direction: column; gap: 2px; font-size: 12px; }
+.map-layers__slider input[type='range'] { width: 100%; }

@@ -59,7 +59,7 @@
   <label class="filter-bar__field">
     <span>Track</span>
     <select [ngModel]="track()" name="track" (ngModelChange)="track.set($event); onFieldChange()">
-      @for (t of tracks; track t) {
+      @for (t of trackOptions(); track t) {
         <option [ngValue]="t">{{ trackLabel(t) }}</option>
       }
     </select>

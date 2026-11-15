@@ -22,7 +22,9 @@ import { VulnerabilityUnit } from './vulnerability.model';
  */
 export type MapLayer = 'vulnerability' | 'hazard' | 'exposure';
 
-export const MAP_LAYERS: readonly MapLayer[] = ['vulnerability', 'hazard', 'exposure'];
+// The sector index layer is no longer offered (experts, NOTED-15, Nov 2026);
+// 'exposure' stays a valid MapLayer so older links and the API still work.
+export const MAP_LAYERS: readonly MapLayer[] = ['vulnerability', 'hazard'];
 
 export const LAYER_LABEL: Record<MapLayer, string> = {
   vulnerability: 'Present exposure',

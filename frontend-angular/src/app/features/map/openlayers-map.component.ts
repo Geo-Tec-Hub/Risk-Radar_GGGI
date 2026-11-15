@@ -22,6 +22,7 @@ import OSM from 'ol/source/OSM';
 import XYZ from 'ol/source/XYZ';
 import VectorSource from 'ol/source/Vector';
 import View from 'ol/View';
+import { Fill as OlFill, Stroke as OlStroke, Style as OlStyle, Text as OlText } from 'ol/style';
 
 import { BoundaryService } from '../../core/services/boundary.service';
 import { DsDivisionProperties } from '../../core/models/ds-division.model';
@@ -114,7 +115,10 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     const vectorLayer = new VectorLayer({
       source: this.vectorSource,
-      style: (feature) => this.styleFeature(feature as Feature<Geometry>),
+      // Labels that would overlap are dropped rather than drawn on top of each other.
+      declutter: true,
+      opacity: this.divisionOpacity() / 100,
+      style: (feature, resolution) => this.styleFeature(feature as Feature<Geometry>, resolution),
     });
     this.divisionLayer = vectorLayer;
     this.osmLayer = new TileLayer({ source: new OSM(), visible: this.basemap() === 'osm' });
@@ -312,13 +316,49 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
     return unit?.state !== 'not_applicable';
   }
 
-  private styleFeature(feature: Feature<Geometry>) {
+  // ---- DSD labels and transparency (experts, NOTED-15) -------------------
+  /** Division names show once zoomed to about province level; at the national
+   * extent 340 names would only collide. Metres per pixel (EPSG:3857). */
+  private static readonly LABEL_MAX_RESOLUTION = 1000;
+  private readonly labelCache = new Map<string, OlStyle>();
+
+  private labelFor(name: string): OlStyle {
+    let s = this.labelCache.get(name);
+    if (!s) {
+      s = new OlStyle({
+        text: new OlText({
+          text: name,
+          font: '600 11px system-ui, sans-serif',
+          fill: new OlFill({ color: '#212529' }),
+          stroke: new OlStroke({ color: 'rgba(255, 255, 255, 0.9)', width: 3 }),
+          overflow: true,
+        }),
+      });
+      this.labelCache.set(name, s);
+    }
+    return s;
+  }
+
+  /** DSD layer opacity, 0-100, from the slider in the Map layers box. */
+  readonly divisionOpacity = signal(100);
+
+  setDivisionOpacity(raw: unknown): void {
+    const v = Math.max(0, Math.min(100, Number(raw)));
+    if (!Number.isFinite(v)) return;
+    this.divisionOpacity.set(v);
+    this.divisionLayer?.setOpacity(v / 100);
+  }
+
+  private styleFeature(feature: Feature<Geometry>, resolution = Infinity) {
     const dsCode = feature.get('ds_code') as string;
     const unit = this.unitsByCode().get(dsCode);
     const state = unit?.state ?? 'unassessed';
     const band = unit?.band ?? null;
     const selected = this.selectedCode() === dsCode;
-    return styleForState(state, band, selected, this.layer());
+    const base = styleForState(state, band, selected, this.layer());
+    const name = feature.get('ds_division') as string | undefined;
+    if (!name || resolution > OpenlayersMapComponent.LABEL_MAX_RESOLUTION) return base;
+    return [base, this.labelFor(name)];
   }
 
   ngOnDestroy(): void {

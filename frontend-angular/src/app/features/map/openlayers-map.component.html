@@ -17,6 +17,13 @@
                       (change)="setBasemap('osm', $any($event.target).checked)" /> OpenStreetMap</label>
         <label><input type="checkbox" [checked]="basemap() === 'satellite'"
                       (change)="setBasemap('satellite', $any($event.target).checked)" /> Satellite image</label>
+        <p class="map-layers__title">DS divisions</p>
+        <label class="map-layers__slider">
+          Transparency {{ 100 - divisionOpacity() }}%
+          <input type="range" min="0" max="90" step="5" [value]="100 - divisionOpacity()"
+                 (input)="setDivisionOpacity(100 - $any($event.target).value)"
+                 aria-label="DS division layer transparency" />
+        </label>
         <p class="map-layers__title">Reference layers</p>
         @for (o of overlayList; track o.key) {
           <label>
