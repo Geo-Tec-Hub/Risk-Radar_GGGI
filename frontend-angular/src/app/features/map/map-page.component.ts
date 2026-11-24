@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 
@@ -27,7 +28,7 @@ import { LAYER_LABEL, MAP_LAYERS, MapLayer, unitForLayer } from '../../core/mode
 @Component({
   selector: 'app-map-page',
   standalone: true,
-  imports: [FilterBarComponent, OpenlayersMapComponent, CoverageLegendComponent, DivisionPanelComponent],
+  imports: [RouterLink, FilterBarComponent, OpenlayersMapComponent, CoverageLegendComponent, DivisionPanelComponent],
   templateUrl: './map-page.component.html',
   styleUrl: './map-page.component.scss',
 })
@@ -385,7 +386,7 @@ export class MapPageComponent {
    * empty expert map to enter figures. Decided per whole map, never per
    * division: mixing two tracks' scales on one map would mislead.
    */
-  private readonly auth = inject(AuthService);
+  readonly auth = inject(AuthService);
   readonly isGeneralUser = computed(() => !this.auth.hasRole('admin') && !this.auth.hasRole('expert'));
   /** The track actually on screen (differs from the filter only after a fallback). */
   readonly effectiveTrack = signal<VulnerabilityQuery['track']>(undefined);

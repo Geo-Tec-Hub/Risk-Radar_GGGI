@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { adminGuard } from './core/guards/admin.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -31,7 +32,30 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/admin-registrations.component').then((m) => m.AdminRegistrationsComponent),
     title: 'Climatica — Registrations',
-    canActivate: [adminGuard],
+    canActivate: [roleGuard('admin', 'province_admin')],
+  },
+  {
+    path: 'admin/accounts',
+    loadComponent: () => import('./features/admin/admin-accounts.component').then((m) => m.AdminAccountsComponent),
+    title: 'Climatica — Accounts',
+    canActivate: [roleGuard('admin', 'province_admin')],
+  },
+  {
+    path: 'admin/approvals',
+    loadComponent: () => import('./features/admin/admin-approvals.component').then((m) => m.AdminApprovalsComponent),
+    title: 'Climatica — Approvals',
+    canActivate: [roleGuard('admin', 'province_admin')],
+  },
+  {
+    path: 'admin/data-requests',
+    loadComponent: () => import('./features/admin/admin-data-requests.component').then((m) => m.AdminDataRequestsComponent),
+    title: 'Climatica — Data requests',
+    canActivate: [roleGuard('admin', 'data_sharing_admin')],
+  },
+  {
+    path: 'request-data',
+    loadComponent: () => import('./features/legal/request-data.component').then((m) => m.RequestDataComponent),
+    title: 'Climatica — Request data',
   },
   {
     // The model behind the map: profile variables, hazard types, and who may

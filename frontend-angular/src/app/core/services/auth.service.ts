@@ -25,6 +25,10 @@ const ROLE_LANDING: Record<RoleCode, string> = {
   // they land on the map with their own track already chosen.
   expert: '/map?track=expert',
   community: '/map?track=community',
+  // NOTED-17: provincial administrators land on their approval queue, the
+  // data sharing administrator on the data requests.
+  province_admin: '/admin/approvals',
+  data_sharing_admin: '/admin/data-requests',
 };
 
 /**

@@ -53,6 +53,12 @@ export class RegisterPageComponent {
   readonly organization = signal('');
   readonly type = signal<RegistrationType>('agency');
   readonly provinceId = signal<number | undefined>(undefined);
+  /** An expert may work in several provinces (NOTED-17). */
+  readonly extraProvinces = signal<number[]>([]);
+
+  toggleExtra(id: number): void {
+    this.extraProvinces.update((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+  }
 
   readonly needsProvince = computed(() => this.type() !== 'public');
   /** Same rule as the province, and for the same reason: interest areas say
@@ -147,6 +153,9 @@ export class RegisterPageComponent {
       organization: this.organization() || undefined,
       type: this.type(),
       province_id: this.needsProvince() ? this.provinceId() : undefined,
+      province_ids: this.type() === 'expert' && this.provinceId() !== undefined
+        ? [this.provinceId()!, ...this.extraProvinces().filter((p) => p !== this.provinceId())]
+        : undefined,
       interest_areas: this.needsInterestAreas() ? this.selectedAreas() : [],
       hazard_domain: this.needsInterestAreas() && this.hazardDomain(),
     }).subscribe({

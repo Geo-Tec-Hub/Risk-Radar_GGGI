@@ -52,6 +52,12 @@
             </button>
           </span>
         }
+        @if (!auth.isAuthenticated()) {
+          <a class="map-page__btn map-page__btn--ghost" routerLink="/request-data"
+             [queryParams]="{ province: query().province, sector: query().sector, subsector: query().subsector, hazard: query().hazard, period: query().period }">
+            Request data…
+          </a>
+        }
         @if (exportError(); as m) {
           <span class="map-page__export-error" role="alert">{{ m }}</span>
         }

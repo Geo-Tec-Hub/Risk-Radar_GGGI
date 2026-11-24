@@ -1,0 +1,25 @@
+/* Shared look for the NOTED-17 administration screens. */
+.adm { max-width: 1100px; margin: 1.5rem auto; padding: 0 1.25rem; font-size: 0.9rem; color: #212529; }
+.adm h2 { margin: 0 0 0.25rem; }
+.adm__hint { color: #6c757d; margin: 0 0 1rem; }
+.adm__error { color: #c92a2a; background: #fff5f5; border: 1px solid #ffc9c9; border-radius: 4px; padding: 0.5rem 0.75rem; }
+.adm__ok { color: #2b8a3e; background: #ebfbee; border: 1px solid #b2f2bb; border-radius: 4px; padding: 0.5rem 0.75rem; }
+.adm__table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+.adm__table th, .adm__table td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid #e9ecef; vertical-align: top; }
+.adm__table th { color: #495057; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
+.adm__muted { color: #868e96; font-size: 0.8rem; }
+.adm__form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.6rem 1rem; padding: 1rem; border: 1px solid #dee2e6; border-radius: 6px; background: #f8f9fa; margin-bottom: 1.25rem; }
+.adm__form label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.8rem; color: #495057; }
+.adm__form input, .adm__form select, .adm__form textarea, .adm__inline input, .adm__inline select { font: inherit; padding: 0.35rem 0.5rem; border: 1px solid #ced4da; border-radius: 4px; background: #fff; }
+.adm__checks { display: flex; flex-wrap: wrap; gap: 0.3rem 0.9rem; }
+.adm__checks label { flex-direction: row; align-items: center; gap: 0.3rem; }
+.adm__btn { font: inherit; padding: 0.4rem 0.8rem; border-radius: 4px; border: 1px solid #1c3a5b; background: #1c3a5b; color: #fff; cursor: pointer; }
+.adm__btn:disabled { opacity: 0.5; cursor: default; }
+.adm__btn--ghost { background: #fff; color: #1c3a5b; }
+.adm__btn--danger { background: #fff; color: #c92a2a; border-color: #c92a2a; }
+.adm__actions { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.adm__inline { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+.adm__status { display: inline-block; padding: 0.05rem 0.45rem; border-radius: 10px; font-size: 0.75rem; background: #e9ecef; }
+.adm__status--pending, .adm__status--new { background: #fff3bf; }
+.adm__status--approved, .adm__status--shared, .adm__status--active { background: #d3f9d8; }
+.adm__status--rejected, .adm__status--declined, .adm__status--failed { background: #ffe3e3; }

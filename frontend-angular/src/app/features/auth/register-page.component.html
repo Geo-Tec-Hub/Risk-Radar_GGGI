@@ -43,6 +43,16 @@
             }
           </select>
         </label>
+        @if (type() === 'expert' && provinceId() !== undefined) {
+          <fieldset class="auth__areas">
+            <legend>Other provinces you also work in <em>optional</em></legend>
+            @for (p of provinces; track p.id) {
+              @if (p.id !== provinceId()) {
+                <label><input type="checkbox" [checked]="extraProvinces().includes(p.id)" (change)="toggleExtra(p.id)" /> {{ p.name }}</label>
+              }
+            }
+          </fieldset>
+        }
       }
 
       @if (needsInterestAreas()) {

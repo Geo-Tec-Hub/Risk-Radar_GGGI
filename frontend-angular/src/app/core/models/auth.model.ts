@@ -8,7 +8,7 @@
 
 export type RegistrationType = 'agency' | 'expert' | 'public';
 
-export type RoleCode = 'admin' | 'data_officer' | 'expert' | 'community';
+export type RoleCode = 'admin' | 'data_officer' | 'expert' | 'community' | 'province_admin' | 'data_sharing_admin';
 
 export type AccountStatus = 'pending' | 'active' | 'rejected' | 'suspended';
 
@@ -58,6 +58,8 @@ export interface RegisterPayload {
   organization?: string;
   type: RegistrationType;
   province_id?: number;
+  /** An expert's further provinces (NOTED-17); province_id is the first. */
+  province_ids?: number[];
   /** Required for agency and expert; must be empty for public. */
   interest_areas?: InterestArea[];
   /** Asks to write the shared climate variables (Met Dept / DMC). */
@@ -78,6 +80,9 @@ export interface CurrentUser {
   status: AccountStatus;
   province: string | null;
   roles: RoleCode[];
+  /** Home province id, and every province the account works in (NOTED-17). */
+  province_id?: number | null;
+  province_ids?: number[];
 }
 
 /** One row of GET /admin/registrations (v_pending_registration). */

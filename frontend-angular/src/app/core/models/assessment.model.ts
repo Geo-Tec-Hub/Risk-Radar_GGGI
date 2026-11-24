@@ -46,6 +46,13 @@ export interface AssessmentForm {
   readonly myIndexScale?: 1 | 4 | null;
   readonly myHazardEntered?: number | null;
   readonly myExposureEntered?: number | null;
+  /** NOTED-17: a change waiting for the provincial administrator. */
+  readonly pendingId?: number | null;
+  readonly pendingKind?: string | null;
+  readonly pendingAt?: string | null;
+  readonly pendingMine?: boolean;
+  readonly canUndo?: boolean;
+  readonly needsApproval?: boolean;
 }
 
 export interface AssessmentPayload {
@@ -80,4 +87,7 @@ export interface AssessmentResult {
   readonly contributors: number;
   /** 'parameters' | 'index' | 'mixed' -- how the stored score was entered. */
   readonly entry: string | null;
+  /** NOTED-17: sent for approval rather than applied. */
+  readonly pending?: boolean;
+  readonly pendingId?: number | null;
 }

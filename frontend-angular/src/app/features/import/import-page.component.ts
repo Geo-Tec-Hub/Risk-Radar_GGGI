@@ -78,6 +78,8 @@ export interface WeightDomainTotal {
 }
 
 export interface ImportReport {
+  /** NOTED-17: a data-entry user's load waits for the provincial administrator. */
+  awaitingApproval?: boolean;
   filename: string;
   profileCode: string | null;
   dryRun: boolean;
@@ -207,6 +209,7 @@ export interface CorrectionReport {
   updated: number;
   province: string | null;
   recomputeNeeded: boolean;
+  awaitingApproval?: boolean;
 }
 
 @Component({

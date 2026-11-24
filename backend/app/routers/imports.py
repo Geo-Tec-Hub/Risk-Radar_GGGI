@@ -69,6 +69,7 @@ import asyncpg
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
 from pydantic import BaseModel
 
+from app.approval_store import submit_change
 from app.deps import CurrentUser, db, get_current_user
 from app.importer.load_template import AGG_HINT, load_workbook_values
 from app.importer.template_writer import build_climate_workbook, build_profile_workbook
@@ -80,7 +81,7 @@ router = APIRouter(prefix="/import", tags=["import"])
 
 MAX_BYTES = 20 * 1024 * 1024
 
-IMPORT_ROLES = ("admin", "data_officer")
+IMPORT_ROLES = ("admin", "province_admin", "data_officer")
 
 
 def require_import_role(user: CurrentUser) -> None:
@@ -190,6 +191,9 @@ class ImportReport(BaseModel):
     # is exactly the row someone needs to see in order to fill it in.
     columns: list[ColumnOut] = []
     divisionsAll: list[DivisionOut] = []
+    # NOTED-17: a data-entry user's load waits for the provincial administrator.
+    awaitingApproval: bool = False
+    pendingId: Optional[int] = None
 
 
 class BatchRow(BaseModel):
@@ -268,6 +272,8 @@ class CorrectionReport(BaseModel):
     updated: int
     province: Optional[str]
     recomputeNeeded: bool
+    awaitingApproval: bool = False
+    pendingId: Optional[int] = None
 
 
 def _parse_edits(raw: Optional[str]) -> dict[tuple[str, str, str], float]:
@@ -296,6 +302,19 @@ async def _run(pool: asyncpg.Pool, file: UploadFile, user: CurrentUser,
     body = await file.read()
     if len(body) > MAX_BYTES:
         raise HTTPException(413, "file is larger than 20 MB")
+    return await run_bytes(pool, file.filename or "upload.xlsx", body, user, scope,
+                           dry_run, edits)
+
+
+async def run_bytes(pool: asyncpg.Pool, filename: str, body: bytes, user: CurrentUser,
+                    scope, dry_run: bool,
+                    edits: Optional[dict[tuple[str, str, str], float]] = None) -> ImportReport:
+    """The import itself, from the file's bytes -- also used to apply an
+    import on approval (routers/approvals.py), as the person who uploaded it."""
+    class _F:                                   # what the code below reads of the upload
+        pass
+    file = _F()
+    file.filename = filename
 
     tmp = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
     try:
@@ -582,9 +601,33 @@ async def load(
     pool: asyncpg.Pool = Depends(db),
     user: CurrentUser = Depends(get_current_user),
 ) -> ImportReport:
-    return await _run(pool, file, user,
-                      _scope(province, sector, subsector, hazard), dry_run=False,
-                      edits=_parse_edits(edits))
+    scope = _scope(province, sector, subsector, hazard)
+    if user.approves_own_changes(user.province_id):
+        return await _run(pool, file, user, scope, dry_run=False, edits=_parse_edits(edits))
+    # A data-entry user's load is checked now and applied when the provincial
+    # administrator approves it (NOTED-17). The check is the same dry run the
+    # Check button does, so an upload that cannot load is refused at once.
+    require_import_role(user)
+    body = await file.read()
+    if len(body) > MAX_BYTES:
+        raise HTTPException(413, "file is larger than 20 MB")
+    report = await run_bytes(pool, file.filename or "upload.xlsx", body, user, scope,
+                             dry_run=True, edits=_parse_edits(edits))
+    if not report.ok:
+        return report
+    if user.province_id is None:
+        raise HTTPException(403, "your account has no province")
+    async with pool.acquire() as conn:
+        pid = await submit_change(
+            conn, kind="import_load", province_id=user.province_id, user=user,
+            summary="Official data import: %s (%s, %d values)" % (
+                file.filename, report.profileCode or "climate data", report.valuesRead),
+            payload={"scope": list(scope) if scope else None, "edits": edits},
+            file_name=file.filename, file_body=body)
+    return report.model_copy(update={
+        "dryRun": False, "awaitingApproval": True, "pendingId": pid, "rows": [],
+        "warnings": report.warnings + ["Sent to the provincial administrator for approval. "
+                                       "The values load when it is approved."]})
 
 
 # The province a batch belongs to. `import_batch.province_id` is filled in from
@@ -865,6 +908,23 @@ async def correct_values(
     require_import_role(user)
     if not body.edits:
         raise HTTPException(400, "no corrections were sent")
+    async with pool.acquire() as conn:
+        b = await _batch_scope(conn, batch_id)
+        _readable(user, b)
+        if not user.approves_own_changes(b["province_id"]):
+            if not await _may_edit(conn, user, b):
+                raise HTTPException(403, "you are not authorised to change values in this import.")
+            pid = await submit_change(
+                conn, kind="batch_values", province_id=b["province_id"], user=user,
+                summary="Correct %d value(s) in import %s" % (len(body.edits), b["filename"]),
+                payload={"batch_id": batch_id, "edits": [e.model_dump() for e in body.edits]})
+            return CorrectionReport(updated=0, province=b["province"], recomputeNeeded=False,
+                                    awaitingApproval=True, pendingId=pid)
+    return await apply_correction(pool, batch_id, body, user)
+
+
+async def apply_correction(pool, batch_id: int, body: CorrectionBody,
+                           user: CurrentUser) -> CorrectionReport:
     async with pool.acquire() as conn:
         b = await _batch_scope(conn, batch_id)
         _readable(user, b)

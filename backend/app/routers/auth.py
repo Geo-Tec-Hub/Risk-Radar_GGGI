@@ -36,7 +36,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
 from app.config import get_settings
-from app.deps import CurrentUser, db, get_current_user
+from app.deps import load_user_roles, CurrentUser, db, get_current_user
 from app.scope import InterestArea, ScopeError, as_requested_scope, resolve_areas
 from app.security import hash_password, hash_session_token, new_session_token, verify_password
 
@@ -54,6 +54,9 @@ class RegisterRequest(BaseModel):
     organization: Optional[str] = Field(default=None, max_length=200)
     type: Literal["agency", "expert", "public"]
     province_id: Optional[int] = None
+    # An EXPERT may work in several provinces (NOTED-17). province_id stays the
+    # first (home) one; this lists any further ones.
+    province_ids: list[int] = Field(default_factory=list, max_length=9)
     interest_areas: list[InterestArea] = Field(
         default_factory=list, max_length=64,
         description="the sectors this applicant works in. Required for agency "
@@ -78,6 +81,8 @@ class UserOut(BaseModel):
     status: str
     province: Optional[str]
     roles: list[str]
+    province_id: Optional[int] = None
+    province_ids: list[int] = []
 
 
 def _user_out(user: CurrentUser) -> UserOut:
@@ -85,6 +90,7 @@ def _user_out(user: CurrentUser) -> UserOut:
         id=user.id, email=user.email, full_name=user.full_name,
         organization=user.organization, status=user.status,
         province=user.province, roles=user.roles,
+        province_id=user.province_id, province_ids=user.provinces,
     )
 
 
@@ -182,6 +188,17 @@ async def register(body: RegisterRequest, pool: asyncpg.Pool = Depends(db)) -> d
         log.exception("registration insert failed: %s", exc)
         raise HTTPException(status_code=500, detail="registration failed") from exc
 
+    # Further provinces of an expert (NOTED-17); the first stays province_id.
+    if role_code == "expert":
+        extra = sorted({p for p in body.province_ids if p != body.province_id})
+        if extra:
+            known = {r["id"] for r in await pool.fetch(
+                "SELECT id FROM province WHERE id = ANY($1::smallint[])", extra)}
+            await pool.executemany(
+                "INSERT INTO user_province (user_id, province_id) VALUES ($1, $2) "
+                "ON CONFLICT DO NOTHING",
+                [(new_id, p) for p in [body.province_id] + [x for x in extra if x in known]])
+
     return {"id": new_id, "status": "pending"}
 
 
@@ -221,11 +238,7 @@ async def login(body: LoginRequest, response: Response, pool: asyncpg.Pool = Dep
         """,
         row["id"],
     )
-    role_rows = await pool.fetch(
-        "SELECT r.code FROM user_role ur JOIN role r ON r.id = ur.role_id WHERE ur.user_id = $1",
-        row["id"],
-    )
-    return _user_out(CurrentUser(user_row, [r["code"] for r in role_rows]))
+    return _user_out(await load_user_roles(pool, user_row))
 
 
 @router.post("/auth/logout", status_code=204)

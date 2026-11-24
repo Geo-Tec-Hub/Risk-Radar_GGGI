@@ -35,6 +35,7 @@ the division and period, and the track's score is the mean over contributors.
 
 from __future__ import annotations
 
+import json
 from typing import Literal, Optional
 
 import asyncpg
@@ -44,6 +45,8 @@ from pydantic import BaseModel, Field
 from app.deps import CurrentUser, db, get_current_user, get_optional_user
 from app.engine.track import (compute_track_division, contributors, index_entries,
                                rescale_track_profile)
+from app.engine.track import is_withdrawn
+from app.approval_store import pending_for, submit_change
 from app.importer.load_template import AGG_HINT
 
 router = APIRouter(prefix="/assessments", tags=["assessments"])
@@ -89,6 +92,14 @@ class AssessmentForm(BaseModel):
     myIndexScale: Optional[int] = None
     myHazardEntered: Optional[float] = None
     myExposureEntered: Optional[float] = None
+    # NOTED-17: a change waiting for the provincial administrator, and whether
+    # Undo has anything to do (withdraw that change, or restore a version).
+    pendingId: Optional[int] = None
+    pendingKind: Optional[str] = None
+    pendingAt: Optional[str] = None
+    pendingMine: bool = False
+    canUndo: bool = False
+    needsApproval: bool = False
 
 
 class ValueIn(BaseModel):
@@ -126,6 +137,9 @@ class AssessmentOut(BaseModel):
     baseline: Optional[str] = None
     contributors: int = 0
     entry: Optional[str] = None
+    # NOTED-17: an expert's change waits for the provincial administrator.
+    pending: bool = False
+    pendingId: Optional[int] = None
 
 
 async def _profile(conn, province: str, sector: str, subsector: Optional[str],
@@ -165,13 +179,14 @@ def may_write_track(user: Optional[CurrentUser], track: str,
         return False, "sign in to add your own assessment"
     if user.status != "active":
         return False, "your account is not active yet"
-    if user.has_role("admin"):
+    if user.has_role("admin") or user.is_province_admin(province_id):
         return True, None
     if track == "expert":
         if not user.has_role("expert"):
             return False, "the expert track is for accounts with the expert role"
-        if user.province_id != province_id:
-            return False, ("an expert assesses divisions of their own province "
+        # An expert may hold several provinces (user_province, NOTED-17).
+        if province_id not in user.provinces:
+            return False, ("an expert assesses divisions of their own province(s) "
                            "(%s)" % (user.province or "none set"))
         return True, None
     if not user.has_role("community"):
@@ -257,6 +272,15 @@ async def form(
                 div["id"], prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"],
                 track, user.id, y0)
         my_mode = "index" if my_idx else ("parameters" if mine else None)
+        waiting = await pending_for(conn, prof, div["id"], track)
+        has_history = bool(await conn.fetchval(
+            """SELECT 1 FROM assessment_history
+                WHERE ds_division_id = $1 AND sector_id = $2
+                  AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
+                  AND source = $5::source_type AND year_start = $6 AND year_end = $7
+                  AND restored_at IS NULL AND reason <> 'before an undo' LIMIT 1""",
+            div["id"], prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"],
+            track, y0, y1))
 
     weights_complete = bool(members) and all(m["weight_pct"] is not None for m in members)
     allowed, reason = may_write_track(user, track, prof["province_id"])
@@ -287,7 +311,13 @@ async def form(
         myHazardEntered=(my_entered["hazard_entered"] if my_entered and my_entered["hazard_entered"] is not None
                          else (my_idx["hazard_index"] if my_idx else None)),
         myExposureEntered=(my_entered["exposure_entered"] if my_entered and my_entered["exposure_entered"] is not None
-                           else (my_idx["exposure_index"] if my_idx else None)))
+                           else (my_idx["exposure_index"] if my_idx else None)),
+        pendingId=waiting["id"] if waiting else None,
+        pendingKind=waiting["kind"] if waiting else None,
+        pendingAt=waiting["submitted_at"].isoformat() if waiting else None,
+        pendingMine=bool(waiting and user is not None and waiting["submitted_by"] == user.id),
+        canUndo=allowed and (bool(waiting) or has_history),
+        needsApproval=bool(user is not None and not user.approves_own_changes(prof["province_id"])))
 
 
 @router.post("", response_model=AssessmentOut)
@@ -296,6 +326,33 @@ async def save(
     pool: asyncpg.Pool = Depends(db),
     user: CurrentUser = Depends(get_current_user),
 ) -> AssessmentOut:
+    """Save my figures. An expert's (or community member's) save is sent to the
+    provincial administrator for approval and applied only then (NOTED-17);
+    the map keeps the approved values meanwhile. Administrators' saves apply
+    at once."""
+    _years(body.period)
+    async with pool.acquire() as conn:
+        prof = await _profile(conn, body.province, body.sector, body.subsector, body.hazard)
+        allowed, reason = may_write_track(user, body.track, prof["province_id"])
+        if not allowed:
+            raise HTTPException(403, reason)
+        div = await _division(conn, prof["province_id"], body.dsCode)
+        if not user.approves_own_changes(prof["province_id"]):
+            pid = await submit_change(
+                conn, kind="assessment_save", province_id=prof["province_id"], user=user,
+                summary="%s assessment of %s -- %s%s / %s (%s)" % (
+                    body.track.capitalize(), div["name"], body.sector,
+                    "/" + body.subsector if body.subsector else "", body.hazard,
+                    "by index" if body.mode == "index" else "by parameters"),
+                payload=body.model_dump(), division_id=div["id"], prof=prof, source=body.track)
+            return AssessmentOut(ok=False, saved=0, pending=True, pendingId=pid,
+                                 reason="sent to the provincial administrator for approval")
+    return await apply_save(pool, body, user)
+
+
+async def apply_save(pool, body: AssessmentIn, user: CurrentUser) -> AssessmentOut:
+    """The save itself -- called directly for administrators, and on approval
+    for everyone else (routers/approvals.py), as the person who submitted it."""
     y0, y1 = _years(body.period)
     async with pool.acquire() as conn:
         prof = await _profile(conn, body.province, body.sector, body.subsector, body.hazard)
@@ -329,6 +386,7 @@ async def save(
             h01 = body.hazardIndex / top
             e01 = body.exposureIndex / top
             async with conn.transaction():
+                await snapshot(conn, prof, div["id"], body.track, y0, y1, user, "before a save")
                 await conn.execute(
                     """
                     DELETE FROM indicator_value
@@ -396,6 +454,7 @@ async def save(
             raise HTTPException(400, "; ".join(problems))
 
         async with conn.transaction():
+            await snapshot(conn, prof, div["id"], body.track, y0, y1, user, "before a save")
             # One way per person: a parameter save clears their index entry.
             await conn.execute(
                 """
@@ -463,6 +522,8 @@ class RemoveOut(BaseModel):
     figuresDeleted: int   # parameter figures that belonged to this profile only
     indexEntriesDeleted: int
     sharedKept: list[str] # variables kept because other profiles use them
+    pending: bool = False
+    pendingId: Optional[int] = None
 
 
 @router.post("/remove", response_model=RemoveOut)
@@ -483,12 +544,29 @@ async def remove(
 
     WHO. One division: anyone who may write that track there (the expert of the
     province, or an admin). A whole dataset (no dsCode): admin only."""
-    y0, y1 = _years(body.period)
+    _years(body.period)
     async with pool.acquire() as conn:
         prof = await _profile(conn, body.province, body.sector, body.subsector, body.hazard)
         allowed, reason = may_write_track(user, body.track, prof["province_id"])
         if not allowed:
             raise HTTPException(403, reason)
+        if body.dsCode and not user.approves_own_changes(prof["province_id"]):
+            div = await _division(conn, prof["province_id"], body.dsCode)
+            pid = await submit_change(
+                conn, kind="assessment_remove", province_id=prof["province_id"], user=user,
+                summary="Remove the %s assessment of %s -- %s%s / %s" % (
+                    body.track, div["name"], body.sector,
+                    "/" + body.subsector if body.subsector else "", body.hazard),
+                payload=body.model_dump(), division_id=div["id"], prof=prof, source=body.track)
+            return RemoveOut(removed=0, figuresDeleted=0, indexEntriesDeleted=0, sharedKept=[],
+                             pending=True, pendingId=pid)
+    return await apply_remove(pool, body, user)
+
+
+async def apply_remove(pool, body: "RemoveIn", user: CurrentUser) -> "RemoveOut":
+    y0, y1 = _years(body.period)
+    async with pool.acquire() as conn:
+        prof = await _profile(conn, body.province, body.sector, body.subsector, body.hazard)
         if body.dsCode:
             div_ids = [(await _division(conn, prof["province_id"], body.dsCode))["id"]]
         else:
@@ -536,6 +614,8 @@ async def remove(
             if body.dsCode:
                 had |= set(div_ids)
             targets = sorted(had)
+            for d in targets:
+                await snapshot(conn, prof, d, body.track, y0, y1, user, "before a removal")
             if targets:
                 await conn.executemany(
                     """INSERT INTO track_withdrawal
@@ -566,3 +646,189 @@ async def remove(
 
     return RemoveOut(removed=len(targets), figuresDeleted=n_fig,
                      indexEntriesDeleted=n_idx, sharedKept=shared)
+
+
+# ---- undo (client NOTED-17) -------------------------------------------------
+#
+# Before every applied save or removal, the expert-track figures of that
+# division and profile scope are copied into assessment_history: every
+# person's figures for the profile's variables, the index entries, and whether
+# the scope was withdrawn. Undo puts the latest copy back. If the person's last
+# change is still waiting for approval, Undo simply withdraws it instead.
+
+async def snapshot(conn, prof, division_id: int, track: str, y0: int, y1: int,
+                   user, reason: str) -> None:
+    ids = [r["indicator_id"] for r in await conn.fetch(
+        "SELECT indicator_id FROM profile_indicator WHERE profile_id = $1", prof["id"])]
+    figures = [dict(r) for r in await conn.fetch(
+        """SELECT indicator_id, user_id, raw_value, derivation::text AS derivation,
+                  data_source, notes
+             FROM indicator_value
+            WHERE ds_division_id = $1 AND source = $2::source_type
+              AND indicator_id = ANY($3::bigint[]) AND scenario_id IS NULL
+              AND year_start = $4 AND year_end = $5""",
+        division_id, track, ids, y0, y1)]
+    entries = [dict(r) for r in await conn.fetch(
+        """SELECT user_id, hazard_index, exposure_index, note, entered_scale,
+                  hazard_entered, exposure_entered
+             FROM track_index_entry
+            WHERE ds_division_id = $1 AND sector_id = $2
+              AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
+              AND source = $5::source_type AND year_start = $6 AND year_end = $7""",
+        division_id, prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"],
+        track, y0, y1)]
+    withdrawn = await is_withdrawn(conn, prof, division_id, track, y0, y1)
+    await conn.execute(
+        """INSERT INTO assessment_history
+               (ds_division_id, sector_id, subsector_id, hazard_type_id, source,
+                year_start, year_end, snapshot, reason, created_by)
+           VALUES ($1, $2, $3, $4, $5::source_type, $6, $7, $8::jsonb, $9, $10)""",
+        division_id, prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"],
+        track, y0, y1,
+        json.dumps({"indicators": ids, "figures": figures, "entries": entries,
+                    "withdrawn": withdrawn}, default=str),
+        reason, user.id if user else None)
+
+
+async def apply_restore(pool, history_id: int, user) -> dict:
+    """Put a division's expert-track figures back as they were in one snapshot,
+    then re-score every profile of the province that uses them."""
+    async with pool.acquire() as conn:
+        h = await conn.fetchrow("SELECT * FROM assessment_history WHERE id = $1", history_id)
+        if h is None:
+            raise HTTPException(404, "nothing to restore")
+        if h["restored_at"] is not None:
+            raise HTTPException(409, "that version has already been restored")
+        snap = h["snapshot"]
+        snap = json.loads(snap) if isinstance(snap, str) else snap
+        prof = await conn.fetchrow(
+            """SELECT id, code, province_id, sector_id, subsector_id, hazard_type_id
+                 FROM vulnerability_profile
+                WHERE is_active AND sector_id = $1 AND subsector_id IS NOT DISTINCT FROM $2
+                  AND hazard_type_id = $3
+                  AND province_id = (SELECT province_id FROM ds_division WHERE id = $4)""",
+            h["sector_id"], h["subsector_id"], h["hazard_type_id"], h["ds_division_id"])
+        if prof is None:
+            raise HTTPException(404, "the profile of that version is no longer active")
+        d, src, y0, y1 = h["ds_division_id"], h["source"], h["year_start"], h["year_end"]
+        async with conn.transaction():
+            await snapshot(conn, prof, d, src, y0, y1, user, "before an undo")
+            await conn.execute(
+                """DELETE FROM indicator_value
+                    WHERE ds_division_id = $1 AND source = $2::source_type
+                      AND indicator_id = ANY($3::bigint[]) AND scenario_id IS NULL
+                      AND year_start = $4 AND year_end = $5""",
+                d, src, snap["indicators"], y0, y1)
+            for f in snap["figures"]:
+                await conn.execute(
+                    """INSERT INTO indicator_value
+                           (indicator_id, ds_division_id, source, user_id, year_start, year_end,
+                            raw_value, derivation, data_source, notes)
+                       VALUES ($1, $2, $3::source_type, $4, $5, $6, $7, $8::derivation_type, $9, $10)""",
+                    f["indicator_id"], d, src, f["user_id"], y0, y1, f["raw_value"],
+                    f["derivation"], f["data_source"], f["notes"])
+            await conn.execute(
+                """DELETE FROM track_index_entry
+                    WHERE ds_division_id = $1 AND sector_id = $2
+                      AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
+                      AND source = $5::source_type AND year_start = $6 AND year_end = $7""",
+                d, prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"], src, y0, y1)
+            for e in snap["entries"]:
+                await conn.execute(
+                    """INSERT INTO track_index_entry
+                           (ds_division_id, sector_id, subsector_id, hazard_type_id, source,
+                            user_id, year_start, year_end, hazard_index, exposure_index, note,
+                            entered_scale, hazard_entered, exposure_entered)
+                       VALUES ($1, $2, $3, $4, $5::source_type, $6, $7, $8, $9, $10, $11,
+                               $12, $13, $14)""",
+                    d, prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"], src,
+                    e["user_id"], y0, y1, e["hazard_index"], e["exposure_index"], e["note"],
+                    e["entered_scale"], e["hazard_entered"], e["exposure_entered"])
+            await _unwithdraw(conn, prof, d, src, y0, y1)
+            if snap["withdrawn"]:
+                await conn.execute(
+                    """INSERT INTO track_withdrawal
+                           (ds_division_id, sector_id, subsector_id, hazard_type_id, source,
+                            year_start, year_end, withdrawn_by, note)
+                       VALUES ($1, $2, $3, $4, $5::source_type, $6, $7, $8, 'restored by undo')
+                       ON CONFLICT DO NOTHING""",
+                    d, prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"], src,
+                    y0, y1, user.id if user else None)
+            await conn.execute("UPDATE assessment_history SET restored_at = now() WHERE id = $1",
+                               history_id)
+            # Every active profile of the province that uses these variables
+            # is re-scored for this division, then rescaled.
+            others = await conn.fetch(
+                """SELECT DISTINCT vp.id FROM vulnerability_profile vp
+                     JOIN profile_indicator pi ON pi.profile_id = vp.id
+                    WHERE vp.is_active AND vp.province_id = $1
+                      AND pi.indicator_id = ANY($2::bigint[])""",
+                prof["province_id"], snap["indicators"])
+            for o in {prof["id"], *[r["id"] for r in others]}:
+                await compute_track_division(conn, o, d, src, y0, y1)
+                await rescale_track_profile(conn, o, src, y0, y1)
+    return {"restored": True}
+
+
+class UndoIn(BaseModel):
+    province: str
+    sector: str
+    subsector: Optional[str] = None
+    hazard: str
+    period: str = Field(pattern=r"^\d{4}-\d{4}$")
+    track: Track
+    dsCode: str
+
+
+class UndoOut(BaseModel):
+    action: Literal["cancelled", "restored", "pending"]
+    message: str
+    pendingId: Optional[int] = None
+
+
+@router.post("/undo", response_model=UndoOut)
+async def undo(
+    body: UndoIn,
+    pool: asyncpg.Pool = Depends(db),
+    user: CurrentUser = Depends(get_current_user),
+) -> UndoOut:
+    """Undo the last change to this division's assessment (NOTED-17)."""
+    y0, y1 = _years(body.period)
+    async with pool.acquire() as conn:
+        prof = await _profile(conn, body.province, body.sector, body.subsector, body.hazard)
+        allowed, reason = may_write_track(user, body.track, prof["province_id"])
+        if not allowed:
+            raise HTTPException(403, reason)
+        div = await _division(conn, prof["province_id"], body.dsCode)
+        waiting = await pending_for(conn, prof, div["id"], body.track)
+        if waiting and (waiting["submitted_by"] == user.id
+                        or user.approves_own_changes(prof["province_id"])):
+            await conn.execute(
+                """UPDATE pending_change SET status = 'cancelled', decided_by = $2,
+                          decided_at = now(), decision_note = 'withdrawn with Undo'
+                    WHERE id = $1 AND status = 'pending'""", waiting["id"], user.id)
+            return UndoOut(action="cancelled",
+                           message="Your change was waiting for approval and has been withdrawn.")
+        h = await conn.fetchrow(
+            """SELECT id FROM assessment_history
+                WHERE ds_division_id = $1 AND sector_id = $2
+                  AND subsector_id IS NOT DISTINCT FROM $3 AND hazard_type_id = $4
+                  AND source = $5::source_type AND year_start = $6 AND year_end = $7
+                  AND restored_at IS NULL AND reason <> 'before an undo'
+                ORDER BY id DESC LIMIT 1""",
+            div["id"], prof["sector_id"], prof["subsector_id"], prof["hazard_type_id"],
+            body.track, y0, y1)
+        if h is None:
+            raise HTTPException(404, "there is no earlier version of this assessment to go back to")
+        if not user.approves_own_changes(prof["province_id"]):
+            pid = await submit_change(
+                conn, kind="assessment_restore", province_id=prof["province_id"], user=user,
+                summary="Undo: restore the previous %s assessment of %s -- %s%s / %s" % (
+                    body.track, div["name"], body.sector,
+                    "/" + body.subsector if body.subsector else "", body.hazard),
+                payload={"history_id": h["id"]}, division_id=div["id"], prof=prof,
+                source=body.track)
+            return UndoOut(action="pending", pendingId=pid,
+                           message="Undo sent to the provincial administrator for approval.")
+    await apply_restore(pool, h["id"], user)
+    return UndoOut(action="restored", message="The previous version has been restored.")

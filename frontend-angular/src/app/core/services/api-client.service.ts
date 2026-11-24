@@ -96,6 +96,15 @@ export class ApiClientService {
       `${this.base}/assessments/remove`, payload, WITH_CREDENTIALS);
   }
 
+  /** POST /assessments/undo -- withdraw my waiting change, or go back to the previous version (NOTED-17). */
+  undoAssessment(payload: {
+    province: string; sector: string; subsector: string | null; hazard: string;
+    period: string; track: string; dsCode: string;
+  }): Observable<{ action: 'cancelled' | 'restored' | 'pending'; message: string }> {
+    return this.http.post<{ action: 'cancelled' | 'restored' | 'pending'; message: string }>(
+      `${this.base}/assessments/undo`, payload, WITH_CREDENTIALS);
+  }
+
   /** GET /import/profile -- which profile version an import with these pickers lands in. */
   getImportProfile(scope: ImportScopeNames): Observable<{ profileCode: string; version: number; variables: number }> {
     return this.http.get<{ profileCode: string; version: number; variables: number }>(

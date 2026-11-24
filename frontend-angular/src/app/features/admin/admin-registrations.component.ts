@@ -9,10 +9,10 @@ import { PROVINCE_OPTIONS, ProvinceOption } from '../../core/models/reference-da
 import { ApiClientService } from '../../core/services/api-client.service';
 import { AuthService } from '../../core/services/auth.service';
 
-const ROLES: readonly RoleCode[] = ['data_officer', 'expert', 'community', 'admin'];
+const ROLES: readonly RoleCode[] = ['data_officer', 'expert', 'province_admin', 'data_sharing_admin', 'community', 'admin'];
 
 function roleNeedsProvince(role: RoleCode): boolean {
-  return role === 'data_officer' || role === 'expert';
+  return role === 'data_officer' || role === 'expert' || role === 'province_admin';
 }
 
 /**
@@ -45,7 +45,10 @@ export class AdminRegistrationsComponent {
   private readonly auth = inject(AuthService);
   private readonly api = inject(ApiClientService);
 
-  readonly roles = ROLES;
+  /** A provincial administrator approves experts and data-entry users only (NOTED-17). */
+  get roles(): readonly RoleCode[] {
+    return this.auth.hasRole('admin') ? ROLES : ['data_officer', 'expert'];
+  }
   readonly provinces: readonly ProvinceOption[] = PROVINCE_OPTIONS;
   readonly roleNeedsProvince = roleNeedsProvince;
 

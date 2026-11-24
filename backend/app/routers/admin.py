@@ -29,7 +29,7 @@ import asyncpg
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from app.deps import CurrentUser, db, require_admin
+from app.deps import CurrentUser, db, require_account_admin, require_admin
 from app.scope import (InterestArea, ScopeError, ScopeOut, read_scope,
                        replace_scope, resolve_areas)
 
@@ -110,16 +110,31 @@ def _requested_hazard(raw) -> bool:
     return bool(_scope_json(raw).get("hazardDomain"))
 
 
+async def _check_own_province(conn, admin: CurrentUser, user_id: int,
+                              province_id: int | None = None) -> None:
+    """A provincial administrator (NOTED-17) manages only the accounts of their
+    own province, and only experts and data-entry users."""
+    if admin.is_super_admin():
+        return
+    pid = province_id if province_id is not None else await conn.fetchval(
+        "SELECT province_id FROM app_user WHERE id = $1", user_id)
+    if pid is None or pid != admin.province_id:
+        raise HTTPException(403, "a provincial administrator manages the accounts of "
+                                 "their own province only")
+
+
 @router.get("/admin/registrations")
 async def list_pending(
-    _admin: CurrentUser = Depends(require_admin),
+    _admin: CurrentUser = Depends(require_account_admin),
     pool: asyncpg.Pool = Depends(db),
 ) -> list[PendingRegistrationOut]:
     rows = await pool.fetch(
         """SELECT v.*, u.requested_scope
              FROM v_pending_registration v
              JOIN app_user u ON u.id = v.id
-            ORDER BY v.registered_at""")
+            WHERE $1::smallint IS NULL OR u.province_id = $1
+            ORDER BY v.registered_at""",
+        None if _admin.is_super_admin() else _admin.province_id)
     return [
         PendingRegistrationOut(
             id=r["id"], email=r["email"], full_name=r["full_name"],
@@ -137,9 +152,14 @@ async def list_pending(
 async def approve(
     user_id: int,
     body: ApproveRequest,
-    admin: CurrentUser = Depends(require_admin),
+    admin: CurrentUser = Depends(require_account_admin),
     pool: asyncpg.Pool = Depends(db),
 ) -> dict:
+    if not admin.is_super_admin():
+        if body.role not in _SCOPED_ROLES:
+            raise HTTPException(403, "a provincial administrator approves experts and "
+                                     "data-entry users only")
+        await _check_own_province(pool, admin, user_id, body.province_id)
     role_row = await pool.fetchrow("SELECT id FROM role WHERE code = $1", body.role)
     if role_row is None:
         raise HTTPException(status_code=422, detail=f'unknown role code "{body.role}"')
@@ -220,6 +240,12 @@ async def approve(
                 await replace_scope(conn, user_id, granted,
                                     body.may_write_hazard_domain, admin.id,
                                     body.scope_note)
+            # The home province is always one of the account's provinces.
+            await conn.execute(
+                """INSERT INTO user_province (user_id, province_id)
+                   SELECT id, province_id FROM app_user
+                    WHERE id = $1 AND province_id IS NOT NULL
+                   ON CONFLICT DO NOTHING""", user_id)
 
     return {
         "id": user_id, "status": "active", "role": body.role,
@@ -231,10 +257,11 @@ async def approve(
 @router.get("/admin/users/{user_id}/scope")
 async def get_user_scope(
     user_id: int,
-    _admin: CurrentUser = Depends(require_admin),
+    _admin: CurrentUser = Depends(require_account_admin),
     pool: asyncpg.Pool = Depends(db),
 ) -> ScopeOut:
     async with pool.acquire() as conn:
+        await _check_own_province(conn, _admin, user_id)
         if not await conn.fetchval("SELECT 1 FROM app_user WHERE id = $1", user_id):
             raise HTTPException(status_code=404, detail="no such user")
         return await read_scope(conn, user_id)
@@ -244,7 +271,7 @@ async def get_user_scope(
 async def set_user_scope(
     user_id: int,
     body: ScopeAmendRequest,
-    admin: CurrentUser = Depends(require_admin),
+    admin: CurrentUser = Depends(require_account_admin),
     pool: asyncpg.Pool = Depends(db),
 ) -> ScopeOut:
     """Amend an approved account's write scope -- someone changes teams, or an
@@ -261,6 +288,7 @@ async def set_user_scope(
     request that meant to change only the hazard flag.
     """
     async with pool.acquire() as conn:
+        await _check_own_province(conn, admin, user_id)
         async with conn.transaction():
             row = await conn.fetchrow(
                 """SELECT u.status,
@@ -296,9 +324,10 @@ def _label(a) -> str:
 async def reject(
     user_id: int,
     body: RejectRequest,
-    _admin: CurrentUser = Depends(require_admin),
+    _admin: CurrentUser = Depends(require_account_admin),
     pool: asyncpg.Pool = Depends(db),
 ) -> dict:
+    await _check_own_province(pool, _admin, user_id)
     row = await pool.fetchrow("SELECT status FROM app_user WHERE id = $1", user_id)
     if row is None:
         raise HTTPException(status_code=404, detail="no such user")

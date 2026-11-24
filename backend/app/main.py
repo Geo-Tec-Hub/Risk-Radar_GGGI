@@ -17,8 +17,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.db import open_pool_or_none
-from app.routers import (admin, assessments, auth, catalog_admin, compute, coverage,
-                         health, imports, maps, profiles, reference, vulnerability)
+from app.routers import (accounts, admin, approvals, assessments, auth, catalog_admin, compute,
+                         coverage, data_requests, health, imports, maps, profiles, reference,
+                         vulnerability)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -60,3 +61,6 @@ app.include_router(catalog_admin.router, prefix="/api")
 app.include_router(coverage.router, prefix="/api")
 app.include_router(assessments.router, prefix="/api")
 app.include_router(maps.router, prefix="/api")
+app.include_router(accounts.router, prefix="/api")
+app.include_router(approvals.router, prefix="/api")
+app.include_router(data_requests.router, prefix="/api")

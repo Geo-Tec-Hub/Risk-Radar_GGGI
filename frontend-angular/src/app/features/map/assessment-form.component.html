@@ -17,6 +17,24 @@
         @if (f.contributors > 0) { · {{ f.contributors }} contributor{{ f.contributors === 1 ? '' : 's' }} so far }
       </p>
 
+      @if (f.pendingId) {
+        <p class="af__note af__note--warn" role="status">
+          {{ f.pendingMine ? 'Your change' : 'A change' }} to this assessment is waiting for the provincial
+          administrator's approval. The map shows the approved values until then.
+        </p>
+      } @else if (f.needsApproval && f.canSubmit) {
+        <p class="af__note">Your changes are sent to the provincial administrator for approval before they appear on the map.</p>
+      }
+      @if (f.canSubmit && f.canUndo) {
+        <div class="af__remove">
+          <button type="button" class="af__btn af__btn--ghost" [disabled]="undoing()" (click)="undo()"
+                  [title]="f.pendingId ? 'Withdraw the change that is waiting for approval' : 'Go back to the previous version of this assessment'">
+            {{ undoing() ? 'Undoing…' : (f.pendingId && f.pendingMine ? 'Undo (withdraw my waiting change)' : 'Undo (restore previous version)') }}
+          </button>
+        </div>
+      }
+      @if (undoMsg(); as m) { <p class="af__note" role="status">{{ m }}</p> }
+
       @if (!f.canSubmit) {
         <p class="af__note af__note--warn">{{ f.reason }}</p>
       } @else {
@@ -202,7 +220,12 @@
         <p class="af__note af__note--error" role="alert">Not saved: {{ message }}</p>
       }
       @if (result(); as r) {
-        @if (r.ok) {
+        @if (r.pending) {
+          <div class="af__result" role="status">
+            <strong>Sent for approval.</strong> Your figures go to the provincial administrator and appear on the map
+            once approved. Use Undo to withdraw them before then.
+          </div>
+        } @else if (r.ok) {
           <div class="af__result" role="status">
             <strong>Saved.</strong> Present exposure {{ r.vulnerabilityIndex | number: '1.0-4' }}
             (hazard {{ r.hazardIndex | number: '1.0-4' }} × exposure {{ r.exposureIndex | number: '1.0-4' }}

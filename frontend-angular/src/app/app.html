@@ -5,12 +5,22 @@
     <nav class="app-header__nav">
       <a routerLink="/map" routerLinkActive="is-active">Map</a>
       <a routerLink="/coverage" routerLinkActive="is-active">Coverage</a>
-      @if (!auth.isAuthenticated() || auth.hasRole('admin') || auth.hasRole('data_officer')) {
+      @if (auth.hasRole('admin') || auth.hasRole('province_admin') || auth.hasRole('data_officer')) {
         <a routerLink="/import" routerLinkActive="is-active">Import</a>
       }
-      @if (auth.hasRole('admin')) {
+      @if (auth.hasRole('admin') || auth.hasRole('province_admin')) {
+        <a routerLink="/admin/approvals" routerLinkActive="is-active">Approvals</a>
+        <a routerLink="/admin/accounts" routerLinkActive="is-active">Accounts</a>
         <a routerLink="/admin/registrations" routerLinkActive="is-active">Registrations</a>
+      }
+      @if (auth.hasRole('admin') || auth.hasRole('data_sharing_admin')) {
+        <a routerLink="/admin/data-requests" routerLinkActive="is-active">Data requests</a>
+      }
+      @if (auth.hasRole('admin')) {
         <a routerLink="/admin/model" routerLinkActive="is-active">Model</a>
+      }
+      @if (!auth.isAuthenticated()) {
+        <a routerLink="/request-data" routerLinkActive="is-active">Request data</a>
       }
     </nav>
 

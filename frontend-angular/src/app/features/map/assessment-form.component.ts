@@ -198,6 +198,35 @@ export class AssessmentFormComponent {
   readonly removeMsg = signal<string | null>(null);
   readonly isAdmin = computed(() => this.auth.hasRole('admin'));
 
+  // ---- undo (client NOTED-17) --------------------------------------------
+  readonly undoing = signal(false);
+  readonly undoMsg = signal<string | null>(null);
+
+  undo(): void {
+    const f = this.form();
+    const q = this.query();
+    if (!f || !q.province || !q.sector || !q.hazard || !q.period) return;
+    this.undoing.set(true);
+    this.undoMsg.set(null);
+    this.api.undoAssessment({
+      province: q.province, sector: q.sector, subsector: q.subsector ?? null, hazard: q.hazard,
+      period: q.period, track: f.track, dsCode: f.dsCode,
+    }).subscribe({
+      next: (r) => {
+        this.undoing.set(false);
+        this.undoMsg.set(r.message);
+        this.result.set(null);
+        if (r.action === 'restored') {
+          this.saved.emit({ ok: false, saved: 0, reason: 'restored', missing: [], hazardIndex: null,
+            exposureIndex: null, rawIndex: null, vulnerabilityIndex: null, baseline: null,
+            contributors: 0 } as unknown as AssessmentResult);
+        }
+        this.load(this.dsCode(), q);
+      },
+      error: (err: ApiError) => { this.undoing.set(false); this.undoMsg.set('Not undone: ' + err.message); },
+    });
+  }
+
   remove(which: 'one' | 'all'): void {
     const f = this.form();
     const q = this.query();
@@ -212,6 +241,11 @@ export class AssessmentFormComponent {
         this.removing.set(false);
         this.confirmRemove.set(null);
         this.result.set(null);
+        if ((r as { pending?: boolean }).pending) {
+          this.removeMsg.set('Removal sent to the provincial administrator for approval.');
+          this.load(this.dsCode(), q);
+          return;
+        }
         this.removeMsg.set(which === 'one'
           ? `Removed from the ${f.track} track for ${f.dsDivision}.`
           : `Removed from the ${f.track} track for ${r.removed} division(s) of this province.`);
@@ -256,6 +290,11 @@ export class AssessmentFormComponent {
         next: (r) => {
           this.saving.set(false);
           this.result.set(r);
+          if (r.pending) {
+            this.load(this.dsCode(), this.query());
+            this.result.set(r);
+            return;
+          }
           this.saved.emit(r);
         },
         error: (err: ApiError) => {
