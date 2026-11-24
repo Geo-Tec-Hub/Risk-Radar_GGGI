@@ -36,8 +36,8 @@
 // zoom buttons; the legend is bottom-left and the export buttons top-right.
 .map-layers {
   position: absolute;
-  top: 5.2rem;
-  left: 0.5rem;
+  top: 3.4rem;          /* under the Export buttons, top-right (NOTED-17) */
+  right: 0.5rem;
   z-index: 4;
   min-width: 11.5rem;
   background: rgba(255, 255, 255, 0.95);
@@ -56,8 +56,10 @@
     background: transparent;
     font: inherit;
     font-weight: 600;
-    cursor: pointer;
+    cursor: move;
+    touch-action: none;
   }
+  &__grip { color: #adb5bd; margin-right: 0.25rem; }
   &__body {
     display: flex;
     flex-direction: column;

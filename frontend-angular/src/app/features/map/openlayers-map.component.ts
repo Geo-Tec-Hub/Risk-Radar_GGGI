@@ -34,6 +34,8 @@ import {
 } from './base-layers';
 
 const SRI_LANKA_CENTER = fromLonLat([80.7, 7.85]);
+/** The whole island filling the map (client's reference screenshot, NOTED-17). */
+const DEFAULT_ZOOM = 7.6;
 
 @Component({
   selector: 'app-openlayers-map',
@@ -55,6 +57,52 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
    * province are hidden and the view is fitted to the ones that remain.
    */
   readonly provinceName = input<string | null>(null);
+  /** False until a complete selection (or a hazard map) exists: the map then
+   * shows the base map only, at the default country view (NOTED-17). */
+  readonly showDivisions = input<boolean>(true);
+  /** The ticked hazard map (Drought / Flood / Landslide), or null. */
+  readonly hazardMap = input<'drought' | 'flood' | 'landslide' | null>(null);
+  readonly hazardMapChange = output<'drought' | 'flood' | 'landslide' | null>();
+  /** A click on the map that is not on a selectable division. */
+  readonly divisionCleared = output<void>();
+  readonly hazardOptions = [
+    { key: 'drought' as const, label: 'Drought' },
+    { key: 'flood' as const, label: 'Flood' },
+    { key: 'landslide' as const, label: 'Landslide' },
+  ];
+
+  // ---- draggable Map layers box (NOTED-17) --------------------------------
+  readonly panelDx = signal(0);
+  readonly panelDy = signal(0);
+  private drag?: { x: number; y: number; dx: number; dy: number; moved: boolean };
+
+  onPanelDragStart(e: PointerEvent): void {
+    this.drag = { x: e.clientX, y: e.clientY, dx: this.panelDx(), dy: this.panelDy(), moved: false };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  onPanelDragMove(e: PointerEvent): void {
+    const d = this.drag;
+    if (!d) return;
+    const mx = e.clientX - d.x;
+    const my = e.clientY - d.y;
+    if (!d.moved && Math.abs(mx) + Math.abs(my) < 4) return;
+    d.moved = true;
+    this.panelDx.set(d.dx + mx);
+    this.panelDy.set(d.dy + my);
+  }
+
+  onPanelDragEnd(e: PointerEvent): void {
+    const d = this.drag;
+    this.drag = undefined;
+    (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+    if (d && !d.moved) this.layersOpen.set(!this.layersOpen());   // a click, not a drag
+  }
+
+  /** One hazard map at a time: ticking one unticks the others. */
+  toggleHazard(key: 'drought' | 'flood' | 'landslide', on: boolean): void {
+    this.hazardMapChange.emit(on ? key : (this.hazardMap() === key ? null : this.hazardMap()));
+  }
 
   readonly divisionSelected = output<DsDivisionProperties>();
   readonly boundariesLoaded = output<number>();
@@ -100,6 +148,7 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
     // being scored rather than on the whole country.
     effect(() => {
       this.provinceName();
+      this.showDivisions();
       this.applyProvinceFilter();
     });
 
@@ -130,7 +179,7 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
     this.map = new OlMap({
       target: this.mapEl().nativeElement,
       layers: [this.osmLayer, this.satLayer, vectorLayer],
-      view: new View({ center: SRI_LANKA_CENTER, zoom: 7, minZoom: 6, maxZoom: 14 }),
+      view: new View({ center: SRI_LANKA_CENTER, zoom: DEFAULT_ZOOM, minZoom: 6, maxZoom: 14 }),
     });
 
     this.map.on('singleclick', (evt) => {
@@ -141,6 +190,9 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
       // imply the data is missing; it is not, the question does not arise.
       if (feature && this.isSelectable(feature)) {
         this.divisionSelected.emit(feature.getProperties() as unknown as DsDivisionProperties);
+      } else {
+        // Clicking elsewhere clears the blue highlight (NOTED-17).
+        this.divisionCleared.emit();
       }
     });
 
@@ -189,6 +241,13 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
   /** Show only the selected province's divisions, and fit the view to them. */
   private applyProvinceFilter(): void {
     if (!this.allFeatures.length) return;
+    if (!this.showDivisions()) {
+      // Base map only, whole island in view, until something is selected.
+      this.vectorSource.clear();
+      this.divisionCount.set(0);
+      this.map?.getView().animate({ center: SRI_LANKA_CENTER, zoom: DEFAULT_ZOOM, duration: 300 });
+      return;
+    }
     const province = this.provinceName();
     const shown = province
       ? this.allFeatures.filter((f) => f.get('province') === province)
@@ -242,7 +301,7 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
       if (!layer) {
         layer = new VectorLayer({
           source: new VectorSource(),
-          style: overlayStyle(key),
+          style: (_f, resolution) => overlayStyle(key, resolution),
           // Outlines sit above the division colours; points above those.
           zIndex: key === 'schools' || key === 'hospitals' ? 20 : 10,
           visible: false,
@@ -355,7 +414,7 @@ export class OpenlayersMapComponent implements AfterViewInit, OnDestroy {
     const state = unit?.state ?? 'unassessed';
     const band = unit?.band ?? null;
     const selected = this.selectedCode() === dsCode;
-    const base = styleForState(state, band, selected, this.layer());
+    const base = styleForState(state, band, selected, this.layer(), resolution);
     const name = feature.get('ds_division') as string | undefined;
     if (!name || resolution > OpenlayersMapComponent.LABEL_MAX_RESOLUTION) return base;
     return [base, this.labelFor(name)];

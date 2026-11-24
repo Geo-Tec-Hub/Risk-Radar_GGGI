@@ -54,23 +54,39 @@ export class MapPageComponent {
    * province with no rows (Sabaragamuwa until its layer arrives) is empty, i.e.
    * unassessed, not rank 0.
    */
+  /**
+   * HAZARD MAPS ARE TICK BOXES (client NOTED-17): Drought / Flood / Landslide in
+   * the Map layers box, independent of the sector. One at a time; while one is
+   * ticked it replaces the sector map. It covers the selected province, or the
+   * whole country on the national scope or when no province is chosen.
+   */
+  readonly hazardMap = signal<'drought' | 'flood' | 'landslide' | null>(null);
+  /** The layer actually drawn: the ticked hazard map, else the sector map. */
+  readonly shownLayer = computed<MapLayer>(() => (this.hazardMap() ? 'hazard' : this.layer()));
+  /** Province the hazard map covers, or null for the whole country. */
+  private readonly hazardProvince = computed(() =>
+    this.query().indexScope === 'national' ? null : this.provinceName());
+
+  onHazardMapChange(h: 'drought' | 'flood' | 'landslide' | null): void {
+    this.hazardMap.set(h);
+    this.selectedDivision.set(null);
+  }
+
   readonly hazardUnits = computed<ReadonlyMap<string, VulnerabilityUnit>>(() => {
     const out = new Map<string, VulnerabilityUnit>();
     const ranks = this.hazardRanks.ranks();
-    const province = this.provinceName();
+    const hz = this.hazardMap();
+    const province = this.hazardProvince();
     const q = this.query();
-    const national = q.indexScope === 'national';
-    if (!ranks || (!province && !national)) return out;
-    const key = ({ drought: 'dr', flood: 'fl', landslide: 'ls' } as const)[
-      (q.hazard ?? '') as 'drought' | 'flood' | 'landslide'];
-    if (!key) return out;
+    if (!ranks || !hz) return out;
+    const key = ({ drought: 'dr', flood: 'fl', landslide: 'ls' } as const)[hz];
     for (const [code, row] of Object.entries(ranks)) {
-      if (!national && row.p !== province) continue;
+      if (province && row.p !== province) continue;
       const rank = row[key];
       const band = rank >= 1 && rank <= 4 ? (rank as 1 | 2 | 3 | 4) : null;
       out.set(code, {
         dsCode: code, dsDivision: '', district: '', province: row.p,
-        sector: '', subsector: null, hazard: q.hazard as VulnerabilityUnit['hazard'],
+        sector: '', subsector: null, hazard: hz as VulnerabilityUnit['hazard'],
         track: 'data', period: q.period ?? '', indexScope: 'provincial',
         state: band ? 'assessed' : 'not_applicable', value: band, band, profileVersion: null,
       });
@@ -79,11 +95,28 @@ export class MapPageComponent {
   });
   /** True when the Overall hazard layer is chosen but the province has no rows. */
   readonly hazardLayerMissing = computed(() =>
-    this.layer() === 'hazard' && this.hazardRanks.ranks() !== null && this.hazardUnits().size === 0);
+    !!this.hazardMap() && this.hazardRanks.ranks() !== null && this.hazardUnits().size === 0);
+
+  /**
+   * The map opens on the base map only (NOTED-17). An assessment map is drawn
+   * once the selection is complete: sector, subsector (where the sector has
+   * them), hazard, period, and a province unless the scope is national.
+   */
+  readonly isComplete = computed(() => {
+    const q = this.query();
+    if (!q.sector || !q.hazard || !q.period) return false;
+    if (q.indexScope !== 'national' && !q.province) return false;
+    const sec = this.taxonomyService.taxonomy()?.sectors.find((s) => s.code === q.sector);
+    if (sec && sec.subsectors.length > 0 && !q.subsector) return false;
+    return true;
+  });
+  /** Whether any divisions are drawn at all. */
+  readonly showDivisions = computed(() => !!this.hazardMap() || this.isComplete());
 
   readonly displayUnits = computed<ReadonlyMap<string, VulnerabilityUnit>>(() => {
-    const layer = this.layer();
+    const layer = this.shownLayer();
     if (layer === 'hazard') return this.hazardUnits();
+    if (!this.isComplete()) return new Map();
     const out = new Map<string, VulnerabilityUnit>();
     for (const [k, u] of this.unitsByCode()) out.set(k, unitForLayer(u, layer));
     return out;
@@ -108,13 +141,23 @@ export class MapPageComponent {
   }
 
   onLayerChange(layer: MapLayer): void {
-    const wasHazard = this.layer() === 'hazard';
     this.layer.set(layer);
     this.selectedDivision.set(null);
     this.recomputeCoverage();
-    // Leaving Overall hazard: the sector results were not requested while it
-    // was on (the hazard picked may not exist for the sector), so fetch now.
-    if (wasHazard && layer !== 'hazard' && this.query().sector) this.refresh(this.query());
+  }
+
+  /** Clicking the map outside any division clears the highlight (NOTED-17). */
+  onDivisionCleared(): void {
+    this.selectedDivision.set(null);
+  }
+
+  /** The export panel closes when the user clicks anywhere outside it (NOTED-17). */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.exportPanelOpen()) return;
+    const t = event.target as HTMLElement | null;
+    if (t?.closest('.map-page__export-panel') || t?.closest('.map-page__export-toggle')) return;
+    this.exportPanelOpen.set(false);
   }
 
   toggleExportLayer(layer: MapLayer, on: boolean): void {
@@ -124,6 +167,12 @@ export class MapPageComponent {
   /** The map on screen: this profile, this layer, as a one-page PDF. */
   exportThisMap(): void {
     const q = this.query();
+    const hz = this.hazardMap();
+    if (hz) {
+      // The hazard map on screen (same for every sector).
+      this.download('one', { province: q.province, period: q.period, hazard: hz, layers: 'hazard' });
+      return;
+    }
     this.download('one', {
       province: q.province, period: q.period, track: this.effectiveTrack() ?? q.track,
       sector: q.sector, subsector: q.subsector, hazard: q.hazard,
@@ -134,7 +183,7 @@ export class MapPageComponent {
   /** Every profile of the province with scores for the period, chosen layers. */
   exportAllMaps(): void {
     const q = this.query();
-    const layers = MAP_LAYERS.filter((l) => this.exportLayers()[l]);
+    const layers = (['vulnerability', 'hazard'] as MapLayer[]).filter((l) => this.exportLayers()[l]);
     if (!layers.length) {
       this.exportError.set('Choose at least one layer to export.');
       return;
@@ -152,7 +201,7 @@ export class MapPageComponent {
     this.api.downloadMapsPdf(params).subscribe({
       next: (res) => {
         const cd = res.headers.get('Content-Disposition') ?? '';
-        const name = /filename="?([^";]+)"?/.exec(cd)?.[1] ?? 'RiskRadar_maps.pdf';
+        const name = /filename="?([^";]+)"?/.exec(cd)?.[1] ?? 'Climatica_maps.pdf';
         const url = URL.createObjectURL(res.body as Blob);
         const a = document.createElement('a');
         a.href = url;
@@ -238,10 +287,13 @@ export class MapPageComponent {
   onQueryChange(query: VulnerabilityQuery): void {
     this.query.set(query);
     this.selectedDivision.set(null);
-    // Overall hazard does not depend on the sector results, and the hazard
-    // chosen may have no profile for the selected sector (a 404 banner).
-    if (this.layer() === 'hazard') {
+    if (!this.isComplete()) {
+      // Base map only until the selection is complete -- no request, no error.
+      this.resultsRequest?.unsubscribe();
       this.resultsError.set(null);
+      this.resultsLoading.set(false);
+      this.unitsByCode.set(new Map());
+      this.recomputeCoverage();
       return;
     }
     this.refresh(query);
@@ -249,7 +301,7 @@ export class MapPageComponent {
 
   /** An expert/community score was just saved: re-read the map, keep the selection. */
   onAssessmentSaved(): void {
-    this.refresh(this.query());
+    if (this.isComplete()) this.refresh(this.query());
   }
 
   /** Esc clears the selected division (QA, 2 Oct 2026). Ignored while typing
@@ -322,7 +374,8 @@ export class MapPageComponent {
   readonly isNational = computed(() => this.query().indexScope === 'national');
 
   /** What the map draws: one province, or every division on the national index. */
-  readonly mapProvince = computed(() => (this.isNational() ? null : this.provinceName()));
+  readonly mapProvince = computed(() =>
+    this.hazardMap() ? this.hazardProvince() : (this.isNational() ? null : this.provinceName()));
 
   /**
    * FINAL MAP FOR GENERAL USERS (client NOTED-15). Anyone who is not an admin

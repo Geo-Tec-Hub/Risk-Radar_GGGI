@@ -4,15 +4,11 @@
 
   @if (hazardLayerMissing()) {
     <div class="map-page__banner map-page__banner--notice" role="status">
-      The hazard layer for {{ provinceName() }} Province has not been supplied yet, so no hazard ranks are shown.
+      The hazard map for {{ provinceName() ?? 'this area' }} has not been supplied yet, so no hazard ranks are shown.
     </div>
   } @else if (resultsError(); as message) {
     <div class="map-page__banner" role="alert">
       Results are unavailable ({{ message }}). Every division is shown as unassessed until this recovers.
-    </div>
-  } @else if (fellBack()) {
-    <div class="map-page__banner map-page__banner--notice" role="status">
-      No expert map exists yet for this selection, so the Official map is shown.
     </div>
   } @else if (pendingCount() > 0) {
     <div class="map-page__banner map-page__banner--notice" role="status">
@@ -27,11 +23,14 @@
       <!-- Export controls float in the map's top-right corner (3 Oct 2026)
          instead of taking a full-width row above it. -->
       <div class="map-page__toolbar">
-        <button type="button" class="map-page__btn" [disabled]="exportBusy() !== null || isNational()"
-                [title]="isNational() ? 'PDF export is for the provincial maps' : ''" (click)="exportThisMap()">
+        <button type="button" class="map-page__btn"
+                [disabled]="exportBusy() !== null || !query().province || (!hazardMap() && (isNational() || !isComplete()))"
+                [title]="!query().province ? 'Choose a province to export its map' : isNational() && !hazardMap() ? 'PDF export is for the provincial maps' : ''"
+                (click)="exportThisMap()">
           {{ exportBusy() === 'one' ? 'Preparing PDF…' : 'Export this map (PDF)' }}
         </button>
-        <button type="button" class="map-page__btn map-page__btn--ghost" [disabled]="exportBusy() !== null || isNational()"
+        <button type="button" class="map-page__btn map-page__btn--ghost map-page__export-toggle"
+                [disabled]="exportBusy() !== null || isNational() || !query().province || !query().period"
                 (click)="exportPanelOpen.set(!exportPanelOpen())">
           Export all maps…
         </button>
@@ -44,6 +43,10 @@
                 {{ layerLabel[l] }}
               </label>
             }
+            <label class="map-page__check">
+              <input type="checkbox" [checked]="exportLayers().hazard" (change)="toggleExportLayer('hazard', $any($event.target).checked)" />
+              Hazard maps
+            </label>
             <button type="button" class="map-page__btn" [disabled]="exportBusy() !== null" (click)="exportAllMaps()">
               {{ exportBusy() === 'all' ? 'Preparing PDF… (a few seconds)' : 'Download PDF' }}
             </button>
@@ -58,17 +61,23 @@
            explains when it lives in the sidebar - and on a laptop the sidebar
            scrolls, which could put it out of sight entirely while the map it
            describes stayed on screen. -->
-      <app-coverage-legend
-        class="map-page__legend"
-        [coverage]="coverage()"
-        [indexScope]="query().indexScope ?? 'provincial'"
-        [layer]="layer()"
-      />
+      @if (showDivisions()) {
+        <app-coverage-legend
+          class="map-page__legend"
+          [coverage]="coverage()"
+          [indexScope]="query().indexScope ?? 'provincial'"
+          [layer]="shownLayer()"
+        />
+      }
       <app-openlayers-map
         [unitsByCode]="displayUnits()"
         [selectedCode]="selectedDivision()?.ds_code ?? null"
-        [layer]="layer()"
+        [layer]="shownLayer()"
         [provinceName]="mapProvince()"
+        [showDivisions]="showDivisions()"
+        [hazardMap]="hazardMap()"
+        (hazardMapChange)="onHazardMapChange($event)"
+        (divisionCleared)="onDivisionCleared()"
         (divisionSelected)="onDivisionSelected($event)"
         (boundariesLoaded)="onBoundariesLoaded($event)"
         (boundariesFailed)="onBoundariesFailed($event)"

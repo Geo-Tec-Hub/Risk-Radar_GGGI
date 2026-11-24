@@ -47,7 +47,7 @@
       @if (mode() === 'index') {
         <p class="af__note">
           Give each index on the scale you rated it on. The system converts it to 0&ndash;1 in a straight line
-          (on 0&ndash;4, 2.5 becomes 0.625) and calculates the raw index (H × E) and the normalised vulnerability for you.
+          (on 0&ndash;4, 2.5 becomes 0.625) and calculates the raw index (H × E) and the normalised present exposure for you.
         </p>
         <label class="af__label">
           Scale
@@ -89,7 +89,7 @@
       } @else {
         @if (f.canSubmit) {
           <p class="af__note">
-            Enter a raw figure for every variable, in the unit shown. The vulnerability is computed as soon as you
+            Enter a raw figure for every variable, in the unit shown. The present exposure is computed as soon as you
             save, on the same provincial scale as the published score.
           </p>
           @if (anyOfficial()) {
@@ -152,7 +152,7 @@
         </label>
         <div class="af__actions">
           <button type="button" class="af__btn" [disabled]="saving() || !canSave()" (click)="submit()">
-            {{ saving() ? 'Saving…' : 'Save and calculate vulnerability' }}
+            {{ saving() ? 'Saving…' : 'Save and calculate present exposure' }}
           </button>
           @if (mode() === 'parameters' && missing().length > 0) {
             <span class="af__hint">{{ missing().length }} figure(s) still needed</span>
@@ -204,7 +204,7 @@
       @if (result(); as r) {
         @if (r.ok) {
           <div class="af__result" role="status">
-            <strong>Saved.</strong> Vulnerability {{ r.vulnerabilityIndex | number: '1.0-4' }}
+            <strong>Saved.</strong> Present exposure {{ r.vulnerabilityIndex | number: '1.0-4' }}
             (hazard {{ r.hazardIndex | number: '1.0-4' }} × exposure {{ r.exposureIndex | number: '1.0-4' }}
             = raw {{ r.rawIndex | number: '1.0-4' }}).
             @if (r.entry === 'index') {

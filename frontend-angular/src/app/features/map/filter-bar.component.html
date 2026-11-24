@@ -6,9 +6,22 @@
     </p>
   }
 
+  <!-- Index scope first (client NOTED-17). -->
+  <label class="filter-bar__field" [title]="nationalScopeNote">
+    <span class="filter-bar__label-row">
+      Index scope
+      <span class="filter-bar__info" aria-label="About index scope">ⓘ</span>
+    </span>
+    <select [ngModel]="indexScope()" name="indexScope" (ngModelChange)="onScopeChange($event)">
+      <option [ngValue]="'provincial'">Provincial (published score)</option>
+      <option [ngValue]="'national'">National (whole country)</option>
+    </select>
+  </label>
+
   <label class="filter-bar__field">
     <span>Province</span>
     <select [ngModel]="province()" name="province" (ngModelChange)="onProvinceChange($event)">
+      <option [ngValue]="undefined">{{ indexScope() === 'national' ? 'Whole country' : 'Select province…' }}</option>
       @for (p of provinces(); track p.code) {
         <option [ngValue]="p.code">{{ p.name }}</option>
       }
@@ -17,7 +30,8 @@
 
   <label class="filter-bar__field">
     <span>Sector</span>
-    <select [ngModel]="sector()" name="sector" [disabled]="layer() === 'hazard'" (ngModelChange)="onSectorChange($event)">
+    <select [ngModel]="sector()" name="sector" (ngModelChange)="onSectorChange($event)">
+      <option [ngValue]="undefined">Select sector…</option>
       @for (s of sectors(); track s.code) {
         <option [ngValue]="s.code">{{ s.name }}</option>
       }
@@ -29,9 +43,10 @@
     <select
       [ngModel]="subsector()"
       name="subsector"
-      [disabled]="subsectorOptions().length === 0 || layer() === 'hazard'"
+      [disabled]="subsectorOptions().length === 0"
       (ngModelChange)="onSubsectorChange($event)"
     >
+      <option [ngValue]="undefined">{{ subsectorOptions().length ? 'Select subsector…' : '—' }}</option>
       @for (s of subsectorOptions(); track s.code) {
         <option [ngValue]="s.code">{{ s.name }}</option>
       }
@@ -41,14 +56,17 @@
   <label class="filter-bar__field">
     <span>Hazard</span>
     <select [ngModel]="hazard()" name="hazard" (ngModelChange)="hazard.set($event); onFieldChange()">
-      @for (h of hazardOptions(); track h.code) {
+      <option [ngValue]="undefined">Select hazard…</option>
+      @for (h of hazards(); track h.code) {
         <option [ngValue]="h.code">{{ h.name }}</option>
       }
     </select>
   </label>
 
+  <!-- Renamed from "Map layer" (NOTED-17): the hazard maps are now tick boxes
+       in the Map layers box, so this only chooses the sector exposure map. -->
   <label class="filter-bar__field">
-    <span>Map layer</span>
+    <span>Sector exposure map</span>
     <select [ngModel]="layer()" name="layer" (ngModelChange)="onLayerChange($event)">
       @for (l of layers; track l) {
         <option [ngValue]="l">{{ layerLabel[l] }}</option>
@@ -56,14 +74,16 @@
     </select>
   </label>
 
-  <label class="filter-bar__field">
-    <span>Track</span>
-    <select [ngModel]="track()" name="track" (ngModelChange)="track.set($event); onFieldChange()">
-      @for (t of trackOptions(); track t) {
-        <option [ngValue]="t">{{ trackLabel(t) }}</option>
-      }
-    </select>
-  </label>
+  @if (showTrack()) {
+    <label class="filter-bar__field">
+      <span>Track</span>
+      <select [ngModel]="track()" name="track" (ngModelChange)="track.set($event); onFieldChange()">
+        @for (t of trackOptions(); track t) {
+          <option [ngValue]="t">{{ trackLabel(t) }}</option>
+        }
+      </select>
+    </label>
+  }
 
   <label class="filter-bar__field">
     <span>Period</span>
@@ -71,21 +91,6 @@
       @for (p of periods(); track p) {
         <option [ngValue]="p">{{ p }}</option>
       }
-    </select>
-  </label>
-
-  <label class="filter-bar__field" [title]="nationalScopeNote">
-    <!-- The full explanation used to sit under the select in red and took a
-         lot of room. It now lives in a tooltip on the small (i) beside the
-         label, with a short grey hint, so the disabled National option is
-         still explained without crowding the filter bar. -->
-    <span class="filter-bar__label-row">
-      Index scope
-      <span class="filter-bar__info" aria-label="About index scope">ⓘ</span>
-    </span>
-    <select [ngModel]="indexScope()" name="indexScope" (ngModelChange)="onScopeChange($event)">
-      <option [ngValue]="'provincial'">Provincial (published score)</option>
-      <option [ngValue]="'national'">National (whole country, official track)</option>
     </select>
   </label>
 </form>

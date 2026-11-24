@@ -31,7 +31,18 @@ from app.maps.layers import (BAND_EDGES, BAND_LABELS, LEGEND_TEXT, RAMPS, TITLES
 
 PAGE_W, PAGE_H = landscape(A4)
 MARGIN = 28
-MAP_BOX = (MARGIN, 54, 560, PAGE_H - 54 - 84)     # x, y, w, h -- clear of the 3 header lines
+MAP_BOX = (MARGIN, 76, 560, PAGE_H - 76 - 84)     # x, y, w, h -- clear of the 3 header lines
+                                                 # and of the footer + disclaimer below
+
+# Client wording (NOTED-17), printed small at the bottom of every map page.
+MAP_DISCLAIMER = (
+    "Disclaimer: This map is system-generated and provided for informational, research and "
+    "planning purposes only. The information presented is subject to inherent scientific, "
+    "methodological, and data limitations. Its provision does not constitute any warranty, "
+    "certification or endorsement and in no way commits any contributing institutions to this "
+    "system to any legal, financial or other obligations arising from its use, interpretation "
+    "or application. Users assume responsibility for its use and independent validation. This "
+    "is a system-generated document and does not require a physical signature.")
 LEGEND_X = MARGIN + 560 + 22
 
 INK = HexColor("#212529")
@@ -357,20 +368,41 @@ def _header_footer(c, spec: Optional[PageSpec], page_no: int, generated: str):
         c.drawString(MARGIN, PAGE_H - 69, spec.profile_line)
     c.setStrokeColor(HexColor("#dee2e6"))
     c.setLineWidth(0.6)
-    c.line(MARGIN, 44, PAGE_W - MARGIN, 44)
+    c.line(MARGIN, 66, PAGE_W - MARGIN, 66)
     c.setFont("Helvetica", 7)
     c.setFillColor(MUTED)
-    c.drawString(MARGIN, 32, "Risk Radar - DS-Division Climate Vulnerability Assessment, Sri Lanka"
+    c.drawString(MARGIN, 56, "Climatica - DS-Division Climate Exposure Assessment, Sri Lanka"
                  "  |  Generated %s  |  Boundaries: Survey Department DS divisions" % generated)
-    c.drawRightString(PAGE_W - MARGIN, 32, "Page %d" % page_no)
+    c.drawRightString(PAGE_W - MARGIN, 56, "Page %d" % page_no)
+    disclaimer(c, 44)
+
+
+def disclaimer(c, top: float, text: str = MAP_DISCLAIMER, size: float = 5.6):
+    """Small-print disclaimer, wrapped to the page width, starting at `top`."""
+    from reportlab.pdfbase.pdfmetrics import stringWidth
+    c.setFont("Helvetica", size)
+    c.setFillColor(MUTED)
+    width = PAGE_W - 2 * MARGIN
+    line, y = "", top
+    for w in text.split():
+        trial = (line + " " + w).strip()
+        if stringWidth(trial, "Helvetica", size) > width:
+            c.drawString(MARGIN, y, line)
+            y -= size + 1.6
+            line = w
+        else:
+            line = trial
+    if line:
+        c.drawString(MARGIN, y, line)
+    return y
 
 
 def render(pages: list[PageSpec], divisions: list[Division], *,
            cover: Optional[dict] = None) -> bytes:
     buf = io.BytesIO()
     c = rl_canvas.Canvas(buf, pagesize=(PAGE_W, PAGE_H))
-    c.setTitle(cover["title"] if cover else (pages[0].title if pages else "Risk Radar map"))
-    c.setAuthor("Risk Radar")
+    c.setTitle(cover["title"] if cover else (pages[0].title if pages else "Climatica map"))
+    c.setAuthor("Climatica")
     generated = datetime.datetime.now().strftime("%d %b %Y %H:%M")
     page_no = 1
     if cover:
@@ -413,7 +445,7 @@ def _cover(c, cover: dict, generated: str):
     col_x = [MARGIN + 10, MARGIN + 400]
     col, start_y = 0, y
     for entry, page in cover["contents"]:
-        if y < 70:
+        if y < 84:
             col += 1
             y = start_y
             if col >= len(col_x):
@@ -422,11 +454,11 @@ def _cover(c, cover: dict, generated: str):
         c.drawRightString(col_x[col] + 370, y, str(page))
         y -= 11.5
     if cover.get("excluded"):
-        y = min(y, start_y) - 14 if col == 0 else 80
+        y = min(y, start_y) - 14 if col == 0 else 96
         c.setFillColor(MUTED)
         for line in _wrap("Not included - no scores yet for this period: "
                           + ", ".join(cover["excluded"]), 150):
-            if y < 50:
+            if y < 76:
                 break
             c.drawString(MARGIN + 10, y, line)
             y -= 10

@@ -178,7 +178,7 @@ async def maps_pdf(
     cover = None
     if not single and not hazard_only:
         cover = dict(
-            title="Risk Radar map atlas - %s Province" % prov["name"],
+            title="Climatica map atlas - %s Province" % prov["name"],
             lines=["Period %s  |  %s track  |  layers: %s"
                    % (period, TRACK_LABEL.get(track, track),
                       ", ".join(TITLES[x] for x in wanted)),
@@ -193,11 +193,11 @@ async def maps_pdf(
     body = render(pages, divisions, cover=cover)
 
     if hz_row is not None:
-        name = "RiskRadar_hazard_%s_%s.pdf" % (hz_row["code"], prov["code"])
+        name = "Climatica_hazard_%s_%s.pdf" % (hz_row["code"], prov["code"])
     elif single:
         p = profiles[0]
-        name = "RiskRadar_%s_%s_%s.pdf" % (p["code"], "-".join(wanted), period)
+        name = "Climatica_%s_%s_%s.pdf" % (p["code"], "-".join(wanted), period)
     else:
-        name = "RiskRadar_%s_all-maps_%s_%s.pdf" % (prov["name"].replace(" ", ""), track, period)
+        name = "Climatica_%s_all-maps_%s_%s.pdf" % (prov["name"].replace(" ", ""), track, period)
     return Response(content=body, media_type="application/pdf",
                     headers={"Content-Disposition": 'attachment; filename="%s"' % name})

@@ -116,11 +116,46 @@ function bandColor(band: 1 | 2 | 3 | 4, layer: MapLayer): string {
   return layer === 'vulnerability' ? BAND_COLORS[band] : LAYER_RAMPS[layer][band - 1];
 }
 
+/**
+ * Line width follows the zoom (client NOTED-17): thin at the national view so
+ * small divisions are not swallowed by their outlines, thicker when zoomed in.
+ * `resolution` is metres per pixel; ~600 at a province view gives 1x.
+ */
+export function zoomWidth(resolution: number | undefined, base: number): number {
+  if (!resolution || !Number.isFinite(resolution)) return base;
+  const k = Math.min(2.2, Math.max(0.45, Math.sqrt(600 / resolution)));
+  return Math.round(base * k * 100) / 100;
+}
+
+const styleCache = new Map<string, Style>();
+
 export function styleForState(
   state: CoverageState,
   band: 1 | 2 | 3 | 4 | null,
   selected: boolean,
   layer: MapLayer = 'vulnerability',
+  resolution?: number,
+): Style {
+  // Widths are quantised so the cache stays small while zooming.
+  const k = resolution ? Math.round(zoomWidth(resolution, 1) * 10) / 10 : 1;
+  const key = `${state}|${band}|${selected}|${layer}|${k}`;
+  let st = styleCache.get(key);
+  if (!st) {
+    st = buildStyle(state, band, selected, layer);
+    if (k !== 1) {
+      const stroke = st.getStroke();
+      if (stroke) stroke.setWidth((stroke.getWidth() ?? 1) * k);
+    }
+    styleCache.set(key, st);
+  }
+  return st;
+}
+
+function buildStyle(
+  state: CoverageState,
+  band: 1 | 2 | 3 | 4 | null,
+  selected: boolean,
+  layer: MapLayer,
 ): Style {
   if (state === 'assessed' && band !== null) {
     return new Style({

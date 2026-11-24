@@ -5,10 +5,16 @@
     <div class="map-ref-label" [style.left.px]="l.x + 12" [style.top.px]="l.y - 10" role="tooltip">{{ l.text }}</div>
   }
 
-  <div class="map-layers" role="group" aria-label="Map layers">
-    <button type="button" class="map-layers__head" (click)="layersOpen.set(!layersOpen())"
+  <!-- Bottom-right under the export buttons, and draggable by its title bar
+       (NOTED-17). A short click on the title still opens/closes it. -->
+  <div class="map-layers" role="group" aria-label="Map layers"
+       [style.transform]="'translate(' + panelDx() + 'px,' + panelDy() + 'px)'">
+    <button type="button" class="map-layers__head" title="Drag to move"
+            (pointerdown)="onPanelDragStart($event)" (pointermove)="onPanelDragMove($event)"
+            (pointerup)="onPanelDragEnd($event)" (pointercancel)="onPanelDragEnd($event)"
             [attr.aria-expanded]="layersOpen()">
-      Map layers <span aria-hidden="true">{{ layersOpen() ? '▾' : '▸' }}</span>
+      <span><span class="map-layers__grip" aria-hidden="true">⠿</span> Map layers</span>
+      <span aria-hidden="true">{{ layersOpen() ? '▾' : '▸' }}</span>
     </button>
     @if (layersOpen()) {
       <div class="map-layers__body">
@@ -24,6 +30,14 @@
                  (input)="setDivisionOpacity(100 - $any($event.target).value)"
                  aria-label="DS division layer transparency" />
         </label>
+        <p class="map-layers__title">Hazard maps</p>
+        @for (h of hazardOptions; track h.key) {
+          <label>
+            <input type="checkbox" [checked]="hazardMap() === h.key"
+                   (change)="toggleHazard(h.key, $any($event.target).checked)" />
+            {{ h.label }}
+          </label>
+        }
         <p class="map-layers__title">Reference layers</p>
         @for (o of overlayList; track o.key) {
           <label>

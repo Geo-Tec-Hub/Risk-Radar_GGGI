@@ -11,7 +11,7 @@
         As an {{ t === 'expert' ? 'external expert' : 'community member' }}, add your own figures on the
         <a routerLink="/map" [queryParams]="{ track: t }">map</a>: select a DS division, choose the sector and
         hazard, set Track to <strong>{{ t }}</strong>, and enter your hazard and exposure values — the
-        vulnerability is calculated when you save.
+        present exposure is calculated when you save.
       }
     </p>
   } @else {
@@ -412,7 +412,7 @@
 
                   @if (d.fromThisImport !== undefined && d.fromThisImport < d.values.length) {
                     <p class="import__muted">
-                      Showing every column of this workbook with the value in Risk Radar now.
+                      Showing every column of this workbook with the value in Climatica now.
                       {{ d.values.length - d.fromThisImport }} of {{ d.values.length }} were last written by a later
                       import that carries the same variable (the climate columns are in most sector
                       workbooks), so they may differ from this file.

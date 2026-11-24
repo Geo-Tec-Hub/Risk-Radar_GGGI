@@ -6,7 +6,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./features/landing/landing-page.component').then((m) => m.LandingPageComponent),
-    title: 'Risk Radar',
+    title: 'Climatica',
     pathMatch: 'full',
   },
   {
@@ -14,23 +14,23 @@ export const routes: Routes = [
     // Moved from '/' (T2b): the landing page is now the front door, but the
     // map must stay one click away with no account (FR-12.7, §3.1).
     loadComponent: () => import('./features/map/map-page.component').then((m) => m.MapPageComponent),
-    title: 'Risk Radar — Climate Vulnerability Map',
+    title: 'Climatica — Climate Exposure Map',
   },
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login-page.component').then((m) => m.LoginPageComponent),
-    title: 'Risk Radar — Sign in',
+    title: 'Climatica — Sign in',
   },
   {
     path: 'register',
     loadComponent: () => import('./features/auth/register-page.component').then((m) => m.RegisterPageComponent),
-    title: 'Risk Radar — Register',
+    title: 'Climatica — Register',
   },
   {
     path: 'admin/registrations',
     loadComponent: () =>
       import('./features/admin/admin-registrations.component').then((m) => m.AdminRegistrationsComponent),
-    title: 'Risk Radar — Registrations',
+    title: 'Climatica — Registrations',
     canActivate: [adminGuard],
   },
   {
@@ -38,7 +38,7 @@ export const routes: Routes = [
     // write what. Separate from /admin/registrations, which approves accounts.
     path: 'admin/model',
     loadComponent: () => import('./features/admin/admin-model.component').then((m) => m.AdminModelComponent),
-    title: 'Risk Radar — Model administration',
+    title: 'Climatica — Model administration',
     canActivate: [adminGuard],
   },
   {
@@ -46,7 +46,7 @@ export const routes: Routes = [
     // FR-5.17 / Stage 5.6: why each profile in a province is or is not on the
     // map -- weights unfinished, values missing, or simply not recomputed.
     loadComponent: () => import('./features/coverage/coverage-page.component').then((m) => m.CoveragePageComponent),
-    title: 'Risk Radar — Coverage',
+    title: 'Climatica — Coverage',
   },
   {
     // '/entry' WAS a scope picker that resolved province/sector/subsector/
@@ -64,12 +64,12 @@ export const routes: Routes = [
     // The import tab: pick a scope, check the workbook, load it.
     path: 'import',
     loadComponent: () => import('./features/import/import-page.component').then((m) => m.ImportPageComponent),
-    title: 'Risk Radar — Import data',
+    title: 'Climatica — Import data',
   },
   {
     path: 'weights',
     loadComponent: () => import('./features/weights/weights-editor.component').then((m) => m.WeightsEditorComponent),
-    title: 'Risk Radar — Profile weights',
+    title: 'Climatica — Profile weights',
   },
   {
     // The earlier upload screen, kept reachable but no longer at '/import'.
@@ -80,12 +80,12 @@ export const routes: Routes = [
     // backend does not implement — the live tab uses /api/import/check|load.
     path: 'import/legacy-upload',
     loadComponent: () => import('./features/import/import-upload.component').then((m) => m.ImportUploadComponent),
-    title: 'Risk Radar — Import (legacy screen)',
+    title: 'Climatica — Import (legacy screen)',
   },
   {
     path: 'terms',
     loadComponent: () => import('./features/legal/terms-page.component').then((m) => m.TermsPageComponent),
-    title: 'Risk Radar — Terms of Use',
+    title: 'Climatica — Terms of Use',
   },
   { path: '**', redirectTo: '' },
 ];

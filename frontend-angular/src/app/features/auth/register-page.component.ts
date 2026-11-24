@@ -8,7 +8,8 @@ import { PROVINCE_OPTIONS, ProvinceOption } from '../../core/models/reference-da
 import { ApiClientService } from '../../core/services/api-client.service';
 import { AuthService, REGISTRATION_TYPE_LABEL } from '../../core/services/auth.service';
 
-const TYPES: readonly RegistrationType[] = ['agency', 'expert', 'public'];
+// 'public' is no longer offered (client NOTED-17): the map needs no account.
+const TYPES: readonly RegistrationType[] = ['agency', 'expert'];
 
 /**
  * T2b: POST /auth/register. "type = agency / expert / public, creates
@@ -50,7 +51,7 @@ export class RegisterPageComponent {
   readonly password = signal('');
   readonly fullName = signal('');
   readonly organization = signal('');
-  readonly type = signal<RegistrationType>('public');
+  readonly type = signal<RegistrationType>('agency');
   readonly provinceId = signal<number | undefined>(undefined);
 
   readonly needsProvince = computed(() => this.type() !== 'public');

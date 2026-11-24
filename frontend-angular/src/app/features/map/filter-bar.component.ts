@@ -62,20 +62,9 @@ export class FilterBarComponent implements OnInit {
   readonly layer = signal<MapLayer>('vulnerability');
 
   onLayerChange(layer: MapLayer): void {
-    const wasHazard = this.layer() === 'hazard';
     this.layer.set(layer);
     this.layerChange.emit(layer);
-    // Leaving Overall hazard: the hazard picked there (e.g. landslide) may not
-    // exist for the selected sector, so re-validate before the sector query.
-    if (wasHazard && layer !== 'hazard') {
-      this.keepHazardValid();
-      this.emit();
-    }
   }
-
-  /** Overall hazard is not sector-specific, so every hazard is offered. */
-  readonly hazardOptions = computed(() =>
-    this.layer() === 'hazard' ? (this.taxonomy()?.hazards ?? []) : this.hazards());
 
   /**
    * Sectors narrowed to those with a profile in the SELECTED PROVINCE. A score
@@ -147,13 +136,17 @@ export class FilterBarComponent implements OnInit {
   readonly isAdmin = computed(() => this.auth.hasRole('admin'));
   readonly trackOptions = computed<readonly string[]>(() =>
     this.isAdmin() ? this.tracks : ['expert', 'data']);
+  /** Track is shown to admins, experts and official data users only (NOTED-17);
+   * a normal user simply gets the final map (expert where it exists). */
+  readonly showTrack = computed(() =>
+    this.isAdmin() || this.auth.hasRole('expert') || this.auth.hasRole('data_officer'));
 
   /** Keep the selected track one the person may use when they sign in or out. */
   private readonly keepTrackAllowed = effect(() => {
     const opts = this.trackOptions();
     if (!opts.includes(this.track())) {
       this.track.set(opts[0]);
-      if (this.sector() !== undefined) this.emit();
+      if (this.seeded) this.emit();
     }
   });
   readonly period = signal<string | undefined>(undefined);
@@ -177,6 +170,8 @@ export class FilterBarComponent implements OnInit {
   onScopeChange(scope: IndexScope): void {
     this.indexScope.set(scope);
     if (scope === 'national' && this.track() !== 'data') this.track.set('data');
+    // A normal user goes back to the final (expert-first) map on provincial.
+    if (scope === 'provincial' && !this.showTrack()) this.track.set('expert');
     this.onFieldChange();
   }
 
@@ -208,7 +203,8 @@ export class FilterBarComponent implements OnInit {
     // which the API can only reject.
     effect(() => {
       const t = this.taxonomy();
-      if (!t || this.sector() !== undefined) return;
+      if (!t || this.seeded) return;
+      this.seeded = true;
       // ?track=expert|community (the sign-in landing for those roles) opens the
       // map on the person's own track, and on their own province, so selecting
       // a division leads straight to the entry form.
@@ -223,12 +219,10 @@ export class FilterBarComponent implements OnInit {
       const norm = (x: string) => x.replace(/\s+/g, '').toLowerCase();
       const own = mine ? t.provinces.find((p) => norm(p.name) === norm(mine))?.code : undefined;
       const askedProvince = qp.get('province') ?? undefined;
-      this.province.set(this.province() ?? askedProvince ?? own ?? t.provinces[0]?.code);
-      // Seed from the PROVINCE-SCOPED lists, so the initial selection is a
-      // combination that actually has a profile in the chosen province.
-      this.sector.set(this.sectors()[0]?.code);
-      this.subsector.set(this.subsectorOptions()[0]?.code);
-      this.hazard.set(this.hazards()[0]?.code);
+      // The map opens on the base map only (NOTED-17): nothing is preselected
+      // except the person's own province (experts / officers) and the period.
+      // The assessment map appears once sector, subsector and hazard are chosen.
+      this.province.set(this.province() ?? askedProvince ?? own);
       this.period.set(t.periods[0]);
       this.emit();
     });
@@ -242,7 +236,8 @@ export class FilterBarComponent implements OnInit {
     this.sector.set(code || undefined);
     // A subsector belongs to one sector, so carrying the old one over would
     // ask for a profile that cannot exist.
-    this.subsector.set(this.subsectorOptions()[0]?.code);
+    const subs = this.subsectorOptions();
+    this.subsector.set(subs.length === 1 ? subs[0].code : undefined);
     this.keepHazardValid();
     this.emit();
   }
@@ -257,10 +252,7 @@ export class FilterBarComponent implements OnInit {
    * no landslide profile. Fall back to the first that does rather than emitting
    * a query the API can only answer with 404. */
   private keepHazardValid(): void {
-    const options = this.hazardOptions();
-    if (!options.some((h) => h.code === this.hazard())) {
-      this.hazard.set(options[0]?.code);
-    }
+    if (!this.hazards().some((h) => h.code === this.hazard())) this.hazard.set(undefined);
   }
 
   /** The province is part of what defines an available profile, so changing it
@@ -281,12 +273,8 @@ export class FilterBarComponent implements OnInit {
   }
 
   private keepSelectionValid(): void {
-    if (!this.sectors().some((s) => s.code === this.sector())) {
-      this.sector.set(this.sectors()[0]?.code);
-    }
-    if (!this.subsectorOptions().some((s) => s.code === this.subsector())) {
-      this.subsector.set(this.subsectorOptions()[0]?.code);
-    }
+    if (!this.sectors().some((s) => s.code === this.sector())) this.sector.set(undefined);
+    if (!this.subsectorOptions().some((s) => s.code === this.subsector())) this.subsector.set(undefined);
     this.keepHazardValid();
   }
 
@@ -294,8 +282,12 @@ export class FilterBarComponent implements OnInit {
     this.emit();
   }
 
+  private seeded = false;
+
+  /** Emits every change, complete or not; the map page draws an assessment
+   * map only for a complete selection (map-page isComplete). */
   private emit(): void {
-    if (!this.sector() || !this.hazard() || !this.period() || !this.province()) return;
+    if (!this.seeded) return;
     this.queryChange.emit({
       province: this.province(),
       sector: this.sector(),
