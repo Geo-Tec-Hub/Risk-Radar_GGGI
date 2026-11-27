@@ -38,6 +38,12 @@ class Settings(BaseSettings):
     session_lifetime_hours: int = Field(default=24, validation_alias="SESSION_LIFETIME_HOURS")
     session_cookie_secure: bool = Field(default=False, validation_alias="SESSION_COOKIE_SECURE")
 
+    # E-mail through Resend (NOTED-19). Empty key = e-mail is switched off and
+    # only logged. MAIL_FROM must be an address on a domain verified in Resend.
+    resend_api_key: str = Field(default="", validation_alias="RESEND_API_KEY")
+    mail_from: str = Field(default="Climatica <noreply@climatica.com>", validation_alias="MAIL_FROM")
+    public_url: str = Field(default="https://riskradar.geoinfobox.com", validation_alias="PUBLIC_URL")
+
 
 @lru_cache
 def get_settings() -> Settings:

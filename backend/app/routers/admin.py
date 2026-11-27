@@ -49,6 +49,9 @@ class PendingRegistrationOut(BaseModel):
     # show it. A wish, not a permission -- see app/scope.py.
     requested_areas: list[InterestArea] = []
     requested_hazard_domain: bool = False
+    # NOTED-19: further provinces an expert asked for at registration.
+    requested_other_provinces: list[str] = []
+    requested_other_province_ids: list[int] = []
 
 
 class ApproveRequest(BaseModel):
@@ -65,6 +68,9 @@ class ApproveRequest(BaseModel):
                     "Decided separately from the sectors: ~13.5 profiles "
                     "depend on each of those twelve variables.")
     scope_note: str | None = Field(default=None, max_length=1000)
+    # The further provinces to grant an expert (super administrator only).
+    # Omitted = keep what they asked for; [] = home province only.
+    other_province_ids: list[int] | None = None
 
 
 # The roles that write data, and therefore need a sector scope. community
@@ -129,7 +135,14 @@ async def list_pending(
     pool: asyncpg.Pool = Depends(db),
 ) -> list[PendingRegistrationOut]:
     rows = await pool.fetch(
-        """SELECT v.*, u.requested_scope
+        """SELECT v.*, u.requested_scope,
+                  COALESCE((SELECT array_agg(p.name ORDER BY p.name) FROM user_province up
+                             JOIN province p ON p.id = up.province_id
+                            WHERE up.user_id = u.id AND up.province_id IS DISTINCT FROM u.province_id),
+                           '{}') AS other_names,
+                  COALESCE((SELECT array_agg(up.province_id ORDER BY up.province_id) FROM user_province up
+                            WHERE up.user_id = u.id AND up.province_id IS DISTINCT FROM u.province_id),
+                           '{}') AS other_ids
              FROM v_pending_registration v
              JOIN app_user u ON u.id = v.id
             WHERE $1::smallint IS NULL OR u.province_id = $1
@@ -143,6 +156,8 @@ async def list_pending(
             requested_province=r["requested_province"],
             requested_areas=_requested_areas(r["requested_scope"]),
             requested_hazard_domain=_requested_hazard(r["requested_scope"]),
+            requested_other_provinces=list(r["other_names"]),
+            requested_other_province_ids=list(r["other_ids"]),
         )
         for r in rows
     ]
@@ -240,6 +255,19 @@ async def approve(
                 await replace_scope(conn, user_id, granted,
                                     body.may_write_hazard_domain, admin.id,
                                     body.scope_note)
+            # Further provinces of an expert: the super administrator decides;
+            # a provincial administrator grants their own province only.
+            if body.role != "expert" or not admin.is_super_admin():
+                await conn.execute(
+                    """DELETE FROM user_province WHERE user_id = $1 AND province_id IS DISTINCT FROM
+                           (SELECT province_id FROM app_user WHERE id = $1)""", user_id)
+            elif body.other_province_ids is not None:
+                await conn.execute(
+                    """DELETE FROM user_province WHERE user_id = $1""", user_id)
+                for pid in body.other_province_ids:
+                    await conn.execute(
+                        "INSERT INTO user_province (user_id, province_id) VALUES ($1, $2) "
+                        "ON CONFLICT DO NOTHING", user_id, pid)
             # The home province is always one of the account's provinces.
             await conn.execute(
                 """INSERT INTO user_province (user_id, province_id)

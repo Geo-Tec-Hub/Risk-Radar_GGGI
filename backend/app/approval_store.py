@@ -35,8 +35,20 @@ async def submit_change(conn, *, kind: str, province_id: int, user, summary: str
         file_name, file_body, division_id,
         prof["sector_id"] if prof else None, prof["subsector_id"] if prof else None,
         prof["hazard_type_id"] if prof else None, source)
-    log.info("pending change %s (%s) by user %s for province %s -- notice to %s",
-             pid, kind, user.id, province_id, NOTIFY_ADDRESS)
+    log.info("pending change %s (%s) by user %s for province %s", pid, kind, user.id, province_id)
+    # E-mail the province's administrators and the super administrators (NOTED-19).
+    from app.config import get_settings
+    from app.mailer import admin_emails, notify_in_background, send_mail
+    to = await admin_emails(conn, province_id)
+    pname = await conn.fetchval("SELECT name FROM province WHERE id = $1", province_id)
+    reason = (payload or {}).get("note") if isinstance(payload, dict) else None
+    notify_in_background(send_mail(
+        to, "Climatica: approval needed -- %s" % summary[:120],
+        "A change is waiting for your approval in Climatica.\n\n"
+        "Province: %s\nSubmitted by: %s\nChange: %s\n%s\n"
+        "Review it here: %s/admin/approvals\n"
+        % (pname, user.full_name or user.email, summary,
+           ("Reason given: %s\n" % reason) if reason else "", get_settings().public_url)))
     return pid
 
 

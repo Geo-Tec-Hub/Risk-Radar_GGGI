@@ -99,6 +99,9 @@ export interface PendingRegistration {
    * grants into user_write_scope, and may grant less. */
   requested_areas: InterestArea[];
   requested_hazard_domain: boolean;
+  /** Further provinces an expert asked for (NOTED-19). */
+  requested_other_provinces?: string[];
+  requested_other_province_ids?: number[];
 }
 
 export interface ApprovePayload {
@@ -110,6 +113,8 @@ export interface ApprovePayload {
   scopes?: InterestArea[];
   may_write_hazard_domain?: boolean;
   scope_note?: string;
+  /** Further provinces to grant an expert (super administrator only). */
+  other_province_ids?: number[];
 }
 
 /** PUT /admin/users/{id}/scope. REPLACES the whole scope; an empty list is a

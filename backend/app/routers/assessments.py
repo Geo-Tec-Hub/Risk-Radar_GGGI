@@ -338,13 +338,21 @@ async def save(
             raise HTTPException(403, reason)
         div = await _division(conn, prof["province_id"], body.dsCode)
         if not user.approves_own_changes(prof["province_id"]):
+            if not (body.note or "").strip():
+                raise HTTPException(422, "give a reason for this change -- the provincial "
+                                         "administrator sees it with the old and new values")
+            y0, y1 = _years(body.period)
+            payload = body.model_dump()
+            payload["preview"] = await preview_change(
+                conn, prof, div["id"], body.track, y0, y1,
+                lambda one: apply_save(one, body, user))
             pid = await submit_change(
                 conn, kind="assessment_save", province_id=prof["province_id"], user=user,
                 summary="%s assessment of %s -- %s%s / %s (%s)" % (
                     body.track.capitalize(), div["name"], body.sector,
                     "/" + body.subsector if body.subsector else "", body.hazard,
                     "by index" if body.mode == "index" else "by parameters"),
-                payload=body.model_dump(), division_id=div["id"], prof=prof, source=body.track)
+                payload=payload, division_id=div["id"], prof=prof, source=body.track)
             return AssessmentOut(ok=False, saved=0, pending=True, pendingId=pid,
                                  reason="sent to the provincial administrator for approval")
     return await apply_save(pool, body, user)
@@ -552,12 +560,16 @@ async def remove(
             raise HTTPException(403, reason)
         if body.dsCode and not user.approves_own_changes(prof["province_id"]):
             div = await _division(conn, prof["province_id"], body.dsCode)
+            y0, y1 = _years(body.period)
+            payload = body.model_dump()
+            payload["preview"] = {"before": await track_row(conn, prof, div["id"], body.track, y0, y1),
+                                  "after": None}
             pid = await submit_change(
                 conn, kind="assessment_remove", province_id=prof["province_id"], user=user,
                 summary="Remove the %s assessment of %s -- %s%s / %s" % (
                     body.track, div["name"], body.sector,
                     "/" + body.subsector if body.subsector else "", body.hazard),
-                payload=body.model_dump(), division_id=div["id"], prof=prof, source=body.track)
+                payload=payload, division_id=div["id"], prof=prof, source=body.track)
             return RemoveOut(removed=0, figuresDeleted=0, indexEntriesDeleted=0, sharedKept=[],
                              pending=True, pendingId=pid)
     return await apply_remove(pool, body, user)
@@ -826,9 +838,74 @@ async def undo(
                 summary="Undo: restore the previous %s assessment of %s -- %s%s / %s" % (
                     body.track, div["name"], body.sector,
                     "/" + body.subsector if body.subsector else "", body.hazard),
-                payload={"history_id": h["id"]}, division_id=div["id"], prof=prof,
-                source=body.track)
+                payload={"history_id": h["id"], "preview": await preview_change(
+                    conn, prof, div["id"], body.track, y0, y1,
+                    lambda one: apply_restore(one, h["id"], user))},
+                division_id=div["id"], prof=prof, source=body.track)
             return UndoOut(action="pending", pendingId=pid,
                            message="Undo sent to the provincial administrator for approval.")
     await apply_restore(pool, h["id"], user)
     return UndoOut(action="restored", message="The previous version has been restored.")
+
+
+
+# ---- before / after for the approver (NOTED-19, item 3) ----------------------
+
+def _band(v):
+    if v is None:
+        return None
+    return "Very low" if v < 0.25 else "Low" if v < 0.5 else "Moderate" if v < 0.75 else "High"
+
+
+async def track_row(conn, prof, division_id: int, track: str, y0: int, y1: int):
+    r = await conn.fetchrow(
+        """SELECT hazard_index, exposure_index, vulnerability_index, method
+             FROM vulnerability_result
+            WHERE profile_id = $1 AND ds_division_id = $2 AND source = $3::source_type
+              AND index_scope = 'provincial' AND year_start = $4 AND year_end = $5""",
+        prof["id"], division_id, track, y0, y1)
+    if r is None:
+        return None
+    m = r["method"]
+    m = json.loads(m) if isinstance(m, str) else (m or {})
+    absent = bool(m.get("sector_absent"))
+    v = None if absent else r["vulnerability_index"]
+    return {"hazard": r["hazard_index"], "exposure": r["exposure_index"],
+            "raw": r["hazard_index"] * r["exposure_index"], "score": v,
+            "category": "sector not present" if absent else _band(v)}
+
+
+class _OneConn:
+    """A pool stand-in that hands out one connection, so a change can be
+    applied inside a transaction that is then rolled back."""
+    def __init__(self, conn):
+        self.conn = conn
+
+    def acquire(self):
+        conn = self.conn
+
+        class _Ctx:
+            async def __aenter__(self):
+                return conn
+
+            async def __aexit__(self, *exc):
+                return False
+        return _Ctx()
+
+
+async def preview_change(conn, prof, division_id: int, track: str, y0: int, y1: int, apply):
+    """Old and new values of the division, the new ones computed by actually
+    applying the change and rolling it back -- so the approver sees exactly
+    what approving will publish, rescaling included."""
+    before = await track_row(conn, prof, division_id, track, y0, y1)
+    after = None
+    tr = conn.transaction()
+    await tr.start()
+    try:
+        await apply(_OneConn(conn))
+        after = await track_row(conn, prof, division_id, track, y0, y1)
+    except HTTPException:
+        after = None
+    finally:
+        await tr.rollback()
+    return {"before": before, "after": after}

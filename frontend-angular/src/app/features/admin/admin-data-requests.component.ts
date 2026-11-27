@@ -46,9 +46,12 @@ interface DataRequest {
               <div class="adm__actions">
                 <button class="adm__btn" type="button" [disabled]="busy() === r.id" (click)="pdf(r)">
                   {{ busy() === r.id ? 'Preparing…' : 'Download PDF' }}</button>
+                <button class="adm__btn" type="button" [disabled]="busy() === r.id" (click)="send(r)"
+                        [title]="'E-mail the PDF to ' + r.email">{{ busy() === r.id ? 'Sending…' : 'Send by e-mail' }}</button>
                 @if (r.status !== 'shared') {
                   <button class="adm__btn adm__btn--ghost" type="button" (click)="mark(r, 'shared')">Mark shared</button>
                 }
+                <button class="adm__btn adm__btn--ghost" type="button" (click)="remove(r)">Remove</button>
                 @if (r.status === 'new') {
                   <button class="adm__btn adm__btn--danger" type="button" (click)="mark(r, 'declined')">Decline</button>
                 }
@@ -96,6 +99,24 @@ export class AdminDataRequestsComponent implements OnInit {
           this.busy.set(null);
         },
       });
+  }
+
+  send(r: DataRequest): void {
+    if (!confirm(`E-mail the data PDF to ${r.email}?`)) return;
+    this.busy.set(r.id);
+    this.error.set(null);
+    this.http.post(`${this.base}/data-requests/${r.id}/send`, {}, { withCredentials: true }).subscribe({
+      next: () => { this.busy.set(null); this.load(); },
+      error: (e) => { this.busy.set(null); this.error.set(e?.error?.detail ?? e?.message ?? 'Not sent.'); },
+    });
+  }
+
+  remove(r: DataRequest): void {
+    if (!confirm(`Delete the request from ${r.full_name}?`)) return;
+    this.http.delete(`${this.base}/data-requests/${r.id}`, { withCredentials: true }).subscribe({
+      next: () => this.load(),
+      error: (e) => this.error.set(e?.error?.detail ?? e?.message ?? 'Not removed.'),
+    });
   }
 
   mark(r: DataRequest, status: 'shared' | 'declined'): void {

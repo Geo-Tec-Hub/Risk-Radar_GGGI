@@ -86,7 +86,7 @@ const ROLE_LABEL: Record<string, string> = {
       }
     </div>
     <table class="adm__table">
-      <thead><tr><th>Name</th><th>Role</th><th>Province(s)</th><th>Status</th><th>Created / approved by</th></tr></thead>
+      <thead><tr><th>Name</th><th>Role</th><th>Province(s)</th><th>Status</th><th>Created / approved by</th><th></th></tr></thead>
       <tbody>
         @for (a of shown(); track a.id) {
           <tr>
@@ -95,6 +95,8 @@ const ROLE_LABEL: Record<string, string> = {
             <td>{{ a.provinces.length ? a.provinces.join(', ') : (a.province ?? 'national') }}</td>
             <td><span class="adm__status" [class]="'adm__status adm__status--' + a.status">{{ a.status }}</span></td>
             <td>{{ a.created_by ?? 'self-registered' }}<br /><span class="adm__muted">{{ a.created_at?.slice(0, 10) }}</span></td>
+            <td>@if (a.id !== auth.currentUser()?.id) {
+              <button class="adm__btn adm__btn--danger" type="button" (click)="remove(a)">Remove</button> }</td>
           </tr>
         }
       </tbody>
@@ -157,6 +159,16 @@ export class AdminAccountsComponent implements OnInit {
     this.http.get<Account[]>(`${this.base}/admin/accounts`, { withCredentials: true }).subscribe({
       next: (a) => this.accounts.set(a),
       error: (e) => this.error.set(e?.error?.detail ?? e?.message ?? 'Accounts could not be loaded.'),
+    });
+  }
+
+  /** Remove an unwanted account (NOTED-19). One that entered data is closed
+   * rather than deleted, so the records keep their author. */
+  remove(a: Account): void {
+    if (!confirm(`Remove the account of ${a.full_name} (${a.email})? They will no longer be able to sign in.`)) return;
+    this.http.delete(`${this.base}/admin/accounts/${a.id}`, { withCredentials: true }).subscribe({
+      next: () => { this.done.set(`Removed ${a.full_name}.`); this.load(); },
+      error: (e) => this.error.set(e?.error?.detail ?? e?.message ?? 'Not removed.'),
     });
   }
 

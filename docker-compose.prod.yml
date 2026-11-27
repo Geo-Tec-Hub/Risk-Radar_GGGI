@@ -27,6 +27,10 @@ services:
       PGPASSWORD: ${RR_DB_PASSWORD:?set RR_DB_PASSWORD in riskradar.env}
       CORS_ORIGIN: ${RR_PUBLIC_ORIGIN:-https://riskradar.geoinfobox.com}
       SESSION_COOKIE_SECURE: "true"
+      # E-mail (NOTED-19): set RESEND_API_KEY and MAIL_FROM in riskradar.env.
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-Climatica <noreply@climatica.com>}
+      PUBLIC_URL: ${RR_PUBLIC_ORIGIN:-https://riskradar.geoinfobox.com}
 
   web:
     ports: !override

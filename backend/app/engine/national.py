@@ -1,4 +1,11 @@
-"""The national index (SRS v2.3 section 2.2, FR-4.3b, FR-4.3c) -- client request
+"""The national index -- FROM THE FINAL OUTPUT since client NOTED-19 (Nov 2026).
+
+See compute_national() for the method. The earlier variable-level national
+scaling (NOTED-14) is replaced, because most expert assessments carry H and E
+rather than raw figures. What follows is the original NOTED-14 note, kept for
+history.
+
+The national index (SRS v2.3 section 2.2, FR-4.3b, FR-4.3c) -- client request
 NOTED-14, Nov 2026, once data entry was complete.
 
 A division carries TWO indexes. The provincial one (engine/vulnerability.py) is
@@ -34,8 +41,7 @@ import json
 from dataclasses import dataclass, field
 from typing import Optional
 
-from app.engine.vulnerability import (_rescale, check_computable, load_memberships,
-                                      product_bounds)
+from app.engine.vulnerability import _rescale, product_bounds
 
 
 @dataclass
@@ -82,6 +88,17 @@ def _scope_name(sc: dict) -> str:
 
 async def compute_national(conn, sc: dict, year_start: int, year_end: int
                            ) -> NationalResult | NationalRefusal:
+    """National index from the FINAL output (client NOTED-19, item 5).
+
+    For each province with a profile for the scope, the FINAL provincial map is
+    used -- the expert track where it has scores, otherwise the official track
+    (the same rule as the map and the exports). Each division's H and E are
+    taken from it as they are, and H x E is min-max rescaled across every scored
+    division in the country. Variables are NOT re-scaled nationally: experts
+    largely entered H and E directly, so there are no figures to rescale; H and
+    E therefore stay as each province scaled them, and only the final product
+    is put on one national scale. method.track_by_province records the source.
+    """
     name = _scope_name(sc)
     profiles = await conn.fetch(
         """
@@ -95,107 +112,50 @@ async def compute_national(conn, sc: dict, year_start: int, year_end: int
     if not profiles:
         return NationalRefusal(name, "no active profile")
 
-    # ---- every province's profile must be computable ----------------------
-    blocked: list[str] = []
-    members: dict[int, list[dict]] = {}
+    rows: list[tuple] = []          # (profile, division id, h, e, product, absent)
+    used: dict[str, str] = {}
+    missing: list[str] = []
     for p in profiles:
-        ms = await load_memberships(conn, p["id"])
-        if check_computable(p["code"], ms) is not None:
-            blocked.append(p["province"])
-        members[p["id"]] = [m for m in ms if m["consensus"] in ("agreed", "contested")]
-    if blocked:
-        return NationalRefusal(name, "the weights of these provinces' profiles are "
-                                     "incomplete, and a national scale must cover "
-                                     "every province at once", blocked)
+        got = None
+        for track in ("expert", "data"):
+            got = await conn.fetch(
+                """SELECT ds_division_id, hazard_index, exposure_index, method
+                     FROM vulnerability_result
+                    WHERE profile_id = $1 AND source = $2::source_type
+                      AND index_scope = 'provincial'
+                      AND year_start = $3 AND year_end = $4""",
+                p["id"], track, year_start, year_end)
+            if got:
+                used[p["province"]] = "Expert" if track == "expert" else "Official"
+                break
+        if not got:
+            missing.append(p["province"])
+            continue
+        for r in got:
+            m = r["method"]
+            m = json.loads(m) if isinstance(m, str) else (m or {})
+            h, e = float(r["hazard_index"]), float(r["exposure_index"])
+            rows.append((p, r["ds_division_id"], h, e, h * e, bool(m.get("sector_absent"))))
+    if missing:
+        return NationalRefusal(name, "no final (expert or official) map yet for", missing)
 
-    # ---- raw values per province profile (official track, same rule as the
-    # provincial engine: latest at or before the period start) --------------
-    divs: dict[int, list] = {}
-    raw: dict[tuple[int, int], dict[int, float]] = {}   # (profile, indicator) -> {div: v}
-    for p in profiles:
-        divs[p["id"]] = await conn.fetch(
-            "SELECT id, code FROM ds_division WHERE province_id = $1 ORDER BY code",
-            p["province_id"])
-        ids = [d["id"] for d in divs[p["id"]]]
-        for m in members[p["id"]]:
-            rows = await conn.fetch(
-                """
-                SELECT DISTINCT ON (iv.ds_division_id) iv.ds_division_id, iv.raw_value
-                  FROM indicator_value iv
-                 WHERE iv.indicator_id = $1 AND iv.ds_division_id = ANY($2::bigint[])
-                   AND iv.year_start <= $3
-                   AND iv.source = 'data' AND iv.scenario_id IS NULL
-                 ORDER BY iv.ds_division_id, iv.year_start DESC, iv.id DESC
-                """, m["indicator_id"], ids, year_start)
-            raw[(p["id"], m["indicator_id"])] = {r["ds_division_id"]: float(r["raw_value"])
-                                                 for r in rows}
-
-    # A province with no value at all for its profile is not "complete".
-    empty = [p["province"] for p in profiles
-             if not any(raw[(p["id"], m["indicator_id"])] for m in members[p["id"]])]
-    if empty:
-        return NationalRefusal(name, "no official data yet for", empty)
-
-    # ---- national bounds per variable --------------------------------------
-    bounds: dict[int, tuple[float, float]] = {}
-    for (pid, iid), vals in raw.items():
-        for v in vals.values():
-            lo, hi = bounds.get(iid, (v, v))
-            bounds[iid] = (min(lo, v), max(hi, v))
-
-    # ---- H, E with each province's own weights -----------------------------
-    scored: list[tuple] = []     # (profile row, div id, code, h, e, product, absent)
-    unassessed = 0
-    for p in profiles:
-        ms = members[p["id"]]
-        exposure_ms = [m for m in ms if m["domain"] == "exposure"]
-        for d in divs[p["id"]]:
-            if any(d["id"] not in raw[(p["id"], m["indicator_id"])] for m in ms):
-                unassessed += 1
-                continue
-            h = e = 0.0
-            for m in ms:
-                lo, hi = bounds[m["indicator_id"]]
-                n = _rescale(raw[(p["id"], m["indicator_id"])][d["id"]], lo, hi)
-                if m["relationship"] == "higher_is_better":
-                    n = 1.0 - n
-                if m["domain"] == "hazard":
-                    h += m["weight_pct"] * n / 100.0
-                else:
-                    e += m["weight_pct"] * n / 100.0
-            h, e = min(1.0, max(0.0, h)), min(1.0, max(0.0, e))
-            absent = bool(exposure_ms) and all(
-                raw[(p["id"], m["indicator_id"])][d["id"]] == 0.0 for m in exposure_ms)
-            scored.append((p, d["id"], d["code"], h, e, h * e, absent))
-    if not scored:
-        return NationalRefusal(name, "no division in the country has a value for "
-                                     "every weighted variable")
-
-    # ---- national rescale of the product -----------------------------------
-    keys = list(range(len(scored)))
-    lo, hi = product_bounds({k: scored[k][5] for k in keys},
-                            {k: scored[k][6] for k in keys})
-
-    var_codes = {m["indicator_id"]: m["code"] for ms in members.values() for m in ms}
+    keys = list(range(len(rows)))
+    lo, hi = product_bounds({k: rows[k][4] for k in keys}, {k: rows[k][5] for k in keys})
     method_base = {
-        "model": "V_raw = H x E; variables and product min-max scaled across every "
-                 "division of the scope nationally; each province's own weights",
+        "model": "final provincial H and E (expert where available, else official); "
+                 "H x E min-max rescaled across every scored division nationally",
         "scope": "national",
         "period": "%d-%d" % (year_start, year_end),
-        "variable_bounds": {var_codes[i]: list(b) for i, b in bounds.items()},
-        "provinces": [p["province"] for p in profiles],
+        "track_by_province": used,
     }
-    rows = [(div_id, p["id"], p["hazard_type_id"], p["sector_id"], p["subsector_id"],
-             year_start, year_end, e, h,
-             min(1.0, max(0.0, _rescale(prod, lo, hi))),
-             json.dumps({**method_base, "sector_absent": absent}), lo, hi)
-            for (p, div_id, _code, h, e, prod, absent) in scored]
-
+    out = [(d, p["id"], p["hazard_type_id"], p["sector_id"], p["subsector_id"],
+            year_start, year_end, e, h, min(1.0, max(0.0, _rescale(prod, lo, hi))),
+            json.dumps({**method_base, "sector_absent": absent}), lo, hi)
+           for (p, d, h, e, prod, absent) in rows]
     async with conn.transaction():
         await conn.execute(
             """DELETE FROM vulnerability_result
                 WHERE profile_id = ANY($1::bigint[]) AND index_scope = 'national'
-                  AND source = 'data'
                   AND year_start IS NOT DISTINCT FROM $2 AND year_end IS NOT DISTINCT FROM $3""",
             [p["id"] for p in profiles], year_start, year_end)
         await conn.executemany(
@@ -206,8 +166,8 @@ async def compute_national(conn, sc: dict, year_start: int, year_end: int
                  vulnerability_index, method, index_scope, bound_min, bound_max)
             VALUES ($1, $2, $3, $4, $5, 'data', $6, $7, $8, $9, $10, $11::jsonb,
                     'national', $12, $13)
-            """, rows)
-    return NationalResult(name, len(rows), len(profiles), unassessed, lo, hi)
+            """, out)
+    return NationalResult(name, len(out), len(profiles), 0, lo, hi)
 
 
 async def clear_national(conn, sc: dict, year_start: int, year_end: int) -> None:

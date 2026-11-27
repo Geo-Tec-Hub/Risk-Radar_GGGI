@@ -41,6 +41,12 @@ class ChangeOut(BaseModel):
     decidedBy: Optional[str] = None
     decidedAt: Optional[str] = None
     decisionNote: Optional[str] = None
+    # NOTED-19: the reason the person gave, and the division's values before
+    # and after the change ({hazard, exposure, raw, score, category}).
+    reason: Optional[str] = None
+    before: Optional[dict] = None
+    after: Optional[dict] = None
+    hasPreview: bool = False
 
 
 class DecisionIn(BaseModel):
@@ -64,12 +70,20 @@ async def list_changes(
               AND ($2 = 'all' OR c.status = $2)
             ORDER BY c.submitted_at DESC
             LIMIT 200""", only, status)
-    return [ChangeOut(
+    return [_out(r) for r in rows]
+
+
+def _out(r) -> ChangeOut:
+    p = r["payload"]
+    p = json.loads(p) if isinstance(p, str) else (p or {})
+    prev = p.get("preview") or {}
+    return ChangeOut(
         id=r["id"], kind=r["kind"], province=r["province"], summary=r["summary"],
         submittedBy=r["submitter"], submittedAt=r["submitted_at"].isoformat(),
         status=r["status"], decidedBy=r["decider"],
         decidedAt=r["decided_at"].isoformat() if r["decided_at"] else None,
-        decisionNote=r["decision_note"]) for r in rows]
+        decisionNote=r["decision_note"], reason=p.get("note"),
+        before=prev.get("before"), after=prev.get("after"), hasPreview="preview" in p)
 
 
 async def _get(conn, change_id: int, admin: Optional[CurrentUser]):
@@ -183,12 +197,7 @@ async def mine(
              LEFT JOIN app_user d ON d.id = c.decided_by
             WHERE c.submitted_by = $1
             ORDER BY c.submitted_at DESC LIMIT 100""", user.id)
-    return [ChangeOut(
-        id=r["id"], kind=r["kind"], province=r["province"], summary=r["summary"],
-        submittedBy=r["submitter"], submittedAt=r["submitted_at"].isoformat(),
-        status=r["status"], decidedBy=r["decider"],
-        decidedAt=r["decided_at"].isoformat() if r["decided_at"] else None,
-        decisionNote=r["decision_note"]) for r in rows]
+    return [_out(r) for r in rows]
 
 
 @router.post("/{change_id}/cancel")
@@ -206,3 +215,19 @@ async def cancel(
                       decision_note = 'withdrawn by the submitter', file_body = NULL
                 WHERE id = $1""", change_id, user.id)
     return {"id": change_id, "status": "cancelled"}
+
+
+@router.delete("/{change_id}", status_code=204)
+async def remove(
+    change_id: int,
+    admin: CurrentUser = Depends(require_account_admin),
+    pool: asyncpg.Pool = Depends(db),
+) -> None:
+    """Delete an unwanted request from the list (NOTED-19, item 8). A waiting
+    request is simply dropped; nothing it asked for is applied."""
+    c = await pool.fetchrow("SELECT province_id FROM pending_change WHERE id = $1", change_id)
+    if c is None:
+        raise HTTPException(404, "no such change")
+    if not admin.approves_own_changes(c["province_id"]):
+        raise HTTPException(403, "only the administrator of that province may remove it")
+    await pool.execute("DELETE FROM pending_change WHERE id = $1", change_id)

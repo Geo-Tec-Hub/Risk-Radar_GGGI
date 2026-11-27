@@ -23,3 +23,9 @@
 .adm__status--pending, .adm__status--new { background: #fff3bf; }
 .adm__status--approved, .adm__status--shared, .adm__status--active { background: #d3f9d8; }
 .adm__status--rejected, .adm__status--declined, .adm__status--failed { background: #ffe3e3; }
+
+.adm__reason { margin-top: 0.3rem; font-size: 0.85rem; background: #f8f9fa; padding: 0.25rem 0.4rem; border-left: 3px solid #1c3a5b; }
+.adm__diff { margin-top: 0.4rem; border-collapse: collapse; font-size: 0.8rem; }
+.adm__diff th, .adm__diff td { padding: 0.15rem 0.45rem; border: 1px solid #e9ecef; text-align: right; }
+.adm__diff th:first-child, .adm__diff td:first-child { text-align: left; color: #6c757d; }
+.adm__changed { background: #fff3bf; font-weight: 600; }

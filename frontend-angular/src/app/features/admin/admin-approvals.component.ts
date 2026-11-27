@@ -1,13 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { environment } from '../../../environments/environment';
 
+interface Values { hazard: number; exposure: number; raw: number; score: number | null; category: string | null; }
 interface Change {
   id: number; kind: string; province: string; summary: string; submittedBy: string; submittedAt: string;
   status: string; decidedBy: string | null; decidedAt: string | null; decisionNote: string | null;
+  reason: string | null; before: Values | null; after: Values | null; hasPreview: boolean;
 }
 
 /**
@@ -20,7 +22,7 @@ interface Change {
 @Component({
   selector: 'app-admin-approvals',
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, DecimalPipe],
   styleUrl: './admin-shared.scss',
   template: `
   <section class="adm">
@@ -43,7 +45,27 @@ interface Change {
       <tbody>
         @for (c of changes(); track c.id) {
           <tr>
-            <td>{{ c.summary }}</td>
+            <td>{{ c.summary }}
+              @if (c.reason) { <div class="adm__reason"><strong>Reason:</strong> {{ c.reason }}</div> }
+              @if (c.hasPreview) {
+                <table class="adm__diff">
+                  <tr><th></th><th>Hazard (H)</th><th>Sector (E)</th><th>H × E</th><th>Score</th><th>Category</th></tr>
+                  <tr><td>Now</td>
+                    @if (c.before; as b) {
+                      <td>{{ b.hazard | number: '1.0-4' }}</td><td>{{ b.exposure | number: '1.0-4' }}</td><td>{{ b.raw | number: '1.0-4' }}</td>
+                      <td>{{ b.score === null ? '—' : (b.score | number: '1.0-4') }}</td><td>{{ b.category ?? '—' }}</td>
+                    } @else { <td colspan="5" class="adm__muted">not assessed</td> }
+                  </tr>
+                  <tr><td>After</td>
+                    @if (c.after; as a) {
+                      <td>{{ a.hazard | number: '1.0-4' }}</td><td>{{ a.exposure | number: '1.0-4' }}</td><td>{{ a.raw | number: '1.0-4' }}</td>
+                      <td>{{ a.score === null ? '—' : (a.score | number: '1.0-4') }}</td>
+                      <td [class.adm__changed]="a.category !== c.before?.category">{{ a.category ?? '—' }}</td>
+                    } @else { <td colspan="5" class="adm__muted">removed / not assessed</td> }
+                  </tr>
+                </table>
+              }
+            </td>
             <td>{{ c.province }}</td>
             <td>{{ c.submittedBy }}<br /><span class="adm__muted">{{ c.submittedAt | date: 'medium' }}</span></td>
             <td><span [class]="'adm__status adm__status--' + c.status">{{ c.status }}</span>
@@ -59,6 +81,8 @@ interface Change {
                   <button class="adm__btn adm__btn--danger" type="button" [disabled]="busy() === c.id" (click)="decide(c, 'reject')">Reject</button>
                 </div>
               }
+              <button class="adm__btn adm__btn--ghost" type="button" style="margin-top:0.3rem" [disabled]="busy() === c.id"
+                      (click)="remove(c)" title="Delete this request from the list">Remove</button>
             </td>
           </tr>
         }
@@ -83,6 +107,14 @@ export class AdminApprovalsComponent implements OnInit {
     this.http.get<Change[]>(`${this.base}/approvals?status=${this.status()}`, { withCredentials: true }).subscribe({
       next: (c) => this.changes.set(c),
       error: (e) => this.error.set(e?.error?.detail ?? e?.message ?? 'Could not load the approvals.'),
+    });
+  }
+
+  remove(c: Change): void {
+    if (!confirm('Delete this request from the list? Nothing it asked for will be applied.')) return;
+    this.http.delete(`${this.base}/approvals/${c.id}`, { withCredentials: true }).subscribe({
+      next: () => this.load(),
+      error: (e) => this.error.set(e?.error?.detail ?? e?.message ?? 'Not removed.'),
     });
   }
 

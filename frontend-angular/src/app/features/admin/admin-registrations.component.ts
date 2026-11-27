@@ -206,6 +206,18 @@ export class AdminRegistrationsComponent {
     return this.redundantFor(id).length === 0;
   }
 
+  // ---- further provinces of an expert (NOTED-19) ----------------------------
+  isSuper(): boolean { return this.auth.hasRole('admin'); }
+  /** Unticked provinces per registration; everything asked for is kept by default. */
+  private readonly droppedOther = signal<Record<number, number[]>>({});
+  keepOther(id: number, pid: number): boolean { return !(this.droppedOther()[id] ?? []).includes(pid); }
+  toggleOther(id: number, pid: number): void {
+    this.droppedOther.update((m) => {
+      const cur = m[id] ?? [];
+      return { ...m, [id]: cur.includes(pid) ? cur.filter((x) => x !== pid) : [...cur, pid] };
+    });
+  }
+
   approve(reg: PendingRegistration): void {
     if (!this.canApprove(reg.id)) return;
     this.setBusy(reg.id, true);
@@ -218,6 +230,9 @@ export class AdminRegistrationsComponent {
       province_id: roleNeedsProvince(role) ? this.selectedProvince()[reg.id] : undefined,
       scopes: scoped ? this.grantPayload(reg.id) : undefined,
       may_write_hazard_domain: scoped ? this.hazardFor(reg.id) : undefined,
+      other_province_ids: this.isSuper() && role === 'expert'
+        ? (reg.requested_other_province_ids ?? []).filter((p) => this.keepOther(reg.id, p))
+        : undefined,
     }).subscribe({
       next: () => {
         this.setBusy(reg.id, false);

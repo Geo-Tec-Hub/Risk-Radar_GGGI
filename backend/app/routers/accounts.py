@@ -82,9 +82,10 @@ async def list_accounts(
           LEFT JOIN role r ON r.id = ur.role_id
           LEFT JOIN user_province up ON up.user_id = u.id
           LEFT JOIN province up_p ON up_p.id = up.province_id
-         WHERE $1::smallint IS NULL
+         WHERE COALESCE(u.rejected_reason, '') <> 'removed by an administrator'
+           AND ($1::smallint IS NULL
             OR u.province_id = $1
-            OR EXISTS (SELECT 1 FROM user_province x WHERE x.user_id = u.id AND x.province_id = $1)
+            OR EXISTS (SELECT 1 FROM user_province x WHERE x.user_id = u.id AND x.province_id = $1))
          GROUP BY u.id, p.name, a.full_name
          ORDER BY a.full_name NULLS FIRST, u.full_name
         """, only)
@@ -154,3 +155,56 @@ async def create_account(
                                     "created by %s" % (admin.full_name or admin.email))
     rows = await list_accounts(admin, pool)
     return next(r for r in rows if r.id == uid)
+
+
+@router.delete("/admin/accounts/{user_id}", status_code=204)
+async def remove_account(
+    user_id: int,
+    admin: CurrentUser = Depends(require_account_admin),
+    pool: asyncpg.Pool = Depends(db),
+) -> None:
+    """Remove an unwanted account (NOTED-19, item 8).
+
+    An account that never entered anything is deleted outright. One whose name
+    is on data, approvals or imports is closed instead -- signed out, unable to
+    sign in, its roles removed and hidden from this list -- so the records it
+    left behind still say who made them."""
+    if user_id == admin.id:
+        raise HTTPException(409, "you cannot remove your own account")
+    async with pool.acquire() as conn:
+        u = await conn.fetchrow(
+            """SELECT u.province_id,
+                      COALESCE(array_agg(r.code) FILTER (WHERE r.code IS NOT NULL), '{}') AS roles
+                 FROM app_user u LEFT JOIN user_role ur ON ur.user_id = u.id
+                 LEFT JOIN role r ON r.id = ur.role_id
+                WHERE u.id = $1 GROUP BY u.id""", user_id)
+        if u is None:
+            raise HTTPException(404, "no such account")
+        if not admin.is_super_admin():
+            if u["province_id"] != admin.province_id or not set(u["roles"]) <= {"expert", "data_officer"}:
+                raise HTTPException(403, "a provincial administrator removes the experts and "
+                                         "data-entry users of their own province only")
+        # Some tables would silently LOSE rows with the account (index entries
+        # cascade), others would lose their author (set null). Either way the
+        # map would change without anyone deciding it, so an account that
+        # has left any record is closed, never deleted.
+        has_records = await conn.fetchval(
+            """SELECT EXISTS (SELECT 1 FROM indicator_value WHERE user_id = $1)
+                   OR EXISTS (SELECT 1 FROM track_index_entry WHERE user_id = $1)
+                   OR EXISTS (SELECT 1 FROM pending_change WHERE submitted_by = $1 OR decided_by = $1)
+                   OR EXISTS (SELECT 1 FROM import_batch WHERE uploaded_by = $1)
+                   OR EXISTS (SELECT 1 FROM app_user WHERE approved_by = $1 AND id <> $1)""",
+            user_id)
+        if not has_records:
+            try:
+                async with conn.transaction():
+                    await conn.execute("DELETE FROM app_user WHERE id = $1", user_id)
+                return
+            except asyncpg.ForeignKeyViolationError:
+                pass                               # referenced elsewhere: close instead
+        async with conn.transaction():
+            await conn.execute("DELETE FROM user_role WHERE user_id = $1", user_id)
+            await conn.execute(
+                """UPDATE app_user SET status = 'rejected',
+                          rejected_reason = 'removed by an administrator' WHERE id = $1""",
+                user_id)

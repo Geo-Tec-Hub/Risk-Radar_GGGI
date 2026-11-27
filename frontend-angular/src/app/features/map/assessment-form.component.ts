@@ -92,8 +92,12 @@ export class AssessmentFormComponent {
     this.indexReady() ? (this.to01(this.hazardIndex()) as number) * (this.to01(this.exposureIndex()) as number) : null,
   );
 
+  /** A change that needs approval must say why (NOTED-19). */
+  readonly reasonMissing = computed(() => !!this.form()?.needsApproval && this.note().trim().length === 0);
+
   readonly canSave = computed(() =>
-    this.mode() === 'index' ? this.indexReady() : this.missing().length === 0 && !!this.form()?.weightsComplete,
+    !this.reasonMissing() &&
+    (this.mode() === 'index' ? this.indexReady() : this.missing().length === 0 && !!this.form()?.weightsComplete),
   );
 
   readonly anyOfficial = computed(() => this.variables().some((v) => v.officialValue !== null));

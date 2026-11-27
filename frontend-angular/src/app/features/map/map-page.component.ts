@@ -1,5 +1,5 @@
 import { RouterLink } from '@angular/router';
-import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, computed, effect, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { ApiClientService } from '../../core/services/api-client.service';
@@ -32,7 +32,7 @@ import { LAYER_LABEL, MAP_LAYERS, MapLayer, unitForLayer } from '../../core/mode
   templateUrl: './map-page.component.html',
   styleUrl: './map-page.component.scss',
 })
-export class MapPageComponent {
+export class MapPageComponent implements OnDestroy {
   private readonly api = inject(ApiClientService);
   private readonly taxonomyService = inject(TaxonomyService);
   private readonly hazardRanks = inject(HazardRankService);
@@ -316,6 +316,10 @@ export class MapPageComponent {
 
   onDivisionSelected(division: DsDivisionProperties): void {
     this.selectedDivision.set(division);
+    // Re-read the map whenever a division is opened (NOTED-19): a change
+    // approved elsewhere -- by the provincial administrator, in another
+    // browser -- otherwise left the colours stale while the panel was current.
+    this.quietRefresh();
   }
 
   onBoundariesLoaded(count: number): void {
@@ -398,6 +402,30 @@ export class MapPageComponent {
     const q = { ...this.query(), track: this.effectiveTrack() ?? this.query().track };
     return this.isNational() ? { ...q, province: 'ALL' } : q;
   });
+
+  /** Re-read the results without the loading state, when nothing else is loading. */
+  private quietRefresh(): void {
+    if (!this.isComplete() || this.resultsLoading()) return;
+    let q = this.query();
+    if (q.indexScope === 'national') q = { ...q, province: 'ALL' };
+    else if (this.effectiveTrack() && this.effectiveTrack() !== q.track) q = { ...q, track: this.effectiveTrack() };
+    this.api.getVulnerability(q).pipe(withViewTimeout()).subscribe({
+      next: (units) => {
+        this.unitsByCode.set(new Map(units.map((u) => [u.dsCode, u])));
+        this.recomputeCoverage();
+      },
+      error: () => { /* keep what is on screen */ },
+    });
+  }
+
+  /** And once a minute while the page is visible, so the map follows approvals. */
+  private readonly ticker = setInterval(() => {
+    if (typeof document !== 'undefined' && document.visibilityState === 'visible') this.quietRefresh();
+  }, 60_000);
+
+  ngOnDestroy(): void {
+    clearInterval(this.ticker);
+  }
 
   private refresh(query: VulnerabilityQuery): void {
     this.resultsRequest?.unsubscribe();

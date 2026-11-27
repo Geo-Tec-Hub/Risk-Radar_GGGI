@@ -28,7 +28,6 @@ import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 
-from app.approval_store import NOTIFY_ADDRESS
 from app.deps import CurrentUser, db, get_current_user
 
 log = logging.getLogger(__name__)
@@ -93,10 +92,21 @@ async def create(body: RequestIn, pool: asyncpg.Pool = Depends(db)) -> dict:
         body.full_name.strip(), body.email.strip().lower(), body.organization, body.purpose.strip(),
         pid, body.sector.upper(), body.subsector.upper() if body.subsector else None,
         body.hazard.lower(), body.period)
-    log.info("data request %s from %s -- notice to %s", rid, body.email, NOTIFY_ADDRESS)
+    log.info("data request %s from %s", rid, body.email)
+    from app.config import get_settings
+    from app.mailer import admin_emails, notify_in_background, send_mail
+    async with pool.acquire() as conn:
+        to = await admin_emails(conn, None, sharing=True)
+    notify_in_background(send_mail(
+        to, "Climatica: data request from %s" % body.full_name,
+        "%s (%s%s) asks for the index data of %s / %s%s / %s / %s.\n\nPurpose: %s\n\n"
+        "Handle it here: %s/admin/data-requests\n"
+        % (body.full_name, body.email, ", " + body.organization if body.organization else "",
+           body.province, body.sector, "/" + body.subsector if body.subsector else "",
+           body.hazard, body.period, body.purpose, get_settings().public_url)))
     return {"id": rid, "status": "new",
-            "message": "Your request has been sent to the data sharing administrator "
-                       "(%s), who will reply by e-mail." % NOTIFY_ADDRESS}
+            "message": "Your request has been sent to the data sharing administrator, "
+                       "who will reply to %s by e-mail." % body.email.strip().lower()}
 
 
 _LIST_SQL = """
@@ -153,6 +163,12 @@ async def data_pdf(
     pool: asyncpg.Pool = Depends(db),
 ) -> Response:
     _require_sharer(user)
+    name, body = await build_pdf(pool, request_id)
+    return Response(content=body, media_type="application/pdf",
+                    headers={"Content-Disposition": 'attachment; filename="%s"' % name})
+
+
+async def build_pdf(pool, request_id: int) -> tuple[str, bytes]:
     req = await pool.fetchrow(_LIST_SQL + " WHERE r.id = $1", request_id)
     if req is None:
         raise HTTPException(404, "no such request")
@@ -194,9 +210,51 @@ async def data_pdf(
                 ORDER BY pi.domain DESC, pi.weight_pct DESC NULLS LAST, ic.code""",
             prof["id"], req["province_id"])
     body = _render(req, prof, track, units, weights)
-    name = "Climatica_data_%s_%s.pdf" % (prof["code"], req["period"])
-    return Response(content=body, media_type="application/pdf",
-                    headers={"Content-Disposition": 'attachment; filename="%s"' % name})
+    return "Climatica_data_%s_%s.pdf" % (prof["code"], req["period"]), body
+
+
+@router.post("/{request_id}/send", response_model=RequestOut)
+async def send(
+    request_id: int,
+    user: CurrentUser = Depends(get_current_user),
+    pool: asyncpg.Pool = Depends(db),
+) -> RequestOut:
+    """E-mail the data PDF to the address on the request, and mark it shared
+    (NOTED-19, item 7)."""
+    _require_sharer(user)
+    from app.mailer import send_mail
+    req = await pool.fetchrow(_LIST_SQL + " WHERE r.id = $1", request_id)
+    if req is None:
+        raise HTTPException(404, "no such request")
+    name, body = await build_pdf(pool, request_id)
+    ok, detail = await send_mail(
+        [req["email"]], "Climatica: the data you requested",
+        "Dear %s,\n\nPlease find attached the index data you requested from Climatica "
+        "(%s / %s%s / %s / %s).\n\nBy using these data you acknowledge the conditions in "
+        "the disclaimer at the bottom of the document.\n\nClimatica data sharing administrator\n"
+        % (req["full_name"], req["province"], req["sector_code"],
+           "/" + req["subsector_code"] if req["subsector_code"] else "", req["hazard_code"],
+           req["period"]), attachment=(name, body))
+    if not ok:
+        raise HTTPException(502, "the e-mail could not be sent: %s" % detail)
+    await pool.execute(
+        """UPDATE data_request SET status = 'shared', handled_by = $2, handled_at = now(),
+                  note = COALESCE(note || ' | ', '') || $3 WHERE id = $1""",
+        request_id, user.id, "e-mailed to %s" % req["email"])
+    return _out(await pool.fetchrow(_LIST_SQL + " WHERE r.id = $1", request_id))
+
+
+@router.delete("/{request_id}", status_code=204)
+async def remove(
+    request_id: int,
+    user: CurrentUser = Depends(get_current_user),
+    pool: asyncpg.Pool = Depends(db),
+) -> None:
+    """Delete an unwanted request (NOTED-19, item 8)."""
+    _require_sharer(user)
+    done = await pool.execute("DELETE FROM data_request WHERE id = $1", request_id)
+    if done.endswith(" 0"):
+        raise HTTPException(404, "no such request")
 
 
 def _render(req, prof, track, units, weights) -> bytes:

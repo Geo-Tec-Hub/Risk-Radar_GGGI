@@ -77,10 +77,10 @@
         <table class="af__table">
           <tbody>
             <tr>
-              <td><span class="af__name">Hazard index</span><span class="af__hint">0 to {{ indexScale() }}</span></td>
+              <td><span class="af__name">Hazard Index (H)</span><span class="af__hint">0 to {{ indexScale() }}</span></td>
               <td>
                 <input class="af__input" type="number" [attr.step]="indexScale() === 4 ? 0.1 : 0.01" min="0" [attr.max]="indexScale()"
-                       aria-label="Hazard index" [disabled]="!f.canSubmit"
+                       aria-label="Hazard Index (H)" [disabled]="!f.canSubmit"
                        [ngModel]="hazardIndex()" (ngModelChange)="setIndex('hazard', $event)" />
               </td>
               <td class="af__conv">
@@ -88,10 +88,10 @@
               </td>
             </tr>
             <tr>
-              <td><span class="af__name">Present Exposure index</span><span class="af__hint">0 to {{ indexScale() }}</span></td>
+              <td><span class="af__name">Sector Index (E)</span><span class="af__hint">0 to {{ indexScale() }}</span></td>
               <td>
                 <input class="af__input" type="number" [attr.step]="indexScale() === 4 ? 0.1 : 0.01" min="0" [attr.max]="indexScale()"
-                       aria-label="Present Exposure index" [disabled]="!f.canSubmit"
+                       aria-label="Sector Index (E)" [disabled]="!f.canSubmit"
                        [ngModel]="exposureIndex()" (ngModelChange)="setIndex('exposure', $event)" />
               </td>
               <td class="af__conv">
@@ -164,9 +164,13 @@
 
       @if (f.canSubmit) {
         <label class="af__label">
-          Note (optional)
+          @if (f.needsApproval) {
+            Reason for this change <strong>(required)</strong>
+          } @else {
+            Note (optional)
+          }
           <textarea class="af__textarea" rows="2" maxlength="1000" [ngModel]="note()" (ngModelChange)="note.set($event)"
-            placeholder="source or reasoning for your figures"></textarea>
+            [placeholder]="f.needsApproval ? 'why the values change — the provincial administrator sees this with the old and new values' : 'source or reasoning for your figures'"></textarea>
         </label>
         <div class="af__actions">
           <button type="button" class="af__btn" [disabled]="saving() || !canSave()" (click)="submit()">
@@ -174,6 +178,9 @@
           </button>
           @if (mode() === 'parameters' && missing().length > 0) {
             <span class="af__hint">{{ missing().length }} figure(s) still needed</span>
+          }
+          @if (reasonMissing()) {
+            <span class="af__hint">give a reason for the change</span>
           }
           @if (mode() === 'index' && !indexReady()) {
             <span class="af__hint">both indexes are needed, each between 0 and {{ indexScale() }}</span>

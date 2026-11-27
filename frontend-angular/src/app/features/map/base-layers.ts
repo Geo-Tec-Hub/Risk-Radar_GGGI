@@ -44,10 +44,14 @@ function buildOverlayStyle(key: OverlayKey, k: number): Style {
   const w = (base: number) => base * k;
   switch (key) {
     case 'province':
-      return new Style({ stroke: new Stroke({ color: '#111111', width: w(2.6) }) });
+      // Zoomed out, a heavy black line swamps small provinces (NOTED-19): thinner and
+      // slightly grey there, full weight when zoomed in.
+      return new Style({ stroke: new Stroke({ color: k < 0.8 ? 'rgba(17,17,17,0.85)' : '#111111', width: w(2.2) }) });
     case 'district':
       // Red, RGB 200/0/0 (experts, NOTED-15).
-      return new Style({ stroke: new Stroke({ color: 'rgb(200, 0, 0)', width: w(1.8), lineDash: [8, 4] }) });
+      // Dashes only when zoomed in: at the country view they break into specks.
+      return new Style({ stroke: new Stroke({ color: 'rgb(200, 0, 0)', width: w(1.6),
+        lineDash: k < 0.8 ? undefined : [8 * k, 4 * k] }) });
     case 'gnd':
       return new Style({ stroke: new Stroke({ color: 'rgba(73, 80, 87, 0.8)', width: w(0.6) }) });
     case 'schools':

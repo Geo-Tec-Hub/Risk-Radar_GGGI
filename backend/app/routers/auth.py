@@ -199,6 +199,20 @@ async def register(body: RegisterRequest, pool: asyncpg.Pool = Depends(db)) -> d
                 "ON CONFLICT DO NOTHING",
                 [(new_id, p) for p in [body.province_id] + [x for x in extra if x in known]])
 
+    # Tell the administrators a registration is waiting (NOTED-19).
+    try:
+        from app.config import get_settings
+        from app.mailer import admin_emails, notify_in_background, send_mail
+        async with pool.acquire() as conn:
+            to = await admin_emails(conn, body.province_id)
+        notify_in_background(send_mail(
+            to, "Climatica: new registration -- %s" % body.full_name,
+            "%s (%s) has registered as %s and is waiting for approval.\n\n"
+            "Review it here: %s/admin/registrations\n"
+            % (body.full_name, body.email, body.type, get_settings().public_url)))
+    except Exception:                       # e-mail must never block registration
+        log.exception("registration notice failed")
+
     return {"id": new_id, "status": "pending"}
 
 

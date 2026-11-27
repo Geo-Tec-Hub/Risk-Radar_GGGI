@@ -41,6 +41,18 @@
               @if (r.requested_province) {
                 <br /><span class="admin__org">{{ r.requested_province }}</span>
               }
+              @if (r.requested_other_provinces?.length) {
+                <br /><span class="admin__org">Also asked for:</span>
+                @for (pid of r.requested_other_province_ids ?? []; track pid; let i = $index) {
+                  <br /><label class="admin__org">
+                    @if (isSuper()) {
+                      <input type="checkbox" [checked]="keepOther(r.id, pid)" (change)="toggleOther(r.id, pid)" />
+                    }
+                    {{ r.requested_other_provinces![i] }}
+                  </label>
+                }
+                @if (!isSuper()) { <br /><span class="admin__org">(the super administrator grants other provinces)</span> }
+              }
             </td>
             <td>
               <select [ngModel]="roleFor(r.id)" (ngModelChange)="setRole(r.id, $event)">
